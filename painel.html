@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -290,12 +290,50 @@ details.tpl .hint{font-size:.72rem;color:#8494b2;margin-top:8px}
 #toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:13px 22px;border-radius:12px;font-size:.85rem;font-weight:600;box-shadow:0 12px 34px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:.35s;z-index:99;max-width:90vw;text-align:center}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
+/* ===== LOGIN / LGPD ===== */
+#loginGate{position:fixed;inset:0;background:linear-gradient(135deg,#0a1428,#10234f 55%,#1d4ed8);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+.login-card{background:#fff;border-radius:20px;padding:38px 34px 30px;width:100%;max-width:400px;box-shadow:0 30px 80px rgba(0,0,0,.45)}
+.login-card .lg-mark{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--amber),#ffd75e);display:grid;place-items:center;font-size:1.5rem;margin:0 auto 14px;color:var(--ink)}
+.login-card h1{font-size:1.2rem;text-align:center}
+.login-card .lg-sub{font-size:.78rem;color:#8494b2;text-align:center;margin:4px 0 20px}
+.login-card label{display:block;font-size:.7rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8494b2;margin:12px 0 5px}
+.login-card input{width:100%;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-family:'Inter';font-size:.9rem;outline:none;color:var(--txt)}
+.login-card input:focus{border-color:var(--sky)}
+.login-err{display:none;background:#fdecec;color:#b34040;border-radius:9px;padding:9px 12px;font-size:.78rem;font-weight:600;margin-top:14px}
+.login-card .btn{width:100%;margin-top:18px;padding:13px}
+.lgpd-note{font-size:.66rem;color:#8494b2;text-align:center;margin-top:16px;line-height:1.5}
+.user-chip{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:10px;padding:8px 12px;font-size:.75rem;font-weight:600;color:#dbe4f5}
+.user-chip .papel{font-size:.6rem;background:var(--amber);color:var(--ink);border-radius:6px;padding:1px 6px;font-weight:800;text-transform:uppercase}
+
+/* ===== ANDAMENTOS ===== */
+.and-list{max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.and-item{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:.78rem;color:var(--txt)}
+.and-item .meta{font-size:.66rem;color:#8494b2;font-weight:700;margin-bottom:3px}
+.card .and-last{margin-top:8px;background:#f0f6ff;border-left:3px solid var(--sky);border-radius:0 8px 8px 0;padding:6px 9px;font-size:.7rem;color:#33507c;line-height:1.4}
+.badge-adv{display:inline-block;font-size:.6rem;font-weight:800;letter-spacing:.04em;background:#10234f;color:#ffd75e;border-radius:6px;padding:3px 8px;margin-left:6px;text-transform:uppercase;vertical-align:middle}
+
 @media(max-width:1100px){.doc-layout{grid-template-columns:1fr}.doc-left{position:static}}
 @media(max-width:1200px){.board{grid-template-columns:repeat(3,1fr)}.kpis{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:760px){.board{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}.fgrid{grid-template-columns:1fr}.search{max-width:none}}
 </style>
 </head>
 <body>
+
+<!-- ===== LOGIN (LGPD) ===== -->
+<div id="loginGate">
+  <div class="login-card">
+    <div class="lg-mark">⚖</div>
+    <h1>Plano Justo — Painel</h1>
+    <div class="lg-sub">DCG Seguros × Carvalho Advocacia</div>
+    <label>Usuário</label>
+    <input id="loginUser" autocomplete="username" placeholder="seu usuário">
+    <label>Senha</label>
+    <input id="loginPass" type="password" autocomplete="current-password" placeholder="••••••••">
+    <div class="login-err" id="loginErr"></div>
+    <button class="btn primary" id="btnLogin">Entrar</button>
+    <div class="lgpd-note">🔒 Acesso restrito e identificado. Os dados deste painel são tratados conforme a LGPD (Lei 13.709/2018) — cada acesso e alteração fica registrado com autor, data e hora.</div>
+  </div>
+</div>
 
 <div class="top">
   <div class="wrap top-inner">
@@ -314,6 +352,9 @@ details.tpl .hint{font-size:.72rem;color:#8494b2;margin-top:8px}
       <button class="abtn ghost" id="btnBackup" title="Backup JSON">💾 Backup</button>
       <button class="abtn ghost" id="btnRestore">↩ Restaurar</button>
       <button class="abtn cfg" id="btnConfig" title="Configurar chave API Claude e Supabase">⚙ API</button>
+      <button class="abtn cfg" id="btnUsuarios" title="Gerenciar usuários e acessos (LGPD)" style="display:none">👤 Usuários</button>
+      <span class="user-chip" id="userChip" style="display:none"><span id="userChipNome"></span><span class="papel" id="userChipPapel"></span></span>
+      <button class="abtn ghost" id="btnLogout" style="display:none" title="Encerrar sessão">⎋ Sair</button>
       <input type="file" id="fileRestore" accept=".json" style="display:none">
     </div>
   </div>
@@ -521,6 +562,17 @@ details.tpl .hint{font-size:.72rem;color:#8494b2;margin-top:8px}
       <div class="f full"><label>Valores</label><input id="fMoney" placeholder="Ex.: Excesso R$ 1.200/mês · restituição estimada R$ 40.000"></div>
       <div class="f full"><label>Próximo passo</label><input id="fNext" placeholder="Ex.: Colher assinatura da procuração"></div>
       <div class="f full"><label>Observações / andamentos</label><textarea id="fObs" placeholder="Uma anotação por linha. Ex.:&#10;Situação: análise concluída em 23/06&#10;Reunião: feita com o contador"></textarea></div>
+      <div class="f full" id="rowEnvAdv">
+        <label>Encaminhamento jurídico</label>
+        <label style="display:flex;align-items:center;gap:9px;font-size:.86rem;text-transform:none;letter-spacing:0;font-weight:600;color:var(--txt);cursor:pointer;margin:0"><input type="checkbox" id="fEnvAdv" style="width:auto"> 📤 Enviado ao Dr. Sandro / equipe jurídica</label>
+        <div class="hint">Marcado: o caso aparece no painel da equipe jurídica para ações e atualizações.</div>
+      </div>
+      <div class="f full" id="rowAndamentos">
+        <label>Linha do tempo — andamentos</label>
+        <div class="and-list" id="andList"></div>
+        <textarea id="fNovoAnd" placeholder="Novo andamento — ex.: Liminar deferida em 02/07 · ofício expedido à operadora · cliente assinou procuração…" style="min-height:56px"></textarea>
+        <div class="hint">Ao salvar, o andamento é registrado com seu nome, data e hora (LGPD).</div>
+      </div>
     </div>
     <div class="modal-foot">
       <button class="btn danger-link" id="btnExcluirCaso" style="display:none">Excluir caso</button>
@@ -641,6 +693,43 @@ details.tpl .hint{font-size:.72rem;color:#8494b2;margin-top:8px}
   </div>
 </div>
 
+<!-- ===== MODAL USUÁRIOS (admin) ===== -->
+<div class="overlay" id="mUsuarios">
+  <div class="modal lg" style="max-width:760px">
+    <h2>👤 Usuários & acessos</h2>
+    <div class="sub">Cada pessoa da DCG e da equipe do Dr. Sandro deve ter o próprio login e senha — exigência da LGPD (Lei 13.709/2018).</div>
+    <div style="display:flex;justify-content:flex-end;margin-bottom:10px"><button class="chip" id="btnNovoUsuario">＋ Novo usuário</button></div>
+    <div class="tbl-wrap" style="margin-bottom:16px">
+      <table style="min-width:0">
+        <thead><tr><th>Nome</th><th>Login</th><th>Perfil</th><th>Status</th><th>Ações</th></tr></thead>
+        <tbody id="usuBody"></tbody>
+      </table>
+    </div>
+    <details class="tpl"><summary>🕐 Últimos acessos ao painel</summary><div class="body" id="acessosBox" style="font-size:.76rem;color:#66759a;line-height:1.9">—</div></details>
+    <div class="modal-foot"><button class="btn plain" data-close="mUsuarios">Fechar</button></div>
+  </div>
+</div>
+
+<!-- ===== MODAL USUÁRIO (edição) ===== -->
+<div class="overlay" id="mUsuario">
+  <div class="modal">
+    <h2 id="mUsuTitle">Novo usuário</h2>
+    <div class="sub">Perfil <b>Admin</b> vê e controla tudo; <b>Jurídico</b> vê somente os casos enviados e registra andamentos.</div>
+    <div class="fgrid">
+      <div class="f full"><label>Nome completo *</label><input id="uNome" placeholder="Ex.: Dra. Maria Silva — Carvalho Advocacia"></div>
+      <div class="f"><label>Login *</label><input id="uLogin" placeholder="ex.: maria" autocomplete="off"></div>
+      <div class="f"><label>Senha</label><input id="uSenha" type="password" placeholder="mín. 6 caracteres" autocomplete="new-password"><div class="hint" id="uSenhaHint"></div></div>
+      <div class="f"><label>Perfil</label><select id="uPapel"><option value="juridico">Jurídico — casos enviados</option><option value="admin">Admin — acesso total</option></select></div>
+      <div class="f"><label>Status</label><select id="uAtivo"><option value="1">Ativo</option><option value="0">Desativado</option></select></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn danger-link" id="btnExcluirUsu" style="display:none">Excluir</button>
+      <button class="btn plain" data-close="mUsuario">Cancelar</button>
+      <button class="btn primary" id="btnSalvarUsu">Salvar usuário</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
@@ -654,7 +743,7 @@ if(typeof pdfjsLib !== 'undefined'){
 /* =====================================================================
    ARMAZENAMENTO
 ===================================================================== */
-const LS = { casos:"pj_casos", clientes:"pj_clientes", tpl:"pj_template", apiKey:"pj_api_key", orKey:"pj_or_key", provider:"pj_provider", sbUrl:"pj_sb_url", sbKey:"pj_sb_key" };
+const LS = { casos:"pj_casos", clientes:"pj_clientes", tpl:"pj_template", apiKey:"pj_api_key", orKey:"pj_or_key", provider:"pj_provider", sbUrl:"pj_sb_url", sbKey:"pj_sb_key", usuarios:"pj_usuarios", sessao:"pj_sessao" };
 const load = (k,fb)=>{ try{ const v=JSON.parse(localStorage.getItem(k)); return v??fb; }catch(e){ return fb; } };
 const save = (k,v)=>{
   localStorage.setItem(k, JSON.stringify(v));
@@ -715,11 +804,101 @@ async function initData(){
   let cl= await sbGet('clientes');
   let t = await sbGet('template');
   casos    = c  ?? load(LS.casos, null);
-  clientes = cl ?? load(LS.clientes, []);
+  clientes = cl ?? load(LS.clientes, null);
   template = (typeof t==="string") ? t : load(LS.tpl, TPL_PADRAO);
   if(!casos){ casos = SEED; await autoSave('casos', casos); }
+  if(!clientes || clientes.length < SEED_CLIENTES.length){ clientes = SEED_CLIENTES; await autoSave('clientes', clientes); }
+  /* migração: casos ganham linha do tempo e flag de envio ao jurídico (etapa ≥3 = já em andamento) */
+  let mudou = false;
+  casos.forEach(c=>{
+    if(!Array.isArray(c.andamentos)){ c.andamentos = []; mudou = true; }
+    if(c.enviadoAdv===undefined && c.etapa>=3){ c.enviadoAdv = true; mudou = true; }
+  });
+  if(mudou) await autoSave('casos', casos);
 }
 const uid = ()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+
+/* =====================================================================
+   AUTENTICAÇÃO & PERFIS (LGPD)
+   admin    → Diniz/DCG: acesso total + gestão de usuários
+   juridico → Dr. Sandro e equipe: somente casos enviados + andamentos
+===================================================================== */
+let usuarios = [], sessao = null;
+const SESSAO_HORAS = 12;
+
+async function sha256hex(s){
+  if(!crypto.subtle) throw new Error("Abra o painel via HTTPS para fazer login.");
+  const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+  return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+const hashSenha = (usuario,senha)=>sha256hex(`planojusto|${usuario.toLowerCase().trim()}|${senha}`);
+
+const SEED_USUARIOS = [
+  {id:"u-diniz", nome:"Diniz — DCG Seguros",             usuario:"diniz",    papel:"admin",    ativo:true, hash:"e3ea3533eca4b776542ef279858ccd2f5860ae264de170d2dd3793bfb29a5bf3"},
+  {id:"u-sandro",nome:"Dr. Sandro — Carvalho Advocacia", usuario:"drsandro", papel:"juridico", ativo:true, hash:"34ec81e071b972beafd843796eae2c08a9e7f1c28f2eb3b82d490307bdc0cc65"}
+];
+
+const isAdmin = ()=>!!sessao && sessao.papel==="admin";
+const isJur   = ()=>!!sessao && sessao.papel==="juridico";
+function casosVisiveis(){ return isJur() ? casos.filter(c=>c.enviadoAdv || (sessao && c.criadoPor===sessao.usuario)) : casos; }
+const fmtTs = ts=>{ try{ const d=new Date(ts); return d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }catch(e){ return ts||""; } };
+
+async function carregarUsuarios(){
+  let u = await sbGet('usuarios');
+  if(!u || !u.length) u = load(LS.usuarios, null);
+  if(!u || !u.length){ u = SEED_USUARIOS; await autoSave('usuarios', u); }
+  else localStorage.setItem(LS.usuarios, JSON.stringify(u));
+  usuarios = u;
+  return u;
+}
+
+async function registrarAcesso(user){
+  try{
+    const lst = (await sbGet('acessos')) || [];
+    lst.push({ts:new Date().toISOString(), usuario:user.usuario, nome:user.nome, evento:"login"});
+    await sbSet('acessos', lst.slice(-300));
+  }catch(e){}
+}
+
+async function doLogin(){
+  const u = $("loginUser").value.trim().toLowerCase(), p = $("loginPass").value;
+  const errEl = $("loginErr"); errEl.style.display = "none";
+  if(!u || !p){ errEl.textContent="Informe usuário e senha."; errEl.style.display="block"; return; }
+  $("btnLogin").disabled = true; $("btnLogin").textContent = "Verificando…";
+  try{
+    await carregarUsuarios();
+    const h = await hashSenha(u, p);
+    const user = usuarios.find(x=>(x.usuario||"").toLowerCase()===u && x.ativo!==false);
+    if(!user || user.hash!==h){ errEl.textContent="Usuário ou senha incorretos."; errEl.style.display="block"; return; }
+    sessao = {uid:user.id, nome:user.nome, usuario:user.usuario, papel:user.papel, exp:Date.now()+SESSAO_HORAS*3600e3};
+    localStorage.setItem(LS.sessao, JSON.stringify(sessao));
+    registrarAcesso(user);
+    await boot();
+  }catch(e){ errEl.textContent="Erro: "+e.message; errEl.style.display="block"; }
+  finally{ $("btnLogin").disabled=false; $("btnLogin").textContent="Entrar"; }
+}
+function logout(){ localStorage.removeItem(LS.sessao); location.reload(); }
+
+function applyRoleUI(){
+  $("userChipNome").textContent = sessao.nome;
+  $("userChipPapel").textContent = isAdmin() ? "Admin" : "Jurídico";
+  $("userChip").style.display = "inline-flex";
+  $("btnLogout").style.display = "inline-flex";
+  $("btnUsuarios").style.display = isAdmin() ? "inline-flex" : "none";
+  const kCliLabel = $("kCli")?.closest(".kpi")?.querySelector(".l");
+  const nota = document.querySelector("#viewCasos .note");
+  if(isJur()){
+    aba = "casos";
+    ["tabClientes","tabDocs","btnBackup","btnRestore","btnConfig","btnCloudPush"].forEach(id=>{ const el=$(id); if(el) el.style.display="none"; });
+    ["kOf","kInt"].forEach(id=>{ const el=$(id); if(el&&el.closest(".kpi")) el.closest(".kpi").style.display="none"; });
+    if(kCliLabel) kCliLabel.textContent = "Empresas — futuros casos";
+    if(nota) nota.innerHTML = "⚖️ <b>Área jurídica — Carvalho Advocacia:</b> aqui aparecem os casos em andamento enviados pela DCG e os que sua equipe cadastrar diretamente pelo <b>＋ Novo caso</b>. O KPI <b>Empresas — futuros casos</b> mostra apenas a quantidade de empresas na base de prospecção da DCG — os dados individuais dessas empresas (nome, contato, CNPJ) só ficam visíveis depois que viram um caso. Clique em <b>✏️ Editar</b> para atualizar etapa, CNJ, valores e registrar os <b>andamentos</b> — tudo salvo na nuvem em tempo real, identificado com seu nome (LGPD).";
+  } else {
+    ["tabClientes","tabDocs","btnBackup","btnRestore","btnConfig","btnCloudPush","kOf","kInt"].forEach(id=>{ const el=$(id); if(!el) return; const wrap=el.closest(".kpi")||el; wrap.style.display=""; });
+    if(kCliLabel) kCliLabel.textContent = "Clientes na base";
+    if(nota) nota.innerHTML = "📌 <b>Fluxo:</b> use <b>＋ Novo caso</b> para cadastrar, <b>📤</b> no cartão para enviar/retirar o caso da pauta do Dr. Sandro, e a aba <b>Clientes</b> para converter interessados em casos. A equipe jurídica também pode cadastrar casos novos diretamente, mas só vê a <b>quantidade</b> de empresas na base de prospecção — os dados reais de clientes que ainda não viraram caso ficam visíveis só para você.";
+  }
+}
 
 const TPL_PADRAO = `Olá, {nome}! Aqui é o Diniz, da DCG Seguros. 😊
 
@@ -743,6 +922,256 @@ const SEED = [
   {id:uid(),etapa:5,tese:"falso",nome:"Caso Porto Seguro Saúde (referência)",reu:"Porto Seguro Saúde S/A",obs:"Sentença: procedente — natureza individual/familiar reconhecida\nFaixa etária: 84,99% reduzido para 42,5% (59 anos)\nReajustes: futuros limitados aos índices ANS\nHonorários: 10% sobre a condenação",money:"Restituição R$ 30.986,91 + IPCA + Selic",next:"Usar como paradigma nas ações de falso coletivo"}
 ];
 
+/* ===== CLIENTES SEED — base DCG (propostas implantadas) ===== */
+const SEED_CLIENTES = [
+  {nome:"SLG COMERCIO DE SISTEMAS DE AUTOMACAO LTDA",empresa:"SLG COMERCIO DE SISTEMAS DE AUTOMACAO LTDA",operadora:"Sul América",mensalidade:"273.097,22"},
+  {nome:"COTIA AMBIENTAL SOCIEDADE ANONIMA",empresa:"COTIA AMBIENTAL SOCIEDADE ANONIMA",operadora:"Sistema Saúde",mensalidade:"155.996,99"},
+  {nome:"FUNDACAO MARIA CECILIA SOUTO VIDIGAL",empresa:"FUNDACAO MARIA CECILIA SOUTO VIDIGAL",operadora:"Sul América",mensalidade:"85.648,70"},
+  {nome:"EMBU ECOLOGICA E AMBIENTAL SOCIEDADE ANONIMA",empresa:"EMBU ECOLOGICA E AMBIENTAL SOCIEDADE ANONIMA",operadora:"Sistema Saúde",mensalidade:"81.375,97"},
+  {nome:"MELONI ADVOGADOS ASSOCIADOS",empresa:"MELONI ADVOGADOS ASSOCIADOS",operadora:"Omint",mensalidade:"63.698,22"},
+  {nome:"INSTITUTO HOC DE HEMOTERAPIA LTDA",empresa:"INSTITUTO HOC DE HEMOTERAPIA LTDA",operadora:"Amil",mensalidade:"61.281,49"},
+  {nome:"INSTITUTO HOC",empresa:"INSTITUTO HOC",operadora:"Amil",mensalidade:"61.281,49"},
+  {nome:"KAMY TAPETES",empresa:"KAMY TAPETES",operadora:"Sul América",mensalidade:"59.294,73"},
+  {nome:"ASSOC DE ARTE E ENS SUPERIOR",empresa:"ASSOC DE ARTE E ENS SUPERIOR",operadora:"Amil",mensalidade:"44.145,83"},
+  {nome:"BOOS OXOOLANIA RESTAURANTE LTDA",empresa:"BOOS OXOOLANIA RESTAURANTE LTDA",operadora:"Amil",mensalidade:"41.000,00"},
+  {nome:"G QUACU",empresa:"G QUACU",operadora:"Unimed",mensalidade:"37.464,88"},
+  {nome:"FDA PARTICIPACOES LTDA",empresa:"FDA PARTICIPACOES LTDA",operadora:"Unimed",mensalidade:"37.240,85"},
+  {nome:"VALERIA R DA SILVA E CIA LTDA",empresa:"VALERIA R DA SILVA E CIA LTDA",operadora:"Amil",mensalidade:"32.597,36"},
+  {nome:"ENOB ENGENHARIA AMBIENTAL LTDA",empresa:"ENOB ENGENHARIA AMBIENTAL LTDA",operadora:"Bradesco",mensalidade:"30.247,82"},
+  {nome:"ORTO CLINICA DE ORTOPEDIA E TRAUM LTDA",empresa:"ORTO CLINICA DE ORTOPEDIA E TRAUM LTDA",operadora:"Sul América",mensalidade:"27.562,78"},
+  {nome:"G.GUACU ADMINISTRADORA E CORRETORA DE SEGUROS LTDA",empresa:"G.GUACU ADMINISTRADORA E CORRETORA DE SEGUROS LTDA",operadora:"Unimed",mensalidade:"26.227,69"},
+  {nome:"SECUR CONSULTORIA DE NEGOCIOS E CORRETAGEM DE SEGUROS LTDA",empresa:"SECUR CONSULTORIA DE NEGOCIOS E CORRETAGEM DE SEGUROS LTDA",operadora:"NotreDame/Hapvida",mensalidade:"25.036,84"},
+  {nome:"FGCAPRIOGLIO PARTICIPACOES LTDA",empresa:"FGCAPRIOGLIO PARTICIPACOES LTDA",operadora:"Amil",mensalidade:"24.690,96"},
+  {nome:"ESPINHACO AGROPECUARIA LTDA",empresa:"ESPINHACO AGROPECUARIA LTDA",operadora:"Bradesco",mensalidade:"24.152,59"},
+  {nome:"VISUALE MAXIMA VISAO E SAUDE OCCULAR LTDA",empresa:"VISUALE MAXIMA VISAO E SAUDE OCCULAR LTDA",operadora:"Unimed",mensalidade:"22.278,04"},
+  {nome:"AB CAMPOS CONSULTORIA, ASSESSORIA E SERVICOS NA CONSTRUCAO CIVIL LTDA",empresa:"AB CAMPOS CONSULTORIA, ASSESSORIA E SERVICOS NA CONSTRUCAO CIVIL LTDA",operadora:"Unimed",mensalidade:"21.376,75"},
+  {nome:"GRRJ ADMINISTRACAO DE BENS PROPRIOS LTDA",empresa:"GRRJ ADMINISTRACAO DE BENS PROPRIOS LTDA",operadora:"Sul América",mensalidade:"20.924,97"},
+  {nome:"CLARUS CLINICA MEDICA DE OFTALMOLOGIA LTDA",empresa:"CLARUS CLINICA MEDICA DE OFTALMOLOGIA LTDA",operadora:"Bradesco",mensalidade:"20.371,45"},
+  {nome:"STUDIO ARK DERENZE CONSTRUCAO E SERVICOS LTDA",empresa:"STUDIO ARK DERENZE CONSTRUCAO E SERVICOS LTDA",operadora:"Amil",mensalidade:"17.115,46"},
+  {nome:"SICOOB CREDICOSP COOPERATIVA DE CREDITO",empresa:"SICOOB CREDICOSP COOPERATIVA DE CREDITO",operadora:"Unimed",mensalidade:"16.783,21"},
+  {nome:"SALLMUR CORRETORA DE SEGUROS LTDA",empresa:"SALLMUR CORRETORA DE SEGUROS LTDA",operadora:"Unimed",mensalidade:"16.408,51"},
+  {nome:"O E M COMERCIO EXTERIOR LTDA",empresa:"O E M COMERCIO EXTERIOR LTDA",operadora:"Unimed",mensalidade:"16.257,36"},
+  {nome:"PLB INDUSTRIA E COMERCIO DE ROLAMENTOS E AUTO PECAS LTDA",empresa:"PLB INDUSTRIA E COMERCIO DE ROLAMENTOS E AUTO PECAS LTDA",operadora:"Sul América",mensalidade:"15.470,14"},
+  {nome:"AKTA MOTORS DISTRIBUIDORA DE VEICULOS",empresa:"AKTA MOTORS DISTRIBUIDORA DE VEICULOS",operadora:"NotreDame/Hapvida",mensalidade:"15.387,50"},
+  {nome:"PEKIMA APOIO ADMINISTRATIVO LTDA",empresa:"PEKIMA APOIO ADMINISTRATIVO LTDA",operadora:"Amil",mensalidade:"15.116,30"},
+  {nome:"LIVA ADMINISTRADORA DE BENS S/A",empresa:"LIVA ADMINISTRADORA DE BENS S/A",operadora:"Sul América",mensalidade:"14.654,56"},
+  {nome:"BENITAH & HONDA PRESTACAO DE SERVICOS MEDICOS SS",empresa:"BENITAH & HONDA PRESTACAO DE SERVICOS MEDICOS SS",operadora:"Sul América",mensalidade:"14.464,35"},
+  {nome:"BAGUEIRA CORRETORA DE SEG",empresa:"BAGUEIRA CORRETORA DE SEG",operadora:"Unimed",mensalidade:"13.984,43"},
+  {nome:"THOUGHTFUL MINDS LTDA",empresa:"THOUGHTFUL MINDS LTDA",operadora:"NotreDame/Hapvida",mensalidade:"13.688,50"},
+  {nome:"SALLMUR CORRETORA DE SEGUROS SC LTDA ME",empresa:"SALLMUR CORRETORA DE SEGUROS SC LTDA ME",operadora:"Unimed",mensalidade:"13.634,02"},
+  {nome:"PPP PATRIMONIAL LTDA",empresa:"PPP PATRIMONIAL LTDA",operadora:"Sul América",mensalidade:"13.563,88"},
+  {nome:"DRIMIS PARTICIPACOES LTDA.",empresa:"DRIMIS PARTICIPACOES LTDA.",operadora:"Bradesco",mensalidade:"13.238,92"},
+  {nome:"N S SOUZA - ME",empresa:"N S SOUZA - ME",operadora:"Sul América",mensalidade:"13.002,42"},
+  {nome:"AZIENDA EMPREENDIMENTOS LTDA - ME",empresa:"AZIENDA EMPREENDIMENTOS LTDA - ME",operadora:"Sul América",mensalidade:"12.863,75"},
+  {nome:"CARLOS MATSUMOTO SERVICOS DE APOIO ADMINISTRATIVO",empresa:"CARLOS MATSUMOTO SERVICOS DE APOIO ADMINISTRATIVO",operadora:"Sul América",mensalidade:"12.599,01"},
+  {nome:"BKS CORRETORA DE SEGUROS LTDA",empresa:"BKS CORRETORA DE SEGUROS LTDA",operadora:"Unimed",mensalidade:"12.345,32"},
+  {nome:"EBA ADMINISTRACAO DE BENS PROPRIOS E PARTICIPACOES LTDA",empresa:"EBA ADMINISTRACAO DE BENS PROPRIOS E PARTICIPACOES LTDA",operadora:"Sul América",mensalidade:"12.085,68"},
+  {nome:"BY KAMY COMERCIO DE TAPETES LTDA",empresa:"BY KAMY COMERCIO DE TAPETES LTDA",operadora:"Sul América",mensalidade:"11.977,60"},
+  {nome:"OFSEG OLIVEIRA & FARIA ADMINISTRADORA E CORRETORA",empresa:"OFSEG OLIVEIRA & FARIA ADMINISTRADORA E CORRETORA",operadora:"Unimed",mensalidade:"11.813,13"},
+  {nome:"MAXI HELP INFORMATICA LTDA",empresa:"MAXI HELP INFORMATICA LTDA",operadora:"Amil",mensalidade:"11.677,88"},
+  {nome:"MARCIA MARISA DA SILVEIRA CARVALHEIRA EIRELI",empresa:"MARCIA MARISA DA SILVEIRA CARVALHEIRA EIRELI",operadora:"Bradesco",mensalidade:"11.505,40"},
+  {nome:"COOPERATIVA DE CREDITO MUTUO DOS",empresa:"COOPERATIVA DE CREDITO MUTUO DOS",operadora:"Unimed",mensalidade:"11.475,27"},
+  {nome:"ARBAIT DADOS & SOLUCOES S/C LTDA",empresa:"ARBAIT DADOS & SOLUCOES S/C LTDA",operadora:"Unimed",mensalidade:"11.390,97"},
+  {nome:"MARCIA MARISA DA SILVEIRA CARVALHEIRA ME",empresa:"MARCIA MARISA DA SILVEIRA CARVALHEIRA ME",operadora:"Unimed",mensalidade:"11.306,40"},
+  {nome:"BKS CORRETORA DE SEGUROS LTDA EPP",empresa:"BKS CORRETORA DE SEGUROS LTDA EPP",operadora:"Unimed",mensalidade:"11.234,63"},
+  {nome:"BGJVM ADMINISTRACAO E PARTICIPACOES LTDA",empresa:"BGJVM ADMINISTRACAO E PARTICIPACOES LTDA",operadora:"Bradesco",mensalidade:"11.197,98"},
+  {nome:"CLARA ROSEMBLATT CORRETORA DE SEGUROS LTDA",empresa:"CLARA ROSEMBLATT CORRETORA DE SEGUROS LTDA",operadora:"Unimed",mensalidade:"11.015,75"},
+  {nome:"DMTL PARTICIPACOES LTDA",empresa:"DMTL PARTICIPACOES LTDA",operadora:"Sul América",mensalidade:"10.913,00"},
+  {nome:"ANTARES CORRETORA DE SEGUROS LTDA ME",empresa:"ANTARES CORRETORA DE SEGUROS LTDA ME",operadora:"Unimed",mensalidade:"10.883,81"},
+  {nome:"LINK TREINAMENTO E DESENVOLVIMENTO LTDA",empresa:"LINK TREINAMENTO E DESENVOLVIMENTO LTDA",operadora:"NotreDame/Hapvida",mensalidade:"10.339,74"},
+  {nome:"CHAMPETIT DO BRASIL IMP E EXPORTACAO LTDA",empresa:"CHAMPETIT DO BRASIL IMP E EXPORTACAO LTDA",operadora:"Amil",mensalidade:"10.315,12"},
+  {nome:"MBR - MAQUINAS TEXTEIS BERNHARD E RAMPANI, COMERCIO E REPRESENTACAO LTDA",empresa:"MBR - MAQUINAS TEXTEIS BERNHARD E RAMPANI, COMERCIO E REPRESENTACAO LTDA",operadora:"Amil",mensalidade:"9.891,26"},
+  {nome:"ASTI ADMINISTRADORA E CORRETORA DE SEGUROS",empresa:"ASTI ADMINISTRADORA E CORRETORA DE SEGUROS",operadora:"Bradesco",mensalidade:"9.845,06"},
+  {nome:"GIORGIO & MARTINS SERVICE LTDA",empresa:"GIORGIO & MARTINS SERVICE LTDA",operadora:"Sul América",mensalidade:"9.686,55"},
+  {nome:"OFSEG OLIVEIRA FARIA ADMINISTRADORA E",empresa:"OFSEG OLIVEIRA FARIA ADMINISTRADORA E",operadora:"Unimed",mensalidade:"9.637,12"},
+  {nome:"COPEC ACESSORIOS INDUSTRIAIS LTDA",empresa:"COPEC ACESSORIOS INDUSTRIAIS LTDA",operadora:"Sul América",mensalidade:"9.606,86"},
+  {nome:"ARBAIT DADOS E SOLUCOES",empresa:"ARBAIT DADOS E SOLUCOES",operadora:"Unimed",mensalidade:"9.463,24"},
+  {nome:"ESSEAGA PARTICIPACOES LTDA-ME",empresa:"ESSEAGA PARTICIPACOES LTDA-ME",operadora:"Amil",mensalidade:"9.310,77"},
+  {nome:"KOBUCHI COBRANCAS PRODUCOES ARTISTICAS E CULTURAIS LTDA",empresa:"KOBUCHI COBRANCAS PRODUCOES ARTISTICAS E CULTURAIS LTDA",operadora:"Amil",mensalidade:"9.214,52"},
+  {nome:"CACAMBAS LAGO AZUL EIRELI - ME",empresa:"CACAMBAS LAGO AZUL EIRELI - ME",operadora:"Amil",mensalidade:"9.214,52"},
+  {nome:"CLARA ROSEMBLATT CORRETORA DE SEGUROS",empresa:"CLARA ROSEMBLATT CORRETORA DE SEGUROS",operadora:"Unimed",mensalidade:"9.153,59"},
+  {nome:"SRP COMERCIO DE CAMA, MESA & BANHO - EIRELI",empresa:"SRP COMERCIO DE CAMA, MESA & BANHO - EIRELI",operadora:"Sul América",mensalidade:"8.997,96"},
+  {nome:"EMMO SERVICOS LTDA",empresa:"EMMO SERVICOS LTDA",operadora:"NotreDame/Hapvida",mensalidade:"8.993,07"},
+  {nome:"FA TAPETES E OBJETOS DECORATIVOS LTDA",empresa:"FA TAPETES E OBJETOS DECORATIVOS LTDA",operadora:"Sul América",mensalidade:"8.900,45"},
+  {nome:"CHAMPETIT DO BRASIL IMPORTACAO E EXPORTACAO LTDA",empresa:"CHAMPETIT DO BRASIL IMPORTACAO E EXPORTACAO LTDA",operadora:"Amil",mensalidade:"8.865,46"},
+  {nome:"PIZZARIA LA SOCIETA LTDA",empresa:"PIZZARIA LA SOCIETA LTDA",operadora:"Sul América",mensalidade:"8.741,59"},
+  {nome:"ITALICA CONSULTORIA, ADMINISTRACAO E CORRETAGEM DE SEGUROS LTDA",empresa:"ITALICA CONSULTORIA, ADMINISTRACAO E CORRETAGEM DE SEGUROS LTDA",operadora:"Unimed",mensalidade:"8.621,73"},
+  {nome:"M2 TRADUCOES E SISTEMAS LTDA",empresa:"M2 TRADUCOES E SISTEMAS LTDA",operadora:"Amil",mensalidade:"8.505,16"},
+  {nome:"PAULISTA CONTABILIDADE EMPRESARIAL LTDA",empresa:"PAULISTA CONTABILIDADE EMPRESARIAL LTDA",operadora:"NotreDame/Hapvida",mensalidade:"8.437,80"},
+  {nome:"PHATOR ASSESSORIA EMPRESARIAL E CONTABIL LTDA",empresa:"PHATOR ASSESSORIA EMPRESARIAL E CONTABIL LTDA",operadora:"Bradesco",mensalidade:"8.274,84"},
+  {nome:"MAGDA APARECIDA LAMBERT UBEDA",empresa:"MAGDA APARECIDA LAMBERT UBEDA",operadora:"Unimed",mensalidade:"8.176,96"},
+  {nome:"CONSULTORIO DE LUCIANA MANHENTE SORIANO LTDA",empresa:"CONSULTORIO DE LUCIANA MANHENTE SORIANO LTDA",operadora:"Amil",mensalidade:"8.080,58"},
+  {nome:"LE BASIQUE CONFECCOES LTDA",empresa:"LE BASIQUE CONFECCOES LTDA",operadora:"Unimed",mensalidade:"8.052,75"},
+  {nome:"MERINO E JORGE CORRETORA DE SEGUROS LTDA",empresa:"MERINO E JORGE CORRETORA DE SEGUROS LTDA",operadora:"Unimed",mensalidade:"7.957,80"},
+  {nome:"RORINE IMPORTACAO E EXPORTACAO LTDA",empresa:"RORINE IMPORTACAO E EXPORTACAO LTDA",operadora:"Amil",mensalidade:"7.904,95"},
+  {nome:"ITAPEVI IMOVEIS LTDA",empresa:"ITAPEVI IMOVEIS LTDA",operadora:"Bradesco",mensalidade:"7.896,39"},
+  {nome:"ITAPEVI IMOVEIS LTDA ME",empresa:"ITAPEVI IMOVEIS LTDA ME",operadora:"Unimed",mensalidade:"7.886,39"},
+  {nome:"SAINT-TROPEZ DISTRIBUIDORA DE VEICULOS LTDA.",empresa:"SAINT-TROPEZ DISTRIBUIDORA DE VEICULOS LTDA.",operadora:"Sul América",mensalidade:"7.870,52"},
+  {nome:"KBL-RELACIONAMENTO CORRETORA DE SEGUROS LTDA",empresa:"KBL-RELACIONAMENTO CORRETORA DE SEGUROS LTDA",operadora:"Unimed",mensalidade:"7.829,63"},
+  {nome:"KBL RELACIONAMENTO",empresa:"KBL RELACIONAMENTO",operadora:"Unimed",mensalidade:"7.829,63"},
+  {nome:"LARISSA BIJOUX LTDA",empresa:"LARISSA BIJOUX LTDA",operadora:"Sul América",mensalidade:"7.805,70"},
+  {nome:"AYUB BACELLAR MARKETING LTDA",empresa:"AYUB BACELLAR MARKETING LTDA",operadora:"Bradesco",mensalidade:"7.701,01"},
+  {nome:"CHF CONSULTORIA DE EMBALAGENS E INSUMOS PARA INDUSTRIA LTDA",empresa:"CHF CONSULTORIA DE EMBALAGENS E INSUMOS PARA INDUSTRIA LTDA",operadora:"Amil",mensalidade:"7.700,22"},
+  {nome:"CIEL CENTRAL DE INTEGRACAO EMPRESARIAL COMERCIAL LTDA",empresa:"CIEL CENTRAL DE INTEGRACAO EMPRESARIAL COMERCIAL LTDA",operadora:"Sul América",mensalidade:"7.639,34"},
+  {nome:"CARLOS ALBERTO CAVASSANA",empresa:"CARLOS ALBERTO CAVASSANA",operadora:"Unimed",mensalidade:"7.601,75"},
+  {nome:"CEMEPE SERVICOS , CONSULTORIA E TREINAMENTO LTDA",empresa:"CEMEPE SERVICOS , CONSULTORIA E TREINAMENTO LTDA",operadora:"Amil",mensalidade:"7.558,15"},
+  {nome:"LUCK ADMINISTRAÇÃO",empresa:"LUCK ADMINISTRAÇÃO",operadora:"Amil",mensalidade:"7.537,06"},
+  {nome:"MITUO ODAIRA",empresa:"MITUO ODAIRA",operadora:"Unimed",mensalidade:"7.421,50"},
+  {nome:"TRINDADE & DAMASCENO LANCHONETE LTDA",empresa:"TRINDADE & DAMASCENO LANCHONETE LTDA",operadora:"Unimed",mensalidade:"7.404,99"},
+  {nome:"AMHE CLINICA MEDICA LTDA",empresa:"AMHE CLINICA MEDICA LTDA",operadora:"Bradesco",mensalidade:"7.319,56"},
+  {nome:"KAMEL SERVICES LTDA.",empresa:"KAMEL SERVICES LTDA.",operadora:"Sul América",mensalidade:"7.258,72"},
+  {nome:"ITALICA CONSULTORIA ADMINISTRACAO E",empresa:"ITALICA CONSULTORIA ADMINISTRACAO E",operadora:"Unimed",mensalidade:"7.163,19"},
+  {nome:"MJR COMERCIO DE ACAI LTDA",empresa:"MJR COMERCIO DE ACAI LTDA",operadora:"Amil",mensalidade:"7.139,54"},
+  {nome:"POLICLINICA MAESTRIA E INSTITUTO MEDICO LTDA.",empresa:"POLICLINICA MAESTRIA E INSTITUTO MEDICO LTDA.",operadora:"Sul América",mensalidade:"7.128,61"},
+  {nome:"TONETTE CORRETORA DE SEGUROS LTDA",empresa:"TONETTE CORRETORA DE SEGUROS LTDA",operadora:"Unimed",mensalidade:"7.101,66"},
+  {nome:"ALTA PAULISTA CORRETORA DE SEGUROS S/S LTDA",empresa:"ALTA PAULISTA CORRETORA DE SEGUROS S/S LTDA",operadora:"Unimed",mensalidade:"7.101,66"},
+  {nome:"ALTA PAULISTA CORRETORA DE SEGUROS",empresa:"ALTA PAULISTA CORRETORA DE SEGUROS",operadora:"Unimed",mensalidade:"7.101,66"},
+  {nome:"TONETTE CORRETORA DE SEGUROS LTDA EPP",empresa:"TONETTE CORRETORA DE SEGUROS LTDA EPP",operadora:"Unimed",mensalidade:"7.101,48"},
+  {nome:"GIULAND EMPREENDIMENTOS E PARTICIPACOES SOCIETARIAS LTDA",empresa:"GIULAND EMPREENDIMENTOS E PARTICIPACOES SOCIETARIAS LTDA",operadora:"Amil",mensalidade:"6.817,05"},
+  {nome:"BENTEO SHOW COMERCIO VAREJISTA DE CHOCOLATES LTDA",empresa:"BENTEO SHOW COMERCIO VAREJISTA DE CHOCOLATES LTDA",operadora:"Bradesco",mensalidade:"6.755,50"},
+  {nome:"KONSTAT CORRETORA DE SEGUROS LTDA",empresa:"KONSTAT CORRETORA DE SEGUROS LTDA",operadora:"Unimed",mensalidade:"6.685,58"},
+  {nome:"TIEMI YAMADA & CIA S/S",empresa:"TIEMI YAMADA & CIA S/S",operadora:"NotreDame/Hapvida",mensalidade:"6.529,43"},
+  {nome:"DNFG LTDA",empresa:"DNFG LTDA",operadora:"Sul América",mensalidade:"6.457,70"},
+  {nome:"MONDELLO COMERCIAL LTDA",empresa:"MONDELLO COMERCIAL LTDA",operadora:"Amil",mensalidade:"6.434,07"},
+  {nome:"LAF SERVIÇOS",empresa:"LAF SERVIÇOS",operadora:"Amil",mensalidade:"6.287,05"},
+  {nome:"ROUTE CORRETORA DE SEGUROS",empresa:"ROUTE CORRETORA DE SEGUROS",operadora:"Unimed",mensalidade:"6.225,90"},
+  {nome:"ASSOCIACAO COMERCIAL E EMPRESARIAL DE OSASCO",empresa:"ASSOCIACAO COMERCIAL E EMPRESARIAL DE OSASCO",operadora:"Sul América",mensalidade:"6.190,33"},
+  {nome:"TRINDADE DAMASCENO LANCHONETE LTDA ME",empresa:"TRINDADE DAMASCENO LANCHONETE LTDA ME",operadora:"Unimed",mensalidade:"6.153,64"},
+  {nome:"HOTEL VOLLARE LTDA",empresa:"HOTEL VOLLARE LTDA",operadora:"NotreDame/Hapvida",mensalidade:"6.149,11"},
+  {nome:"A CONSULTIVA ASSESSORIA E CORRETORA DE SEGUROS LTDA",empresa:"A CONSULTIVA ASSESSORIA E CORRETORA DE SEGUROS LTDA",operadora:"Sul América",mensalidade:"6.132,38"},
+  {nome:"LE BASIQUE CONFECCOES LTDA EPP",empresa:"LE BASIQUE CONFECCOES LTDA EPP",operadora:"Bradesco",mensalidade:"6.091,59"},
+  {nome:"ALEXANDRE GOMES BEZERRA",empresa:"ALEXANDRE GOMES BEZERRA",operadora:"Sul América",mensalidade:"5.574,57"},
+  {nome:"GDR CONSULTORIA E CORRETAGEM DE SEGUROS",empresa:"GDR CONSULTORIA E CORRETAGEM DE SEGUROS",operadora:"Unimed",mensalidade:"5.571,32"},
+  {nome:"GDR CONSULTORIA E CORRETAGEM DE SEGUROS LTDA",empresa:"GDR CONSULTORIA E CORRETAGEM DE SEGUROS LTDA",operadora:"Unimed",mensalidade:"5.571,32"},
+  {nome:"CUCINA TRATTORIA LTDA",empresa:"CUCINA TRATTORIA LTDA",operadora:"Amil",mensalidade:"5.570,73"},
+  {nome:"LUIZ FERNANDO SCH BEHRING",empresa:"LUIZ FERNANDO SCH BEHRING",operadora:"Unimed",mensalidade:"5.471,24"},
+  {nome:"LEMOS & LEMOS MEDICOS ASSOCIADOS",empresa:"LEMOS & LEMOS MEDICOS ASSOCIADOS",operadora:"Amil",mensalidade:"5.460,47"},
+  {nome:"GREEN TEA COMERCIO E CONFECCAO EIRELI",empresa:"GREEN TEA COMERCIO E CONFECCAO EIRELI",operadora:"Amil",mensalidade:"5.425,14"},
+  {nome:"ROUTE CORRETORA DE SEGUROS LTDA",empresa:"ROUTE CORRETORA DE SEGUROS LTDA",operadora:"Unimed",mensalidade:"5.262,91"},
+  {nome:"CLINICA MAZZARO",empresa:"CLINICA MAZZARO",operadora:"Bradesco",mensalidade:"5.256,14"},
+  {nome:"AND TOC JOIAS LTDA",empresa:"AND TOC JOIAS LTDA",operadora:"Bradesco",mensalidade:"5.179,10"},
+  {nome:"AND TOC JOJAS LTDA ME",empresa:"AND TOC JOJAS LTDA ME",operadora:"Unimed",mensalidade:"5.178,10"},
+  {nome:"ZENITE ARQUITETURA E CONSTRUCAO LTDA",empresa:"ZENITE ARQUITETURA E CONSTRUCAO LTDA",operadora:"Amil",mensalidade:"5.100,41"},
+  {nome:"KAMPFF GESTAO EMPRESARIAL LTDA",empresa:"KAMPFF GESTAO EMPRESARIAL LTDA",operadora:"NotreDame/Hapvida",mensalidade:"5.052,16"},
+  {nome:"PETBANK MEIOS DE PAGAMENTOS E BENEFICIOS SOCI",empresa:"PETBANK MEIOS DE PAGAMENTOS E BENEFICIOS SOCI",operadora:"Sul América",mensalidade:"5.014,24"},
+  {nome:"LUIZ SILVEIRA SOCIEDADE DE ADVOGADOS",empresa:"LUIZ SILVEIRA SOCIEDADE DE ADVOGADOS",operadora:"NotreDame/Hapvida",mensalidade:"4.967,38"},
+  {nome:"CAIS CORRETORA DE SEG",empresa:"CAIS CORRETORA DE SEG",operadora:"Unimed",mensalidade:"4.947,64"},
+  {nome:"CAIS - CORRETORA DE SEGUROS S/S LTDA",empresa:"CAIS - CORRETORA DE SEGUROS S/S LTDA",operadora:"Unimed",mensalidade:"4.947,64"},
+  {nome:"IVETE JOSEPHINA TAVANO INCANE",empresa:"IVETE JOSEPHINA TAVANO INCANE",operadora:"Unimed",mensalidade:"4.947,64"},
+  {nome:"PETBANK MEIOS DE PAG E BENEFICIOS SOCIEDADE",empresa:"PETBANK MEIOS DE PAG E BENEFICIOS SOCIEDADE",operadora:"Sul América",mensalidade:"4.932,84"},
+  {nome:"MAYLU DE OLIVEIRA ADMINISTRADORA E CORRETORA DE SEGUROS LTDA",empresa:"MAYLU DE OLIVEIRA ADMINISTRADORA E CORRETORA DE SEGUROS LTDA",operadora:"Unimed",mensalidade:"4.837,32"},
+  {nome:"MAYLU DE OLIVEIRA ADM E CORRETORA DE",empresa:"MAYLU DE OLIVEIRA ADM E CORRETORA DE",operadora:"Bradesco",mensalidade:"4.827,32"},
+  {nome:"MGK CLINICA DE ODONTOLOGIA SC LTDA",empresa:"MGK CLINICA DE ODONTOLOGIA SC LTDA",operadora:"Sul América",mensalidade:"4.580,64"},
+  {nome:"ARBMECO CAMARA A A MEDIACAO E CONCILIAC",empresa:"ARBMECO CAMARA A A MEDIACAO E CONCILIAC",operadora:"Sul América",mensalidade:"4.562,98"},
+  {nome:"ARCONTROL SERVICOS DE MANUTENCAO E",empresa:"ARCONTROL SERVICOS DE MANUTENCAO E",operadora:"Sul América",mensalidade:"4.562,98"},
+  {nome:"INFINITY LIMPEZA PROFISSIONAL E MULTISERVICOS LTDA",empresa:"INFINITY LIMPEZA PROFISSIONAL E MULTISERVICOS LTDA",operadora:"Sul América",mensalidade:"4.428,38"},
+  {nome:"GENINHO CORRETORA DE SEGUROS",empresa:"GENINHO CORRETORA DE SEGUROS",operadora:"Unimed",mensalidade:"4.416,97"},
+  {nome:"GENINHO CORRETORA DE SEGUROS S/S LTDA",empresa:"GENINHO CORRETORA DE SEGUROS S/S LTDA",operadora:"Unimed",mensalidade:"4.416,97"},
+  {nome:"WISBRUN",empresa:"WISBRUN",operadora:"Amil",mensalidade:"4.399,72"},
+  {nome:"INCENTIVES 4 TRAVEL VIAGENS E TURISMO LTDA",empresa:"INCENTIVES 4 TRAVEL VIAGENS E TURISMO LTDA",operadora:"Porto Seguro",mensalidade:"4.389,93"},
+  {nome:"MELLYCOM SERVICOS EM TECNOLOGIA E TELECOM LTDA",empresa:"MELLYCOM SERVICOS EM TECNOLOGIA E TELECOM LTDA",operadora:"NotreDame/Hapvida",mensalidade:"4.361,54"},
+  {nome:"WISBRUN CONSULT & MANAGEMENT INTERMEDIACAO DE NEGOCIOS LTDA",empresa:"WISBRUN CONSULT & MANAGEMENT INTERMEDIACAO DE NEGOCIOS LTDA",operadora:"Amil",mensalidade:"4.359,74"},
+  {nome:"AJT ADMINISTRADORA E CORRETORA DE SEGUROS",empresa:"AJT ADMINISTRADORA E CORRETORA DE SEGUROS",operadora:"Unimed",mensalidade:"4.350,39"},
+  {nome:"ORLANDO CESAR MARTINI",empresa:"ORLANDO CESAR MARTINI",operadora:"Unimed",mensalidade:"4.304,73"},
+  {nome:"DANED CORRETORA DE SEGUROS",empresa:"DANED CORRETORA DE SEGUROS",operadora:"Unimed",mensalidade:"4.269,30"},
+  {nome:"R.A. PREVIDENCIA LTDA",empresa:"R.A. PREVIDENCIA LTDA",operadora:"Sul América",mensalidade:"4.247,83"},
+  {nome:"DALVA CAPELLA CARVALHEIRA EIRELI",empresa:"DALVA CAPELLA CARVALHEIRA EIRELI",operadora:"Bradesco",mensalidade:"4.092,54"},
+  {nome:"DALVA CAPELLA CARVALHEIRA ME",empresa:"DALVA CAPELLA CARVALHEIRA ME",operadora:"Unimed",mensalidade:"4.092,54"},
+  {nome:"CROSS FIGHT ACADEMIA LTD",empresa:"CROSS FIGHT ACADEMIA LTD",operadora:"NotreDame/Hapvida",mensalidade:"4.084,52"},
+  {nome:"MILLENNIUM BAIRIU CORRETORA DE SEGUROS",empresa:"MILLENNIUM BAIRIU CORRETORA DE SEGUROS",operadora:"Unimed",mensalidade:"4.084,08"},
+  {nome:"MILLENNIUM BAURU CORRETORA DE SEGUROS LIMITADA",empresa:"MILLENNIUM BAURU CORRETORA DE SEGUROS LIMITADA",operadora:"Unimed",mensalidade:"4.084,08"},
+  {nome:"MPJDAMASIOS",empresa:"MPJDAMASIOS",operadora:"Unimed",mensalidade:"4.040,98"},
+  {nome:"MPJDAMASIOS CORRETORA DE SEGUROS LTDA",empresa:"MPJDAMASIOS CORRETORA DE SEGUROS LTDA",operadora:"Unimed",mensalidade:"4.040,98"},
+  {nome:"ODIB COMERCIO DE ALUMINIO E ACESSORIOS PARA",empresa:"ODIB COMERCIO DE ALUMINIO E ACESSORIOS PARA",operadora:"Unimed",mensalidade:"4.036,40"},
+  {nome:"RTD EMPREENDIMENTOS IMOBILIARIOS LT",empresa:"RTD EMPREENDIMENTOS IMOBILIARIOS LT",operadora:"Sul América",mensalidade:"4.019,43"},
+  {nome:"GLOBAL GOVERNANCE SER EMP LTDA",empresa:"GLOBAL GOVERNANCE SER EMP LTDA",operadora:"Unimed",mensalidade:"4.017,46"},
+  {nome:"NOVA CHAMFER INDUSTRIA E COMERCIO DE EMBALAGENS LTDA",empresa:"NOVA CHAMFER INDUSTRIA E COMERCIO DE EMBALAGENS LTDA",operadora:"Amil",mensalidade:"4.013,41"},
+  {nome:"TABLE PARTNERS CONSULTORIA EMPRESARIALLTDA",empresa:"TABLE PARTNERS CONSULTORIA EMPRESARIALLTDA",operadora:"Amil",mensalidade:"3.942,76"},
+  {nome:"YVETE ARAIDA BADAOCAI",empresa:"YVETE ARAIDA BADAOCAI",operadora:"Unimed",mensalidade:"3.857,14"},
+  {nome:"ZENWAY S/S",empresa:"ZENWAY S/S",operadora:"NotreDame/Hapvida",mensalidade:"3.780,56"},
+  {nome:"TECIDOS E CONFECCOES POLITEX LTDA",empresa:"TECIDOS E CONFECCOES POLITEX LTDA",operadora:"Bradesco",mensalidade:"3.747,00"},
+  {nome:"SA E LIMA SOCIEDADE INDIVIDUAL DE ADVOCACIA",empresa:"SA E LIMA SOCIEDADE INDIVIDUAL DE ADVOCACIA",operadora:"Amil",mensalidade:"3.738,16"},
+  {nome:"JOSE CARLOS BENEDITO NAPOLITANO 40175910863",empresa:"JOSE CARLOS BENEDITO NAPOLITANO 40175910863",operadora:"NotreDame/Hapvida",mensalidade:"3.689,45"},
+  {nome:"WILSON GONCALVES RIBEIRO",empresa:"WILSON GONCALVES RIBEIRO",operadora:"Unimed",mensalidade:"3.600,40"},
+  {nome:"SARAGIOTTO E TARTARI CORRETORA DE SEGUROS LTDA",empresa:"SARAGIOTTO E TARTARI CORRETORA DE SEGUROS LTDA",operadora:"Unimed",mensalidade:"3.550,83"},
+  {nome:"VALMICE DA SILVA ZALEWSKI",empresa:"VALMICE DA SILVA ZALEWSKI",operadora:"Unimed",mensalidade:"3.550,83"},
+  {nome:"SARAGIOTTO E TARTARI",empresa:"SARAGIOTTO E TARTARI",operadora:"Unimed",mensalidade:"3.550,18"},
+  {nome:"AN EXPRESS COMERCIO VAREJISTA DE COSMETICOS LTDA",empresa:"AN EXPRESS COMERCIO VAREJISTA DE COSMETICOS LTDA",operadora:"Sul América",mensalidade:"3.540,92"},
+  {nome:"ARBOREA PLANEJAMENTO, PROJETO E CONSULTORIA LTDA",empresa:"ARBOREA PLANEJAMENTO, PROJETO E CONSULTORIA LTDA",operadora:"Amil",mensalidade:"3.525,31"},
+  {nome:"FABIO DE OLIVEIRA LEAL",empresa:"FABIO DE OLIVEIRA LEAL",operadora:"Unimed",mensalidade:"3.488,03"},
+  {nome:"D. STUDIOS LTDA",empresa:"D. STUDIOS LTDA",operadora:"Sul América",mensalidade:"3.380,82"},
+  {nome:"PATRICIA DE OLIVEIRA SILVA",empresa:"PATRICIA DE OLIVEIRA SILVA",operadora:"Unimed",mensalidade:"3.350,49"},
+  {nome:"GLOBAL GOVERNANCE SERVICOS EMPRESARIAIS LTDA",empresa:"GLOBAL GOVERNANCE SERVICOS EMPRESARIAIS LTDA",operadora:"Unimed",mensalidade:"3.300,77"},
+  {nome:"LUCIANA XAVIER DE SALLES LTDA",empresa:"LUCIANA XAVIER DE SALLES LTDA",operadora:"Porto Seguro",mensalidade:"3.284,53"},
+  {nome:"SIDNEY SILVA BARBOSA - CONSULTORIA",empresa:"SIDNEY SILVA BARBOSA - CONSULTORIA",operadora:"Porto Seguro",mensalidade:"3.218,81"},
+  {nome:"JEVAN SERVICOS ADMINISTRATIVOS LTDA",empresa:"JEVAN SERVICOS ADMINISTRATIVOS LTDA",operadora:"Unimed",mensalidade:"3.183,71"},
+  {nome:"CFM PSICOLOGIA LTDA",empresa:"CFM PSICOLOGIA LTDA",operadora:"Amil",mensalidade:"3.181,26"},
+  {nome:"NCM SERVICOS LTDA",empresa:"NCM SERVICOS LTDA",operadora:"Sul América",mensalidade:"3.179,12"},
+  {nome:"INVITI LIBRO SOLUCOES LTDA",empresa:"INVITI LIBRO SOLUCOES LTDA",operadora:"Sul América",mensalidade:"3.175,00"},
+  {nome:"ENGENHARIA DE TRANSMISSAO INFORMATICA",empresa:"ENGENHARIA DE TRANSMISSAO INFORMATICA",operadora:"Sul América",mensalidade:"3.112,78"},
+  {nome:"VIA DIGITAL IMOVEIS E REPRESENTACOES LTDA",empresa:"VIA DIGITAL IMOVEIS E REPRESENTACOES LTDA",operadora:"MedSenior",mensalidade:"3.008,57"},
+  {nome:"CFA REP. TREINAMENTO, CONS & ENGENHARIA LTDA",empresa:"CFA REP. TREINAMENTO, CONS & ENGENHARIA LTDA",operadora:"Porto Seguro",mensalidade:"2.973,07"},
+  {nome:"ULTRADATA SOLUCOES TECNOLOGICAS PARA O AGRONEGOCIO LTDA",empresa:"ULTRADATA SOLUCOES TECNOLOGICAS PARA O AGRONEGOCIO LTDA",operadora:"Amil",mensalidade:"2.952,21"},
+  {nome:"BELA CASA ARTIGOS DE DECORACAO EIRELI",empresa:"BELA CASA ARTIGOS DE DECORACAO EIRELI",operadora:"NotreDame/Hapvida",mensalidade:"2.915,73"},
+  {nome:"CHUNLIN COMERCIO DE ACESSORIOS PARA CELULARES LTDA",empresa:"CHUNLIN COMERCIO DE ACESSORIOS PARA CELULARES LTDA",operadora:"NotreDame/Hapvida",mensalidade:"2.906,58"},
+  {nome:"GRAZIANI & LIMA ODONTOLOGIA ESPECIALIZADA LTDA.",empresa:"GRAZIANI & LIMA ODONTOLOGIA ESPECIALIZADA LTDA.",operadora:"Amil",mensalidade:"2.850,18"},
+  {nome:"DIONEL DE SOUZA SANTOS",empresa:"DIONEL DE SOUZA SANTOS",operadora:"Unimed",mensalidade:"2.770,77"},
+  {nome:"MORADA DO VERDE CORRETORA",empresa:"MORADA DO VERDE CORRETORA",operadora:"Unimed",mensalidade:"2.735,62"},
+  {nome:"JEAN PETER BALBO",empresa:"JEAN PETER BALBO",operadora:"Unimed",mensalidade:"2.690,42"},
+  {nome:"DAPPO CONTABILIDADE",empresa:"DAPPO CONTABILIDADE",operadora:"Sul América",mensalidade:"2.674,00"},
+  {nome:"ASSOCIACAO RESIDENCIAL VALVILLE II",empresa:"ASSOCIACAO RESIDENCIAL VALVILLE II",operadora:"NotreDame/Hapvida",mensalidade:"2.634,59"},
+  {nome:"TIBURCIO E CARVALHO CONSULTORIA EMPRESARIAL LTDA",empresa:"TIBURCIO E CARVALHO CONSULTORIA EMPRESARIAL LTDA",operadora:"Amil",mensalidade:"2.622,69"},
+  {nome:"LUIZ CARLOS DIAS NETO",empresa:"LUIZ CARLOS DIAS NETO",operadora:"Unimed",mensalidade:"2.622,52"},
+  {nome:"LUIZ CARLOS NETO",empresa:"LUIZ CARLOS NETO",operadora:"Unimed",mensalidade:"2.622,52"},
+  {nome:"S.C GESSO COMERCIO E PRESTACAO DE SERVICO LTDA",empresa:"S.C GESSO COMERCIO E PRESTACAO DE SERVICO LTDA",operadora:"Amil",mensalidade:"2.545,04"},
+  {nome:"PAULO SERGIO FACHINI SOUZA 17363700818",empresa:"PAULO SERGIO FACHINI SOUZA 17363700818",operadora:"NotreDame/Hapvida",mensalidade:"2.422,69"},
+  {nome:"GAWIN´S PARK LTDA - ME",empresa:"GAWIN´S PARK LTDA - ME",operadora:"Unimed",mensalidade:"2.397,77"},
+  {nome:"PSCA SERVICOS LTDA",empresa:"PSCA SERVICOS LTDA",operadora:"Sul América",mensalidade:"2.384,34"},
+  {nome:"HORIZONTE INCORPORADORA E CONSTRUTO",empresa:"HORIZONTE INCORPORADORA E CONSTRUTO",operadora:"Sul América",mensalidade:"2.365,64"},
+  {nome:"MOSTEIRO DE SAO BENTO DE SAO PAULO",empresa:"MOSTEIRO DE SAO BENTO DE SAO PAULO",operadora:"Bradesco",mensalidade:"2.285,53"},
+  {nome:"CAMILA FRANCO GARCIA 31978318880",empresa:"CAMILA FRANCO GARCIA 31978318880",operadora:"Amil",mensalidade:"2.270,82"},
+  {nome:"AG HOME",empresa:"AG HOME",operadora:"Sul América",mensalidade:"2.253,35"},
+  {nome:"COEP CURSOS MEDICOS E TREINAMENTOS LTDA",empresa:"COEP CURSOS MEDICOS E TREINAMENTOS LTDA",operadora:"NotreDame/Hapvida",mensalidade:"2.206,87"},
+  {nome:"TACEI COMERCIO DE DOCES E EMBALAGENS LTDA",empresa:"TACEI COMERCIO DE DOCES E EMBALAGENS LTDA",operadora:"Amil",mensalidade:"2.183,51"},
+  {nome:"ROGERIO WOLF",empresa:"ROGERIO WOLF",operadora:"Unimed",mensalidade:"2.142,93"},
+  {nome:"GAVINS PARK LTDA",empresa:"GAVINS PARK LTDA",operadora:"Unimed",mensalidade:"2.031,50"},
+  {nome:"CONDOMINIO SHOPPING SERVICE",empresa:"CONDOMINIO SHOPPING SERVICE",operadora:"NotreDame/Hapvida",mensalidade:"2.022,16"},
+  {nome:"SRSOARES CONSULTING LTDA",empresa:"SRSOARES CONSULTING LTDA",operadora:"Sul América",mensalidade:"1.998,89"},
+  {nome:"PEDRO HUNGRIA DE LUCA SERVICO DE APOIO ADMINISTRATIVO",empresa:"PEDRO HUNGRIA DE LUCA SERVICO DE APOIO ADMINISTRATIVO",operadora:"Amil",mensalidade:"1.964,27"},
+  {nome:"ISAC VIEIRA 03501365802",empresa:"ISAC VIEIRA 03501365802",operadora:"Amil",mensalidade:"1.871,02"},
+  {nome:"DECORA ARTIGOS TEXTEIS EIRELI",empresa:"DECORA ARTIGOS TEXTEIS EIRELI",operadora:"NotreDame/Hapvida",mensalidade:"1.829,68"},
+  {nome:"GRALEX IMPORTACAO E COMERCIO LTDA",empresa:"GRALEX IMPORTACAO E COMERCIO LTDA",operadora:"Amil",mensalidade:"1.826,97"},
+  {nome:"ST ADMINISTRADORA E CORRETORA DE SEGUROS",empresa:"ST ADMINISTRADORA E CORRETORA DE SEGUROS",operadora:"Unimed",mensalidade:"1.797,94"},
+  {nome:"ST ADMINISTRADORA E CORRETORA DE SEGUROS LTDA",empresa:"ST ADMINISTRADORA E CORRETORA DE SEGUROS LTDA",operadora:"Unimed",mensalidade:"1.797,94"},
+  {nome:"VINICIUS GUBEISSI ASSESSORIA ME",empresa:"VINICIUS GUBEISSI ASSESSORIA ME",operadora:"Porto Seguro",mensalidade:"1.739,19"},
+  {nome:"RMCMS CONSULTORIA",empresa:"RMCMS CONSULTORIA",operadora:"Bradesco",mensalidade:"1.728,51"},
+  {nome:"GABRIEL VALENTINI MARTINGO DOS",empresa:"GABRIEL VALENTINI MARTINGO DOS",operadora:"Unimed",mensalidade:"1.728,51"},
+  {nome:"FINVERA AUDITORIA E ASSESSORIA CONTABIL E EMPRESARIAL LTDA",empresa:"FINVERA AUDITORIA E ASSESSORIA CONTABIL E EMPRESARIAL LTDA",operadora:"Amil",mensalidade:"1.666,38"},
+  {nome:"COPOL SERVICOS ADMINISTRATIVOS LTDA EPP",empresa:"COPOL SERVICOS ADMINISTRATIVOS LTDA EPP",operadora:"NotreDame/Hapvida",mensalidade:"1.656,30"},
+  {nome:"EDMILSON JORGE ROSA",empresa:"EDMILSON JORGE ROSA",operadora:"MedSenior",mensalidade:"1.643,58"},
+  {nome:"BGE SERVICOS ADMINISTRATIVOS LTDA",empresa:"BGE SERVICOS ADMINISTRATIVOS LTDA",operadora:"Sul América",mensalidade:"1.589,56"},
+  {nome:"HELIO SERVICE LTDA",empresa:"HELIO SERVICE LTDA",operadora:"Sul América",mensalidade:"1.589,56"},
+  {nome:"MED KRAY SERVICOS MEDICOS LTDA",empresa:"MED KRAY SERVICOS MEDICOS LTDA",operadora:"Amil",mensalidade:"1.389,02"},
+  {nome:"SIDARTA AUTO PECAS LTDA",empresa:"SIDARTA AUTO PECAS LTDA",operadora:"Amil",mensalidade:"1.377,00"},
+  {nome:"SONIA JACINTO",empresa:"SONIA JACINTO",operadora:"Transmontano",mensalidade:"1.357,22"},
+  {nome:"ALEXANDRE GOBBI",empresa:"ALEXANDRE GOBBI",operadora:"Amil",mensalidade:"1.174,52"},
+  {nome:"LOGVIN AIR OCEAN BRAZIL DESP E LOG L",empresa:"LOGVIN AIR OCEAN BRAZIL DESP E LOG L",operadora:"Unimed",mensalidade:"1.163,18"},
+  {nome:"EXPANDIR CONSULTORIA & INTERMEDIACOES LTDA",empresa:"EXPANDIR CONSULTORIA & INTERMEDIACOES LTDA",operadora:"Amil",mensalidade:"1.133,27"},
+  {nome:"EXPANDIR COM",empresa:"EXPANDIR COM",operadora:"Amil",mensalidade:"1.133,24"},
+  {nome:"FRANCISCO W DE OLIVEIRA",empresa:"FRANCISCO W DE OLIVEIRA",operadora:"Transmontano",mensalidade:"1.085,72"},
+  {nome:"JUREMA BENZOGORNI ROSA",empresa:"JUREMA BENZOGORNI ROSA",operadora:"MedSenior",mensalidade:"1.044,87"},
+  {nome:"VALENTE E IBANES POUSADA",empresa:"VALENTE E IBANES POUSADA",operadora:"Amil",mensalidade:"1.027,91"},
+  {nome:"CONDOMINIO EDIFICIO CAMILA",empresa:"CONDOMINIO EDIFICIO CAMILA",operadora:"NotreDame/Hapvida",mensalidade:"1.022,92"},
+  {nome:"SP-INTERSEG SISTEMAS DE SEGURANCA LTDA",empresa:"SP-INTERSEG SISTEMAS DE SEGURANCA LTDA",operadora:"NotreDame/Hapvida",mensalidade:"1.000,14"},
+  {nome:"EMILIA PAULA DE MELO",empresa:"EMILIA PAULA DE MELO",operadora:"Prevent Senior",mensalidade:"917,36"},
+  {nome:"PEDRO PAULO G CASTRO",empresa:"PEDRO PAULO G CASTRO",operadora:"São Cristóvão",mensalidade:"845,82"},
+  {nome:"CONDOMINIO RESIDENCIAL ITAPARICA",empresa:"CONDOMINIO RESIDENCIAL ITAPARICA",operadora:"NotreDame/Hapvida",mensalidade:"806,61"},
+  {nome:"RIF DADOS DO BRASIL LTDA",empresa:"RIF DADOS DO BRASIL LTDA",operadora:"Amil",mensalidade:"611,49"},
+  {nome:"ISABELLA PRADO PAIVA",empresa:"ISABELLA PRADO PAIVA",operadora:"Transmontano",mensalidade:"428,86"},
+  {nome:"OSASCO TRADE & CONVENTION CENTER",empresa:"OSASCO TRADE & CONVENTION CENTER",operadora:"NotreDame/Hapvida",mensalidade:"357,62"},
+  {nome:"ALEXANDRE GOBBI EPP",empresa:"ALEXANDRE GOBBI EPP",operadora:"Unimed",mensalidade:"165,35"}
+].map(c=>({id:uid(),cnpj:"",telefone:"",email:"",status:"ativo",notas:"Importado da base DCG — vitalício ativo",...c}));
+
 let casos    = [];
 let clientes = [];
 let template = TPL_PADRAO;
@@ -765,16 +1194,18 @@ function toast(msg,dur=3200){const t=$("toast");t.textContent=msg;t.classList.ad
 /* ===== KANBAN ===== */
 function renderBoard(){
   const board=$("board"); board.innerHTML="";
+  const visiveis=casosVisiveis();
   ETAPAS.forEach(et=>{
-    const list=casos.filter(c=>c.etapa===et.id).filter(c=>filtroTese==="todos"||c.tese===filtroTese).filter(c=>!busca||(c.nome+" "+(c.reu||"")+" "+(c.cnj||"")+" "+(c.obs||"")).toLowerCase().includes(busca));
+    const list=visiveis.filter(c=>c.etapa===et.id).filter(c=>filtroTese==="todos"||c.tese===filtroTese).filter(c=>!busca||(c.nome+" "+(c.reu||"")+" "+(c.cnj||"")+" "+(c.obs||"")).toLowerCase().includes(busca));
     const col=document.createElement("div"); col.className="col "+et.cls;
     col.innerHTML=`<div class="col-head"><h2>${et.nome}</h2><span class="cnt">${list.length}</span></div>`;
     list.forEach(c=>{
       const [tCls,tLbl]=TESE_LABEL[c.tese]||TESE_LABEL.revisao;
       const obsHtml=(c.obs||"").split("\n").filter(Boolean).map(l=>{const i=l.indexOf(":");return i>0?`<div class="info"><b>${esc(l.slice(0,i))}:</b> ${esc(l.slice(i+1))}</div>`:`<div class="info">${esc(l)}</div>`;}).join("");
+      const ultAnd=(c.andamentos&&c.andamentos.length)?c.andamentos[c.andamentos.length-1]:null;
       const card=document.createElement("div"); card.className="card";
       card.innerHTML=`
-        <span class="tese-tag ${tCls}">${tLbl}</span>
+        <span class="tese-tag ${tCls}">${tLbl}</span>${c.criadoPorPapel==="juridico"?'<span class="badge-adv">⚖️ Cadastrado pelo jurídico</span>':(c.enviadoAdv?'<span class="badge-adv">📤 Enviado ao jurídico</span>':'')}
         <h3>${esc(c.nome)}</h3>
         <div class="vs ${c.reu?"":"none"}">${c.reu?"× "+esc(c.reu):"réu a definir"}</div>
         ${c.cnj?`<span class="cnj">CNJ ${esc(c.cnj)}</span>`:""}
@@ -782,21 +1213,37 @@ function renderBoard(){
         ${obsHtml}
         ${c.money?`<div class="money">💰 ${esc(c.money)}</div>`:""}
         ${c.next?`<div class="next"><b>Próximo passo:</b> ${esc(c.next)}</div>`:""}
+        ${ultAnd?`<div class="and-last">⚡ ${fmtTs(ultAnd.ts)} · <b>${esc(ultAnd.autor)}</b>: ${esc(ultAnd.txt)}</div>`:""}
         <div class="card-actions">
           <button class="mini-btn" data-mv="-1" title="Voltar etapa">‹</button>
           <button class="mini-btn" data-mv="1" title="Avançar etapa">›</button>
           <button class="mini-btn" data-ed="1">✏️ Editar</button>
-          <button class="mini-btn danger" data-del="1">🗑</button>
+          ${isAdmin()?`<button class="mini-btn" data-env="1" title="${c.enviadoAdv?"Retirar da pauta do Dr. Sandro":"Enviar ao Dr. Sandro"}">${c.enviadoAdv?"↩":"📤"}</button>`:""}
+          ${isAdmin()?`<button class="mini-btn danger" data-del="1">🗑</button>`:""}
         </div>`;
       card.querySelector("[data-ed]").onclick=()=>openCaso(c.id);
-      card.querySelector("[data-del]").onclick=()=>{if(confirm(`Excluir o caso "${c.nome}"?`)){casos=casos.filter(x=>x.id!==c.id);save(LS.casos,casos);renderAll();toast("Caso excluído.");}};
-      card.querySelectorAll("[data-mv]").forEach(b=>b.onclick=()=>{const nova=Math.min(5,Math.max(1,c.etapa+(+b.dataset.mv)));if(nova!==c.etapa){c.etapa=nova;save(LS.casos,casos);renderAll();}});
+      const delBtn=card.querySelector("[data-del]");
+      if(delBtn)delBtn.onclick=()=>{if(confirm(`Excluir o caso "${c.nome}"?`)){casos=casos.filter(x=>x.id!==c.id);save(LS.casos,casos);renderAll();toast("Caso excluído.");}};
+      const envBtn=card.querySelector("[data-env]");
+      if(envBtn)envBtn.onclick=()=>{
+        c.enviadoAdv=!c.enviadoAdv;
+        (c.andamentos=c.andamentos||[]).push({ts:new Date().toISOString(),autor:sessao.nome,txt:c.enviadoAdv?"📤 Caso enviado à equipe jurídica (Dr. Sandro)":"↩ Caso retirado da pauta jurídica"});
+        save(LS.casos,casos);renderAll();
+        toast(c.enviadoAdv?"📤 Enviado ao Dr. Sandro":"↩ Retirado da pauta jurídica");
+      };
+      card.querySelectorAll("[data-mv]").forEach(b=>b.onclick=()=>{const nova=Math.min(5,Math.max(1,c.etapa+(+b.dataset.mv)));if(nova!==c.etapa){c.etapa=nova;(c.andamentos=c.andamentos||[]).push({ts:new Date().toISOString(),autor:sessao.nome,txt:`Etapa alterada para ${nova} · ${ETAPAS[nova-1].nome}`});save(LS.casos,casos);renderAll();}});
       col.appendChild(card);
     });
     board.appendChild(col);
   });
 }
 let casoEditId=null;
+function renderAndamentos(c){
+  const lst=(c&&c.andamentos)||[];
+  $("andList").innerHTML=lst.length
+    ?lst.slice().reverse().map(a=>`<div class="and-item"><div class="meta">${fmtTs(a.ts)} · ${esc(a.autor)}</div>${esc(a.txt)}</div>`).join("")
+    :'<div class="and-item" style="color:#8494b2">Nenhum andamento registrado ainda.</div>';
+}
 function openCaso(id){
   casoEditId=id||null;
   const c=id?casos.find(x=>x.id===id):{};
@@ -804,7 +1251,11 @@ function openCaso(id){
   $("fNome").value=c.nome||"";$("fReu").value=c.reu||"";$("fTese").value=c.tese||"revisao";
   $("fEtapa").value=c.etapa||1;$("fCnj").value=c.cnj||"";$("fVara").value=c.vara||"";
   $("fMoney").value=c.money||"";$("fNext").value=c.next||"";$("fObs").value=c.obs||"";
-  $("btnExcluirCaso").style.display=id?"block":"none";
+  $("fEnvAdv").checked=!!c.enviadoAdv;
+  $("rowEnvAdv").style.display=isAdmin()?"block":"none";
+  $("fNovoAnd").value="";
+  renderAndamentos(c);
+  $("btnExcluirCaso").style.display=(id&&isAdmin())?"block":"none";
   $("mCaso").classList.add("open");
 }
 $("btnNovoCaso").onclick=()=>openCaso(null);
@@ -812,11 +1263,36 @@ $("btnSalvarCaso").onclick=()=>{
   const nome=$("fNome").value.trim();
   if(!nome){alert("Informe o nome do cliente/partes.");return;}
   const dados={nome,reu:$("fReu").value.trim(),tese:$("fTese").value,etapa:+$("fEtapa").value,cnj:$("fCnj").value.trim(),vara:$("fVara").value.trim(),money:$("fMoney").value.trim(),next:$("fNext").value.trim(),obs:$("fObs").value.trim()};
-  if(casoEditId){Object.assign(casos.find(x=>x.id===casoEditId),dados);toast("Caso atualizado.");}
-  else{casos.push({id:uid(),...dados});toast("Caso cadastrado.");}
+  const novoAnd=$("fNovoAnd").value.trim();
+  const agora=()=>new Date().toISOString();
+  if(casoEditId){
+    const alvo=casos.find(x=>x.id===casoEditId);
+    alvo.andamentos=alvo.andamentos||[];
+    if(isAdmin()){
+      const antes=!!alvo.enviadoAdv;
+      dados.enviadoAdv=$("fEnvAdv").checked;
+      if(dados.enviadoAdv&&!antes)alvo.andamentos.push({ts:agora(),autor:sessao.nome,txt:"📤 Caso enviado à equipe jurídica (Dr. Sandro)"});
+      if(!dados.enviadoAdv&&antes)alvo.andamentos.push({ts:agora(),autor:sessao.nome,txt:"↩ Caso retirado da pauta jurídica"});
+    }
+    if(novoAnd)alvo.andamentos.push({ts:agora(),autor:sessao.nome,txt:novoAnd});
+    Object.assign(alvo,dados);
+    toast("Caso atualizado.");
+  }else{
+    const novo={id:uid(),andamentos:[],criadoPor:sessao.usuario,criadoPorNome:sessao.nome,criadoPorPapel:sessao.papel,...dados};
+    if(isAdmin()){
+      novo.enviadoAdv=$("fEnvAdv").checked;
+      if(novo.enviadoAdv)novo.andamentos.push({ts:agora(),autor:sessao.nome,txt:"📤 Caso enviado à equipe jurídica (Dr. Sandro)"});
+    }else{
+      novo.enviadoAdv=true;
+      novo.andamentos.push({ts:agora(),autor:sessao.nome,txt:"⚖️ Caso cadastrado diretamente pela equipe jurídica (Dr. Sandro)"});
+    }
+    if(novoAnd)novo.andamentos.push({ts:agora(),autor:sessao.nome,txt:novoAnd});
+    casos.push(novo);
+    toast("Caso cadastrado.");
+  }
   save(LS.casos,casos);$("mCaso").classList.remove("open");renderAll();
 };
-$("btnExcluirCaso").onclick=()=>{if(casoEditId&&confirm("Excluir este caso?")){casos=casos.filter(x=>x.id!==casoEditId);save(LS.casos,casos);$("mCaso").classList.remove("open");renderAll();toast("Caso excluído.");}};
+$("btnExcluirCaso").onclick=()=>{if(!isAdmin())return;if(casoEditId&&confirm("Excluir este caso?")){casos=casos.filter(x=>x.id!==casoEditId);save(LS.casos,casos);$("mCaso").classList.remove("open");renderAll();toast("Caso excluído.");}};
 
 /* ===== CLIENTES ===== */
 function waPhone(t){let d=(t||"").replace(/\D/g,"");if(!d)return"";if(d.startsWith("0"))d=d.slice(1);if(d.length===10||d.length===11)d="55"+d;return d;}
@@ -1103,8 +1579,8 @@ function syncAba(){
   $("viewCasos").style.display=aba==="casos"?"block":"none";
   $("viewClientes").style.display=aba==="clientes"?"block":"none";
   $("viewDocs").style.display=aba==="docs"?"block":"none";
-  $("btnNovoCaso").style.display=aba==="casos"?"inline-flex":"none";
-  $("btnImport").style.display=aba==="clientes"?"inline-flex":"none";
+  $("btnNovoCaso").style.display=(aba==="casos"&&!!sessao)?"inline-flex":"none";
+  $("btnImport").style.display=(aba==="clientes"&&isAdmin())?"inline-flex":"none";
   $("q").placeholder=aba==="casos"?"Buscar caso, operadora, CNJ…":aba==="clientes"?"Buscar cliente, CNPJ, operadora…":"";
   $("q").style.display=aba==="docs"?"none":"block";
   if(aba==="docs"){const hk=provider==="anthropic"?!!apiKey:!!orKey;$("apiNotice").style.display=hk?"none":"flex";}
@@ -1122,9 +1598,10 @@ document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>$(b.dataset.c
 document.querySelectorAll(".overlay").forEach(o=>o.addEventListener("click",e=>{if(e.target===o)o.classList.remove("open");}));
 
 function renderKpis(){
-  $("kTotal").textContent=casos.length;
-  $("kJud").textContent=casos.filter(c=>c.etapa>=3&&c.etapa<=4).length;
-  $("kLim").textContent=casos.filter(c=>c.etapa===4).length;
+  const cs=casosVisiveis();
+  $("kTotal").textContent=cs.length;
+  $("kJud").textContent=cs.filter(c=>c.etapa>=3&&c.etapa<=4).length;
+  $("kLim").textContent=cs.filter(c=>c.etapa===4).length;
   $("kCli").textContent=clientes.length;
   $("kOf").textContent=clientes.filter(c=>["enviada","interessado","caso"].includes(c.oferta)).length;
   $("kInt").textContent=clientes.filter(c=>["interessado","caso"].includes(c.oferta)).length;
@@ -1863,28 +2340,67 @@ $('btnFCAprofundar').onclick = async () => {
   $('btnFCAprofundar').disabled = true;
   $('btnFCAprofundar').textContent = '⏳ Analisando…';
   const model = provider === 'anthropic' ? 'claude-sonnet-4-6' : 'google/gemma-4-31b-it:free';
-  const lista = top10.map((c,i) => `${i+1}. ${c.nome}${c.empresa&&c.empresa!==c.nome?' ('+c.empresa+')':''} | Operadora: ${c.operadora||'?'} | Mensalidade: R$ ${c.mensalidade||'?'} | CNPJ: ${c.cnpj||'?'} | Contato: ${c.telefone||c.email||'?'}`).join('\n');
-  const prompt = `Você é especialista em falso coletivo de planos de saúde PME no Brasil (DCG Seguros × Carvalho Advocacia).
-Analise estes ${top10.length} clientes e para cada um dê: (a) probabilidade de ser falso coletivo [Alta/Média/Baixa], (b) justificativa em 1 linha, (c) próximo passo recomendado.
+  const lista = top10.map((c,i) => {
+    const bens = c.beneficiarios || c.vidas || c.dependentes || '?';
+    const vigencia = c.vigencia || c.inicio || c.dataInicio || '';
+    const reajuste = c.reajuste || c.reajuste_pct || '';
+    return `${i+1}. ${c.nome}${c.empresa&&c.empresa!==c.nome?' ('+c.empresa+')':''} | Operadora: ${c.operadora||'?'} | Mensalidade: R$${c.mensalidade||'?'} | Beneficiários: ${bens} | CNPJ: ${c.cnpj||'?'}${vigencia?' | Desde: '+vigencia:''}${reajuste?' | Último reajuste: '+reajuste:''}`;
+  }).join('\n');
+  const prompt = `Você é especialista sênior em Direito dos Planos de Saúde, com foco em FALSO COLETIVO PME (parceria DCG Seguros × Carvalho Advocacia / Dr. Sandro Pigoretti de Carvalho, OAB/SP).
 
-Critérios de falso coletivo:
-- Plano PME onde todos os beneficiários são familiares do sócio (sem empregados reais)
-- Operadora com reajustes acima do índice ANS/VCMH
-- Vigência longa = maior potencial de restituição (5 anos)
-- Mensalidade alta = maior valor a recuperar
-- Empresas de 1-2 sócios com CNPJ = forte indício
+## FUNDAMENTO JURÍDICO DO FALSO COLETIVO
 
-Clientes:
+**Conceito:** Plano PME (pessoa jurídica) cujos beneficiários são EXCLUSIVAMENTE familiares do sócio, sem empregados reais. A lei trata esses contratos como plano INDIVIDUAL/FAMILIAR — os reajustes devem obedecer os índices ANS para planos individuais, não VCMH/sinistralidade livre.
+
+**Legislação base:**
+- Lei 9.656/98, art. 16, VII — define beneficiário e modalidades
+- RN ANS 195/2009 — categorias de contrato (individual, coletivo por adesão, coletivo empresarial)
+- RN ANS 309/2012 — agrupamento obrigatório de contratos <30 vidas (art. 3º e 4º)
+- CDC — Lei 8.078/90 (Súmulas 100 TJSP + 608 STJ: aplica-se CDC a contratos de plano de saúde)
+
+**Jurisprudência pacificada — STJ:**
+- REsp 1.701.600/SP (3ª Turma, Minª Nancy Andrighi, 09/03/2018): microempresa com 2 beneficiários (titular + cônjuge/filho) NÃO atinge a finalidade dos contratos coletivos = FALSO COLETIVO = regime individual
+- REsp 1.553.013 (Min. Ricardo Villas Bôas Cueva, 13/03/2018): RN 309/2012 impõe agrupamento obrigatório — operadora não pode aplicar VCMH isoladamente em contratos <30 vidas
+- STJ Tema 610 (REsp 1.360.969/RS): PRESCRIÇÃO TRIENAL — art. 206 §3º IV CC (3 anos da última mensalidade contestada)
+- STJ Tema 952: reajuste de faixa etária acima de 84,99% na faixa dos 59 anos = ABUSIVO; teto de 42,5% (média do Painel de Precificação ANS, RN 563/2022)
+
+**Jurisprudência TJSP consolidada:**
+- 1ª Câmara Direito Privado (Des. Claudio Godoy): mantém condenações contra Bradesco, exclui reajustes VCMH, aplica índices ANS
+- 8ª Câmara Direito Privado (Des. Benedito Antonio Okuno): STJ REsp 1.701.600 como precedente vinculante, recurso de Sul América desprovido em 14/05/2025
+- 5ª Vara Cível Osasco: Dras. Maria Helena Steffen, Gilvana Mastrandéa, Rossana Mazzoni — sentenças recentes favoráveis em 2022, 2024, 2026
+
+**Índices ANS reais para planos individuais (reajuste permitido):**
+2022: 15,50% | 2023: 9,23% | 2024: 6,91% | 2025: 6,09%
+*(Operadoras PME aplicaram ~19-20% nesses mesmos anos → diferença = restituição)*
+
+**Casos reais de resultado (referência):**
+- Bradesco (7 beneficiários / família): R$2.109 → R$9.419 em 9 anos; com ANS seria R$4.808 → diferença R$4.611/mês restituível
+- Sul América (3 beneficiários / casal de sócios): restituição 3 anos retroativos, tutela urgência multa R$1.000/boleto
+- Porto Seguro (4 beneficiários / sócia + família): sentença 28/05/2026, restituição R$30.986,91 (mar/2023–mar/2026) + faixa etária 84,99%→42,5%
+
+**Tese secundária — cancelamento sem aviso prévio (RN 455/2020 ANS):**
+Operadoras exigem 60 dias de aviso prévio ao consumidor que cancela. Isso é NULO por força da RN 455/2020. Tutelar casos onde cobranças seguiram após a data de cancelamento solicitada pelo cliente.
+
+## SUA ANÁLISE
+
+Para cada cliente abaixo, forneça:
+(a) **prob**: "Alta", "Média" ou "Baixa" — probabilidade de ser falso coletivo
+(b) **motivo**: 1 frase com a razão PRINCIPAL (ex: "3 vidas familiares + Bradesco + reajuste ~22% vs ANS 9,23%")
+(c) **next**: próximo passo concreto (ex: "Pedir contrato + lista beneficiários + boletos 3 anos" ou "Verificar quantidade de beneficiários — pode ser empresa com empregados reais")
+(d) **est**: estimativa de restituição em R$ (se Alta, calcule mensalidade × 36 meses × 30% diferença; se incerto, escreva "A definir após documentos")
+
+**Clientes a analisar:**
 ${lista}
 
-Responda em JSON puro, array com objetos: {"i":1,"prob":"Alta","motivo":"...","next":"..."}`;
+**Responda APENAS com JSON puro, array, sem texto antes ou depois:**
+[{"i":1,"prob":"Alta","motivo":"...","next":"...","est":"..."},...]`;
 
   try{
     const resp = await callClaude(prompt, '', model);
     const arr = JSON.parse(resp.match(/\[[\s\S]*\]/)?.[0] || '[]');
     arr.forEach(item => {
       const c = fcData[item.i - 1];
-      if(c){ c._aiAnalise = `[${item.prob}] ${item.motivo} → ${item.next}`; }
+      if(c){ c._aiAnalise = `[${item.prob}] ${item.motivo} → ${item.next}${item.est?' | 💰 Est.: '+item.est:''}`; }
     });
     renderFC();
     toast('✅ Análise IA concluída!');
@@ -1892,6 +2408,96 @@ Responda em JSON puro, array com objetos: {"i":1,"prob":"Alta","motivo":"...","n
   $('btnFCAprofundar').disabled = false;
   $('btnFCAprofundar').textContent = '🤖 Aprofundar top 10 com IA';
 };
+
+/* =====================================================================
+   GESTÃO DE USUÁRIOS (admin)
+===================================================================== */
+let usuEditId=null;
+function renderUsuarios(){
+  $("usuBody").innerHTML=usuarios.map(u=>`<tr>
+    <td><span class="nm">${esc(u.nome)}</span></td>
+    <td class="mono">${esc(u.usuario)}</td>
+    <td>${u.papel==="admin"?"Admin":"Jurídico"}</td>
+    <td><span class="st ${u.ativo!==false?"ativo":"inativo"}">${u.ativo!==false?"Ativo":"Desativado"}</span></td>
+    <td><button class="mini-btn" data-ue="${esc(u.id)}">✏️ Editar</button></td>
+  </tr>`).join("");
+  $("usuBody").querySelectorAll("[data-ue]").forEach(b=>b.onclick=()=>openUsuario(b.dataset.ue));
+}
+async function openUsuarios(){
+  await carregarUsuarios();
+  renderUsuarios();
+  try{
+    const lst=(await sbGet('acessos'))||[];
+    $("acessosBox").innerHTML=lst.slice(-15).reverse().map(a=>`${fmtTs(a.ts)} — <b>${esc(a.nome)}</b> (${esc(a.usuario)})`).join("<br>")||"Nenhum acesso registrado ainda.";
+  }catch(e){}
+  $("mUsuarios").classList.add("open");
+}
+function openUsuario(id){
+  usuEditId=id||null;
+  const u=id?usuarios.find(x=>x.id===id):{};
+  $("mUsuTitle").textContent=id?"Editar usuário":"Novo usuário";
+  $("uNome").value=u.nome||"";$("uLogin").value=u.usuario||"";$("uSenha").value="";
+  $("uPapel").value=u.papel||"juridico";$("uAtivo").value=u.ativo===false?"0":"1";
+  $("uSenhaHint").textContent=id?"Deixe em branco para manter a senha atual.":"Defina a senha inicial (mín. 6 caracteres).";
+  $("btnExcluirUsu").style.display=id?"block":"none";
+  $("mUsuario").classList.add("open");
+}
+$("btnSalvarUsu").onclick=async()=>{
+  const nome=$("uNome").value.trim(), login=$("uLogin").value.trim().toLowerCase().replace(/\s+/g,"");
+  const senha=$("uSenha").value, papel=$("uPapel").value, ativo=$("uAtivo").value==="1";
+  if(!nome||!login){alert("Preencha nome e login.");return;}
+  if(usuarios.some(x=>(x.usuario||"").toLowerCase()===login&&x.id!==usuEditId)){alert("Já existe usuário com esse login.");return;}
+  if(senha&&senha.length<6){alert("Senha com no mínimo 6 caracteres.");return;}
+  if(!usuEditId&&senha.length<6){alert("Defina a senha inicial (mín. 6 caracteres).");return;}
+  if(usuEditId){
+    const u=usuarios.find(x=>x.id===usuEditId);
+    if(login!==u.usuario&&!senha){alert("Ao alterar o login é preciso definir a senha novamente.");return;}
+    const outrosAdmins=usuarios.some(x=>x.id!==u.id&&x.papel==="admin"&&x.ativo!==false);
+    if(u.papel==="admin"&&(papel!=="admin"||!ativo)&&!outrosAdmins){alert("Este é o único admin ativo — crie outro admin antes de alterá-lo.");return;}
+    u.nome=nome;u.usuario=login;u.papel=papel;u.ativo=ativo;
+    if(senha)u.hash=await hashSenha(login,senha);
+  }else{
+    usuarios.push({id:uid(),nome,usuario:login,papel,ativo,hash:await hashSenha(login,senha)});
+  }
+  await autoSave('usuarios',usuarios);
+  $("mUsuario").classList.remove("open");
+  renderUsuarios();
+  toast("✅ Usuário salvo.");
+};
+$("btnExcluirUsu").onclick=async()=>{
+  if(!usuEditId)return;
+  const u=usuarios.find(x=>x.id===usuEditId); if(!u)return;
+  if(u.id===sessao.uid){alert("Você não pode excluir o próprio usuário.");return;}
+  const outrosAdmins=usuarios.some(x=>x.id!==u.id&&x.papel==="admin"&&x.ativo!==false);
+  if(u.papel==="admin"&&!outrosAdmins){alert("Este é o único admin ativo — crie outro antes.");return;}
+  if(!confirm(`Excluir o usuário "${u.nome}"? Ele perde o acesso imediatamente.`))return;
+  usuarios=usuarios.filter(x=>x.id!==usuEditId);
+  await autoSave('usuarios',usuarios);
+  $("mUsuario").classList.remove("open");
+  renderUsuarios();
+  toast("Usuário excluído.");
+};
+$("btnNovoUsuario").onclick=()=>openUsuario(null);
+$("btnUsuarios").onclick=openUsuarios;
+
+/* ===== ATUALIZAÇÃO EM TEMPO REAL (polling 60s) ===== */
+let _pollTimer=null;
+function iniciarPolling(){
+  if(_pollTimer)return;
+  _pollTimer=setInterval(async()=>{
+    if(document.hidden||!sb||!sessao)return;
+    if(document.querySelector(".overlay.open"))return; /* não sobrescrever com modal aberto */
+    try{
+      const c=await sbGet('casos');
+      if(c&&JSON.stringify(c)!==JSON.stringify(casos)){
+        casos=c;
+        localStorage.setItem(LS.casos,JSON.stringify(c));
+        renderAll();
+        toast("🔄 Casos atualizados por outro usuário",1800);
+      }
+    }catch(e){}
+  },60000);
+}
 
 /* ===== INIT ===== */
 updateModelSelect();
@@ -1901,13 +2507,33 @@ $("sbUrl").value=sbUrl; $("sbKey").value=sbKey;
 if(sbUrl&&sbKey) $("btnTestSb").style.display="inline-flex";
 $("btnSalvarConfig").addEventListener("click",()=>{ if($("sbUrl").value.trim()) $("btnTestSb").style.display="inline-flex"; });
 
-(async()=>{
+/* login: eventos */
+$("btnLogout").onclick=logout;
+$("btnLogin").onclick=doLogin;
+$("loginUser").addEventListener("keydown",e=>{if(e.key==="Enter")$("loginPass").focus();});
+$("loginPass").addEventListener("keydown",e=>{if(e.key==="Enter")doLogin();});
+
+async function boot(){
+  $("loginGate").style.display="none";
+  applyRoleUI();
   await initData();
   $("tplArea").value=template;
+  syncAba();
   renderAll();
   const _hk=provider==="anthropic"?!!apiKey:!!orKey;
   $("apiNotice").style.display=_hk?"none":"flex";
-  if(sb) toast("☁ Supabase conectado",2000);
+  if(sb) toast("☁ Conectado — bem-vindo(a), "+sessao.nome.split(" ")[0]+"!",2500);
+  iniciarPolling();
+}
+
+(async()=>{
+  const s=load(LS.sessao,null);
+  if(s&&s.exp&&s.exp>Date.now()){ sessao=s; await boot(); }
+  else{
+    localStorage.removeItem(LS.sessao);
+    $("loginGate").style.display="flex";
+    setTimeout(()=>$("loginUser").focus(),60);
+  }
 })();
 </script>
 </body>
