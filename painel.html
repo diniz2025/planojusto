@@ -617,8 +617,10 @@ const save = (k,v)=>{
    SUPABASE — sincronização em nuvem
 ===================================================================== */
 let sb = null;
-let sbUrl = load(LS.sbUrl,"");
-let sbKey  = load(LS.sbKey,"");
+const SB_URL_DEFAULT = "https://sjzirfwxqxemwwmvutdt.supabase.co";
+const SB_KEY_DEFAULT = "sb_publishable_UTGIoP9Vo1VnV8LZqQML8g_Frqc2NkD";
+let sbUrl = load(LS.sbUrl,"") || SB_URL_DEFAULT;
+let sbKey  = load(LS.sbKey,"") || SB_KEY_DEFAULT;
 
 function initSupabase(){
   if(!sbUrl||!sbKey||!window.supabase) return;
