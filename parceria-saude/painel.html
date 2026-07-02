@@ -1,0 +1,1953 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Interno — Plano Justo</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- PDF.js para extração de PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<!-- mammoth.js para extração de DOCX -->
+<script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
+<!-- marked.js para renderizar markdown nos resultados -->
+<script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
+<!-- SheetJS para leitura de Excel (.xlsx/.xls) -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<!-- Supabase para persistência em nuvem -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --ink:#0a1428;--navy:#10234f;--blue:#1d4ed8;--sky:#3b82f6;
+  --amber:#f5b301;--emerald:#10b981;--red:#ef4444;--violet:#8b5cf6;
+  --paper:#f2f5fa;--line:#e4e9f2;--txt:#33415c;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--paper);color:var(--txt);line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:'Sora',sans-serif;color:var(--ink)}
+.wrap{max-width:1560px;margin:0 auto;padding:0 22px}
+button{font-family:'Inter';cursor:pointer}
+
+/* ---------- topbar ---------- */
+.top{background:var(--ink);color:#fff;padding:14px 0;position:sticky;top:0;z-index:50;box-shadow:0 4px 20px rgba(10,20,40,.25)}
+.top-inner{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px;font-family:'Sora';font-weight:800;font-size:1rem;margin-right:6px}
+.logo .mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--amber),#ffd75e);display:grid;place-items:center;color:var(--ink)}
+.logo small{display:block;font-family:'Inter';font-weight:500;font-size:.58rem;letter-spacing:.14em;color:#9db1d8;text-transform:uppercase}
+.tabs{display:flex;background:rgba(255,255,255,.08);border-radius:11px;padding:4px;gap:4px}
+.tab{border:none;background:transparent;color:#9db1d8;font-weight:700;font-size:.85rem;padding:8px 18px;border-radius:8px;transition:.2s}
+.tab.on{background:var(--amber);color:var(--ink)}
+.search{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:10px;padding:9px 14px;color:#fff;font-size:.85rem;flex:1;min-width:180px;max-width:340px;outline:none}
+.search::placeholder{color:#7d92bd}
+.top-actions{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap}
+.abtn{display:inline-flex;align-items:center;gap:7px;border:none;border-radius:10px;padding:9px 15px;font-weight:700;font-size:.8rem;transition:.2s}
+.abtn.gold{background:linear-gradient(135deg,#ffc82e,var(--amber));color:var(--ink)}
+.abtn.gold:hover{transform:translateY(-1px)}
+.abtn.ghost{background:rgba(255,255,255,.08);color:#dbe4f5;border:1px solid rgba(255,255,255,.18)}
+.abtn.ghost:hover{background:rgba(255,255,255,.16)}
+.abtn.cfg{background:rgba(255,255,255,.05);color:#7d92bd;border:1px solid rgba(255,255,255,.12);font-size:.78rem;padding:9px 12px}
+.abtn.cfg:hover{background:rgba(255,255,255,.14);color:#fff}
+
+/* ---------- KPIs ---------- */
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin:22px 0}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px 18px}
+.kpi .l{font-size:.68rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#8494b2}
+.kpi .v{font-family:'Sora';font-weight:800;font-size:1.5rem;color:var(--ink);margin-top:3px}
+.kpi.green .v{color:var(--emerald)}
+.kpi.gold .v{color:#b58900}
+.note{background:#fff;border:1px solid var(--line);border-left:4px solid var(--amber);border-radius:12px;padding:14px 18px;font-size:.8rem;margin-bottom:20px;color:#66759a}
+.note b{color:var(--ink)}
+
+/* ---------- filtros ---------- */
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;align-items:center}
+.chip{border:1px solid var(--line);background:#fff;border-radius:99px;padding:7px 15px;font-size:.78rem;font-weight:600;transition:.2s;color:var(--txt)}
+.chip:hover{border-color:var(--sky)}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.filters .sep{width:1px;height:22px;background:var(--line);margin:0 4px}
+.filters select{border:1px solid var(--line);border-radius:99px;padding:7px 12px;font-size:.78rem;font-weight:600;background:#fff;color:var(--txt);outline:none;font-family:'Inter'}
+
+/* ---------- board ---------- */
+.board{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;align-items:start;padding-bottom:50px}
+.col{background:#e9edf5;border-radius:16px;padding:11px}
+.col-head{display:flex;align-items:center;justify-content:space-between;padding:6px 8px 11px}
+.col-head h2{font-size:.76rem;letter-spacing:.04em;text-transform:uppercase}
+.col-head .cnt{font-family:'Sora';font-weight:700;font-size:.72rem;background:#fff;border-radius:8px;padding:2px 9px;color:var(--ink)}
+.col.c1{border-top:4px solid var(--sky)}.col.c2{border-top:4px solid var(--violet)}.col.c3{border-top:4px solid var(--amber)}.col.c4{border-top:4px solid var(--emerald)}.col.c5{border-top:4px solid var(--ink)}
+.card{background:#fff;border-radius:12px;padding:14px;margin-bottom:11px;border:1px solid var(--line);box-shadow:0 2px 8px rgba(16,35,79,.05);transition:.2s}
+.card:hover{box-shadow:0 8px 22px rgba(16,35,79,.12)}
+.card h3{font-size:.88rem;margin-bottom:5px;line-height:1.3}
+.card .vs{font-size:.7rem;font-weight:700;color:var(--red);margin-bottom:7px}.card .vs.none{color:#8494b2}
+.tese-tag{display:inline-block;font-size:.62rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:4px 9px;border-radius:99px;margin-bottom:9px}
+.t-falso{background:#e8efff;color:var(--blue)}.t-multa{background:#fdf1d7;color:#9a6c00}.t-negativa{background:#fdecec;color:var(--red)}.t-restab{background:#efe9fd;color:var(--violet)}.t-revisao{background:#e9fbf3;color:#0b7d58}
+.card .info{font-size:.73rem;color:#66759a;margin-bottom:3px}.card .info b{color:var(--ink);font-weight:600}
+.card .cnj{font-family:ui-monospace,Consolas,monospace;font-size:.67rem;background:var(--paper);border-radius:6px;padding:3px 8px;color:#556;display:inline-block;margin:5px 0}
+.card .money{font-family:'Sora';font-weight:700;font-size:.84rem;color:var(--emerald);margin-top:5px}
+.card .next{margin-top:9px;padding-top:9px;border-top:1px dashed var(--line);font-size:.71rem;color:#8494b2}.card .next b{color:#b58900}
+.card-actions{display:flex;gap:6px;margin-top:10px;padding-top:9px;border-top:1px solid var(--line)}
+.mini-btn{border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:4px 9px;font-size:.72rem;font-weight:700;color:var(--txt);transition:.15s}
+.mini-btn:hover{background:#e2e8f3}.mini-btn.danger:hover{background:#fdecec;color:var(--red);border-color:#f5c2c2}
+
+/* ---------- tabela clientes ---------- */
+.cli-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.tbl-wrap{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:auto;margin-bottom:14px}
+table{width:100%;border-collapse:collapse;font-size:.8rem;min-width:980px}
+th{font-family:'Sora';font-size:.66rem;letter-spacing:.06em;text-transform:uppercase;color:#8494b2;text-align:left;padding:13px 14px;border-bottom:2px solid var(--line);background:#fafbfe;position:sticky;top:0}
+td{padding:11px 14px;border-bottom:1px solid #eef1f7;vertical-align:top}
+tr:hover td{background:#f8fafd}
+td .nm{font-weight:700;color:var(--ink)}
+td .sub{font-size:.7rem;color:#8494b2;display:block}
+td .mono{font-family:ui-monospace,Consolas,monospace;font-size:.68rem;color:#66759a}
+.st{display:inline-block;font-size:.66rem;font-weight:700;padding:3px 10px;border-radius:99px}
+.st.ativo{background:#e9fbf3;color:#0b7d58}.st.inativo{background:#eef1f7;color:#8494b2}
+td select{border:1px solid var(--line);border-radius:8px;padding:5px 8px;font-size:.72rem;font-weight:600;background:#fff;color:var(--txt);font-family:'Inter';outline:none;max-width:150px}
+td select.of-enviada{border-color:#f3df9a;background:#fdf7e3}
+td select.of-interessado{border-color:#b7e4ce;background:#eafcf3}
+td select.of-caso{border-color:var(--ink);background:var(--ink);color:#fff}
+td select.of-recusou{border-color:#f5c2c2;background:#fdf0f0;color:#b34040}
+.row-actions{display:flex;gap:5px;flex-wrap:wrap}
+.pagbar{display:flex;align-items:center;gap:12px;justify-content:flex-end;font-size:.78rem;color:#66759a;padding-bottom:40px}
+.pagbar button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 12px;font-weight:700}
+.pagbar button:disabled{opacity:.4;cursor:default}
+.empty{padding:60px 20px;text-align:center;color:#8494b2}.empty h3{margin-bottom:8px}.empty .abtn{margin-top:16px}
+
+/* ===== ANÁLISE FALSO COLETIVO ===== */
+.fc-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:10px;display:grid;grid-template-columns:32px 1fr auto;gap:12px;align-items:start}
+.fc-rank{font-family:'Sora';font-weight:800;font-size:1.1rem;color:var(--ink);padding-top:2px}
+.fc-rank.top{color:var(--amber)}
+.fc-nome{font-weight:700;font-size:.9rem;color:var(--ink);margin-bottom:3px}
+.fc-meta{font-size:.74rem;color:#66759a;margin-bottom:6px}
+.fc-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px}
+.fc-tag{font-size:.62rem;font-weight:700;padding:3px 8px;border-radius:99px;letter-spacing:.03em}
+.fc-tag.red{background:#fdecec;color:var(--red)}
+.fc-tag.amber{background:#fdf7e3;color:#9a6c00}
+.fc-tag.green{background:#e9fbf3;color:#0b7d58}
+.fc-tag.blue{background:#e8efff;color:var(--blue)}
+.fc-razao{font-size:.74rem;color:#33415c;line-height:1.5;border-top:1px dashed var(--line);padding-top:8px;margin-top:4px}
+.fc-score{text-align:right}
+.score-bar-wrap{width:72px;height:8px;background:#e9edf5;border-radius:99px;overflow:hidden;margin-top:4px}
+.score-bar{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--sky),var(--blue))}
+.score-num{font-family:'Sora';font-weight:800;font-size:1rem;color:var(--blue)}
+.fc-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.fc-empty{text-align:center;padding:40px 20px;color:#8494b2}
+.fc-summary{background:linear-gradient(135deg,#0a1428,#10234f);color:#fff;border-radius:14px;padding:18px 20px;margin-bottom:18px}
+.fc-summary h3{font-family:'Sora';font-size:.95rem;margin-bottom:4px}
+.fc-summary p{font-size:.78rem;color:#9db1d8;line-height:1.5}
+.fc-stats{display:flex;gap:18px;margin-top:10px;flex-wrap:wrap}
+.fc-stat .v{font-family:'Sora';font-weight:800;font-size:1.3rem;color:var(--amber)}
+.fc-stat .l{font-size:.65rem;color:#9db1d8;text-transform:uppercase;letter-spacing:.06em}
+.ai-badge{display:inline-flex;align-items:center;gap:5px;background:#e8efff;color:var(--blue);border-radius:8px;padding:4px 10px;font-size:.72rem;font-weight:700;margin-bottom:14px}
+.fc-filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.fc-filter-bar select{border:1px solid var(--line);border-radius:99px;padding:7px 12px;font-size:.78rem;font-weight:600;background:#fff;color:var(--txt);outline:none;font-family:'Inter'}
+details.tpl{background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:16px;overflow:hidden}
+details.tpl summary{cursor:pointer;padding:14px 18px;font-weight:700;color:var(--ink);font-size:.85rem;list-style:none;font-family:'Sora'}
+details.tpl summary::-webkit-details-marker{display:none}
+details.tpl .body{padding:0 18px 16px}
+details.tpl textarea{width:100%;min-height:130px;border:1px solid var(--line);border-radius:10px;padding:12px;font-family:'Inter';font-size:.82rem;resize:vertical;outline:none;color:var(--txt)}
+details.tpl .hint{font-size:.72rem;color:#8494b2;margin-top:8px}
+
+/* ---------- modais ---------- */
+.overlay{position:fixed;inset:0;background:rgba(10,20,40,.55);z-index:90;display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto;backdrop-filter:blur(3px)}
+.overlay.open{display:flex}
+.modal{background:#fff;border-radius:18px;width:100%;max-width:640px;padding:30px;box-shadow:0 30px 80px rgba(0,0,0,.35);animation:pop .25s ease}
+.modal.lg{max-width:900px}
+@keyframes pop{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
+.modal h2{font-size:1.15rem;margin-bottom:4px}
+.modal .sub{font-size:.8rem;color:#8494b2;margin-bottom:20px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.fgrid .full{grid-column:1/-1}
+.f label{display:block;font-size:.7rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8494b2;margin-bottom:5px}
+.f input,.f select,.f textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-family:'Inter';font-size:.86rem;color:var(--txt);outline:none;background:#fff}
+.f input:focus,.f select:focus,.f textarea:focus{border-color:var(--sky)}
+.f textarea{min-height:70px;resize:vertical}
+.f .hint{font-size:.72rem;color:#8494b2;margin-top:6px}
+.modal-foot{display:flex;gap:10px;justify-content:flex-end;margin-top:22px}
+.btn{border:none;border-radius:11px;padding:12px 22px;font-weight:700;font-size:.88rem;transition:.2s}
+.btn.primary{background:var(--ink);color:#fff}.btn.primary:hover{background:var(--blue)}
+.btn.gold{background:linear-gradient(135deg,#ffc82e,var(--amber));color:var(--ink)}
+.btn.plain{background:var(--paper);color:var(--txt)}
+.btn.danger-link{background:none;color:var(--red);margin-right:auto;padding-left:0}
+
+/* import wizard */
+.drop{border:2px dashed #cdd9ee;border-radius:14px;padding:22px;text-align:center;font-size:.84rem;color:#66759a;margin-bottom:14px;background:#fafbfe}
+.drop b{color:var(--ink)}.drop input{display:none}
+.drop .fake{display:inline-block;margin-top:10px;background:var(--ink);color:#fff;border-radius:9px;padding:8px 16px;font-weight:700;font-size:.78rem;cursor:pointer}
+#impText{width:100%;min-height:110px;border:1px solid var(--line);border-radius:10px;padding:12px;font-family:ui-monospace,Consolas,monospace;font-size:.72rem;resize:vertical;outline:none}
+.map-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px;margin-top:14px;display:none}
+.map-wrap table{min-width:0;font-size:.72rem}.map-wrap th{position:static;padding:9px 10px}.map-wrap td{padding:7px 10px}
+.map-wrap select{width:100%;border:1px solid var(--line);border-radius:7px;padding:5px;font-size:.72rem;font-weight:700;background:#fff8e6}
+.imp-status{font-size:.78rem;font-weight:600;color:var(--emerald);margin-top:10px;min-height:20px}
+
+/* ========== DOCS TAB ========== */
+.doc-layout{display:grid;grid-template-columns:380px 1fr;gap:18px;align-items:start;padding-bottom:50px}
+
+/* Painel esquerdo */
+.doc-left{position:sticky;top:80px}
+.doc-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px}
+.doc-card h3{font-size:.83rem;font-family:'Sora';font-weight:700;color:var(--ink);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+
+/* sub-tabs docs */
+.dtabs{display:flex;background:var(--paper);border-radius:10px;padding:3px;gap:3px;margin-bottom:14px}
+.dtab{flex:1;border:none;background:transparent;color:#8494b2;font-weight:700;font-size:.76rem;padding:8px 4px;border-radius:8px;transition:.2s;cursor:pointer}
+.dtab.on{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+
+/* drop zone */
+.doc-drop{border:2px dashed #cdd9ee;border-radius:14px;padding:22px 14px;text-align:center;background:#fafbfe;transition:.2s;cursor:pointer}
+.doc-drop.drag-over{border-color:var(--blue);background:#eff4ff}
+.doc-drop .ico{font-size:2rem;margin-bottom:6px}
+.doc-drop p{font-size:.76rem;color:#66759a;margin-bottom:10px}
+.doc-drop .drop-btns{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
+.drop-btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 12px;font-size:.73rem;font-weight:700;cursor:pointer;color:var(--txt);transition:.2s}
+.drop-btn:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+/* fila de arquivos */
+.queue-wrap{margin-top:12px}
+.queue-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;font-size:.7rem;color:#8494b2;font-weight:700}
+.queue{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto}
+.q-item{display:flex;align-items:center;gap:8px;padding:8px 11px;background:var(--paper);border:1px solid var(--line);border-radius:9px;font-size:.74rem}
+.q-icon{font-size:.95rem;flex-shrink:0}
+.q-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;color:var(--ink)}
+.q-size{color:#8494b2;font-size:.67rem;flex-shrink:0}
+.q-st{flex-shrink:0;font-weight:700;font-size:.65rem;padding:2px 7px;border-radius:99px}
+.q-st.wait{background:#f0f0f0;color:#888}.q-st.proc{background:#e8efff;color:var(--blue)}.q-st.done{background:#e9fbf3;color:#0b7d58}.q-st.err{background:#fdecec;color:var(--red)}
+.q-del{border:none;background:none;color:#aaa;cursor:pointer;font-size:.85rem;flex-shrink:0;padding:0 2px}
+.q-del:hover{color:var(--red)}
+.q-empty{text-align:center;padding:16px;color:#8494b2;font-size:.76rem}
+
+/* progresso */
+.progress-bar{height:3px;background:#e2e8f3;border-radius:99px;margin:5px 0;overflow:hidden;display:none}
+.progress-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .4s}
+
+/* paste mode */
+#pasteArea{width:100%;min-height:180px;border:1px solid var(--line);border-radius:10px;padding:11px;font-family:ui-monospace,Consolas,monospace;font-size:.74rem;resize:vertical;outline:none;color:var(--txt);line-height:1.5}
+#pasteArea:focus{border-color:var(--sky)}
+#pasteName{width:100%;border:1px solid var(--line);border-radius:9px;padding:8px 11px;font-size:.8rem;font-family:'Inter';outline:none;color:var(--txt);margin-top:8px}
+#pasteName:focus{border-color:var(--sky)}
+
+/* análise */
+.analysis-box{padding-top:14px;border-top:1px solid var(--line)}
+.analysis-box label{display:block;font-size:.68rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8494b2;margin-bottom:6px}
+.analysis-box select,.analysis-box textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-family:'Inter';font-size:.83rem;color:var(--txt);outline:none;background:#fff}
+.analysis-box select:focus,.analysis-box textarea:focus{border-color:var(--sky)}
+#customPrompt{min-height:70px;resize:vertical;margin-top:8px;display:none;font-size:.77rem}
+.model-row{display:flex;gap:8px;margin-top:10px;align-items:center}
+.model-row label{font-size:.68rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8494b2;white-space:nowrap}
+.model-row select{flex:1;border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:.77rem;font-family:'Inter';outline:none;background:#fff;color:var(--txt)}
+
+/* botões de ação */
+.proc-actions{margin-top:14px;display:flex;gap:8px}
+.proc-btn{flex:1;border:none;border-radius:10px;padding:12px;font-weight:700;font-size:.85rem;transition:.2s;cursor:pointer}
+.proc-btn.primary{background:var(--ink);color:#fff}.proc-btn.primary:hover:not(:disabled){background:var(--blue)}
+.proc-btn.secondary{background:var(--paper);color:var(--txt);border:1px solid var(--line)}.proc-btn.secondary:hover:not(:disabled){background:#e2e8f3}
+.proc-btn:disabled{opacity:.4;cursor:default}
+
+/* aviso API key */
+.api-notice{background:#fdf7e3;border:1px solid #f3df9a;border-radius:10px;padding:11px;font-size:.75rem;color:#8a6a00;margin-top:10px;display:none}
+.api-notice a{color:var(--blue);cursor:pointer;text-decoration:underline}
+
+/* Painel direito - resultados */
+.doc-right .results-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.doc-right .results-bar h3{font-size:.88rem;font-family:'Sora';font-weight:700;color:var(--ink)}
+.rbar-actions{display:flex;gap:6px;flex-wrap:wrap}
+.rbtn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 12px;font-size:.73rem;font-weight:700;cursor:pointer;color:var(--txt);transition:.15s}
+.rbtn:hover{background:var(--paper)}
+.rbtn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}.rbtn.primary:hover{background:var(--blue)}
+.rbtn.emerald{background:#e9fbf3;color:#0b7d58;border-color:#b7e4ce}.rbtn.emerald:hover{background:#d0f7e8}
+
+/* cartão de resultado */
+.result-card{background:#fff;border:1px solid var(--line);border-radius:13px;margin-bottom:10px;overflow:hidden}
+.rc-head{display:flex;align-items:center;gap:10px;padding:12px 15px;cursor:pointer;background:#fafbfe;transition:.15s}
+.rc-head:hover{background:#f0f4fa}
+.rc-ico{font-size:1.1rem;flex-shrink:0}
+.rc-name{flex:1;font-weight:700;font-size:.81rem;color:var(--ink);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rc-badge{font-size:.63rem;font-weight:700;padding:3px 9px;border-radius:99px;flex-shrink:0}
+.rc-badge.ok{background:#e9fbf3;color:#0b7d58}.rc-badge.err{background:#fdecec;color:var(--red)}.rc-badge.proc{background:#e8efff;color:var(--blue)}
+.rc-body{padding:16px;display:none;border-top:1px solid var(--line)}
+.result-card.open .rc-body{display:block}
+.prose{font-size:.81rem;line-height:1.65;color:var(--txt)}
+.prose h2,.prose h3{font-family:'Sora';margin:12px 0 5px;color:var(--ink);font-size:.88rem}
+.prose ul,.prose ol{padding-left:18px;margin:5px 0}.prose li{margin:3px 0}
+.prose p{margin:5px 0}.prose strong{color:var(--ink)}
+.prose code{background:#f0f0f0;padding:2px 5px;border-radius:4px;font-size:.75rem}
+.prose hr{border:none;border-top:1px solid var(--line);margin:12px 0}
+.json-box{background:#f8fafd;border:1px solid var(--line);border-radius:9px;padding:11px;font-size:.72rem;font-family:ui-monospace,Consolas,monospace;white-space:pre-wrap;overflow-x:auto;margin:10px 0;max-height:280px;overflow-y:auto;color:#33415c}
+.rc-actions{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+.rc-mini{border:1px solid var(--line);background:var(--paper);border-radius:7px;padding:5px 10px;font-size:.71rem;font-weight:700;cursor:pointer;color:var(--txt);transition:.15s}
+.rc-mini:hover{background:#e2e8f3}
+.rc-mini.emerald{background:#e9fbf3;color:#0b7d58;border-color:#b7e4ce}
+.rc-mini.blue{background:#e8efff;color:var(--blue);border-color:#c0d0f8}
+
+/* chunk progress */
+.chunk-info{font-size:.72rem;color:#8494b2;margin-bottom:8px;padding:7px 10px;background:var(--paper);border-radius:8px}
+
+.results-empty{text-align:center;padding:60px 20px;color:#8494b2}
+.results-empty .ico{font-size:3rem;margin-bottom:10px}
+.results-empty h3{margin-bottom:8px;color:#66759a}
+.results-empty p{font-size:.82rem}
+
+/* toast */
+#toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:13px 22px;border-radius:12px;font-size:.85rem;font-weight:600;box-shadow:0 12px 34px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:.35s;z-index:99;max-width:90vw;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media(max-width:1100px){.doc-layout{grid-template-columns:1fr}.doc-left{position:static}}
+@media(max-width:1200px){.board{grid-template-columns:repeat(3,1fr)}.kpis{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:760px){.board{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}.fgrid{grid-template-columns:1fr}.search{max-width:none}}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="wrap top-inner">
+    <div class="logo"><span class="mark">⚖</span><span>Plano Justo<small>Painel interno DCG × Carvalho</small></span></div>
+    <div class="tabs">
+      <button class="tab on" id="tabCasos">⚖️ Casos</button>
+      <button class="tab" id="tabClientes">👥 Clientes</button>
+      <button class="tab" id="tabDocs">📄 Documentos IA</button>
+    </div>
+    <input class="search" id="q" type="search" placeholder="Buscar…">
+    <div class="top-actions">
+      <button class="abtn gold" id="btnNovoCaso">＋ Novo caso</button>
+      <button class="abtn gold" id="btnImport" style="display:none">⬆ Importar clientes</button>
+      <button class="abtn ghost" id="btnCloudPull" title="Baixar dados da nuvem">☁↓ Nuvem</button>
+      <button class="abtn ghost" id="btnCloudPush" title="Enviar dados para nuvem">☁↑ Sync</button>
+      <button class="abtn ghost" id="btnBackup" title="Backup JSON">💾 Backup</button>
+      <button class="abtn ghost" id="btnRestore">↩ Restaurar</button>
+      <button class="abtn cfg" id="btnConfig" title="Configurar chave API Claude e Supabase">⚙ API</button>
+      <input type="file" id="fileRestore" accept=".json" style="display:none">
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="kpis">
+    <div class="kpi"><div class="l">Casos no painel</div><div class="v" id="kTotal">—</div></div>
+    <div class="kpi"><div class="l">Ações judiciais</div><div class="v" id="kJud">—</div></div>
+    <div class="kpi green"><div class="l">Liminares</div><div class="v" id="kLim">—</div></div>
+    <div class="kpi"><div class="l">Clientes na base</div><div class="v" id="kCli">—</div></div>
+    <div class="kpi gold"><div class="l">Ofertas enviadas</div><div class="v" id="kOf">—</div></div>
+    <div class="kpi green"><div class="l">Interessados</div><div class="v" id="kInt">—</div></div>
+  </div>
+
+  <!-- ===== VIEW CASOS ===== -->
+  <div id="viewCasos">
+    <div class="note">📌 <b>Fluxo:</b> use <b>＋ Novo caso</b> para cadastrar, os botões do cartão para editar/mover/excluir, e a aba <b>Clientes</b> para importar sua base e converter interessados em casos. Dados salvos automaticamente neste navegador — use 💾 Backup para exportar.</div>
+    <div class="filters" id="filters">
+      <button class="chip on" data-f="todos">Todos</button>
+      <button class="chip" data-f="falso">Falso coletivo</button>
+      <button class="chip" data-f="multa">Multa / cancelamento</button>
+      <button class="chip" data-f="negativa">Negativa de cobertura</button>
+      <button class="chip" data-f="restab">Restabelecimento</button>
+      <button class="chip" data-f="revisao">Revisão / diagnóstico</button>
+    </div>
+    <div class="board" id="board"></div>
+  </div>
+
+  <!-- ===== VIEW CLIENTES ===== -->
+  <div id="viewClientes" style="display:none">
+    <details class="tpl">
+      <summary>✉️ Modelo da mensagem de oferta (WhatsApp) — clique para editar</summary>
+      <div class="body">
+        <textarea id="tplArea"></textarea>
+        <div class="hint">Use <b>{nome}</b>, <b>{empresa}</b> e <b>{operadora}</b> — substituídos pelos dados de cada cliente ao clicar em 📲.</div>
+      </div>
+    </details>
+    <div class="filters cli-toolbar">
+      <button class="chip on" data-cf="todos">Todos</button>
+      <button class="chip" data-cf="ativo">Ativos</button>
+      <button class="chip" data-cf="inativo">Inativos</button>
+      <span class="sep"></span>
+      <select id="ofFilter">
+        <option value="todos">Oferta: todas</option>
+        <option value="nao">Não abordado</option>
+        <option value="enviada">Oferta enviada</option>
+        <option value="interessado">Interessado</option>
+        <option value="caso">Virou caso</option>
+        <option value="recusou">Recusou</option>
+      </select>
+      <span class="sep"></span>
+      <button class="chip" id="btnNovoCli">＋ Cliente manual</button>
+      <label class="chip" title="Importa todos os CSVs/Excel de uma pasta de uma vez">📁 Pasta de arquivos<input type="file" id="folderCsvImport" webkitdirectory accept=".csv,.txt,.tsv,.xlsx,.xls" multiple style="display:none"></label>
+      <button class="chip" id="btnAnalisaFC" style="background:var(--ink);color:#fff;border-color:var(--ink)">🎯 Analisar Falso Coletivo</button>
+      <button class="chip" id="btnDedup">🔄 Remover duplicados</button>
+      <button class="chip" id="btnExportCli">⬇ Exportar CSV</button>
+      <button class="chip" id="btnLimparCli">🗑 Limpar base</button>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th style="width:24%">Cliente</th><th style="width:17%">Contato</th>
+          <th style="width:15%">Plano atual</th><th style="width:8%">Status</th>
+          <th style="width:14%">Oferta de ação</th><th>Ações</th>
+        </tr></thead>
+        <tbody id="cliBody"></tbody>
+      </table>
+      <div class="empty" id="cliEmpty" style="display:none">
+        <h3>Nenhum cliente na base ainda</h3>
+        <p>Importe sua carteira por arquivo CSV ou colando direto do Excel.</p>
+        <button class="abtn gold" onclick="openImport()">⬆ Importar clientes agora</button>
+      </div>
+    </div>
+    <div class="pagbar" id="pagbar">
+      <span id="pagInfo"></span>
+      <button id="pagPrev">‹ Anterior</button>
+      <button id="pagNext">Próxima ›</button>
+    </div>
+  </div>
+
+  <!-- ===== VIEW DOCUMENTOS IA ===== -->
+  <div id="viewDocs" style="display:none">
+    <div class="doc-layout">
+
+      <!-- coluna esquerda: entrada -->
+      <div class="doc-left">
+        <div class="doc-card">
+          <h3>📥 Entrada de documentos</h3>
+          <div class="dtabs">
+            <button class="dtab on" id="dtabFiles">📁 Arquivos / Pasta</button>
+            <button class="dtab" id="dtabPaste">📋 Colar texto</button>
+          </div>
+
+          <!-- modo arquivos -->
+          <div id="modeFiles">
+            <div class="doc-drop" id="docDrop">
+              <div class="ico">📂</div>
+              <p>Arraste arquivos ou uma pasta inteira aqui<br><span style="font-size:.7rem">PDF · DOCX · TXT · CSV · HTML · EML · imagens</span></p>
+              <div class="drop-btns">
+                <label class="drop-btn">📄 Arquivos<input type="file" id="docFiles" multiple accept=".pdf,.docx,.txt,.csv,.html,.htm,.eml,.msg,.png,.jpg,.jpeg,.webp,.gif" style="display:none"></label>
+                <label class="drop-btn">📁 Pasta inteira<input type="file" id="docFolder" webkitdirectory multiple style="display:none"></label>
+              </div>
+            </div>
+            <div class="queue-wrap" id="queueWrap" style="display:none">
+              <div class="queue-header">
+                <span id="queueCount">0 arquivo(s)</span>
+                <button class="drop-btn" id="btnClearQueue" style="padding:4px 10px;font-size:.68rem">Limpar fila</button>
+              </div>
+              <div class="queue" id="docQueue"></div>
+              <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
+            </div>
+          </div>
+
+          <!-- modo colar -->
+          <div id="modePaste" style="display:none">
+            <textarea id="pasteArea" placeholder="Cole aqui emails, textos de contratos, petições, andamentos processuais, mensagens de WhatsApp, qualquer texto..."></textarea>
+            <input id="pasteName" placeholder="Nome/fonte deste texto (ex: Email Amil 02/07, Contrato Porto Seguro)">
+          </div>
+        </div>
+
+        <div class="doc-card">
+          <h3>🧠 Análise com IA</h3>
+          <div class="analysis-box">
+            <label>Tipo de análise</label>
+            <select id="analysisType">
+              <option value="caso">⚖️ Extrair dados do caso jurídico</option>
+              <option value="cliente">👥 Identificar dados do cliente</option>
+              <option value="contrato">📋 Analisar contrato de plano de saúde</option>
+              <option value="email">✉️ Extrair dados de email / mensagem</option>
+              <option value="resumo">📝 Resumir documento</option>
+              <option value="livre">✏️ Prompt livre</option>
+            </select>
+            <textarea id="customPrompt" placeholder="Escreva seu prompt aqui. Use {texto} onde deseja inserir o conteúdo do documento. Se omitir {texto}, ele é inserido no final automaticamente."></textarea>
+            <div class="model-row">
+              <label>Modelo</label>
+              <select id="aiModel">
+                <!-- Anthropic direto -->
+                <optgroup label="Anthropic (direto)" class="opts-anthropic">
+                  <option value="claude-haiku-4-5-20251001">Haiku 4.5 — rápido e econômico</option>
+                  <option value="claude-sonnet-4-6" selected>Sonnet 4.6 — qualidade superior</option>
+                  <option value="claude-opus-4-8">Opus 4.8 — máxima qualidade</option>
+                </optgroup>
+                <!-- OpenRouter — mostrado via JS -->
+              </select>
+            </div>
+          </div>
+          <div class="api-notice" id="apiNotice">
+            Chave API não configurada. <a id="openCfgLink">Clique aqui para configurar</a> — Anthropic ou OpenRouter (⚙ API).
+          </div>
+          <div class="proc-actions">
+            <button class="proc-btn primary" id="btnProcessAll">▶ Processar tudo</button>
+            <button class="proc-btn secondary" id="btnStopProc" style="display:none">⏹ Parar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- coluna direita: resultados -->
+      <div class="doc-right">
+        <div class="results-bar">
+          <h3>Resultados <span id="resultCount" style="font-weight:400;color:#8494b2;font-family:Inter"></span></h3>
+          <div class="rbar-actions">
+            <button class="rbtn" id="btnExportResults">⬇ Exportar JSON</button>
+            <button class="rbtn" id="btnCopyAllResults">📋 Copiar tudo</button>
+            <button class="rbtn" id="btnClearResults">🗑 Limpar</button>
+          </div>
+        </div>
+        <div id="resultsArea">
+          <div class="results-empty">
+            <div class="ico">🗂</div>
+            <h3>Nenhum resultado ainda</h3>
+            <p>Adicione arquivos ou cole um texto, escolha o tipo de análise e clique em <b>▶ Processar tudo</b>.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL CASO ===== -->
+<div class="overlay" id="mCaso">
+  <div class="modal">
+    <h2 id="mCasoTitle">Novo caso</h2>
+    <div class="sub">Preencha o que tiver — tudo pode ser editado depois.</div>
+    <div class="fgrid">
+      <div class="f full"><label>Cliente / partes *</label><input id="fNome" placeholder="Ex.: Empresa XYZ Ltda ou João da Silva"></div>
+      <div class="f"><label>Operadora / réu</label><input id="fReu" placeholder="Ex.: Amil, Bradesco Saúde…"></div>
+      <div class="f"><label>Tese</label><select id="fTese">
+        <option value="revisao">Revisão / diagnóstico</option>
+        <option value="falso">Falso coletivo</option>
+        <option value="multa">Multa / cancelamento</option>
+        <option value="negativa">Negativa de cobertura</option>
+        <option value="restab">Restabelecimento de plano</option>
+      </select></div>
+      <div class="f"><label>Etapa</label><select id="fEtapa">
+        <option value="1">1 · Diagnóstico / Avaliação</option>
+        <option value="2">2 · Contrato & Procuração</option>
+        <option value="3">3 · Ação Protocolada</option>
+        <option value="4">4 · Liminar Concedida</option>
+        <option value="5">5 · Sentença / Paradigma</option>
+      </select></div>
+      <div class="f"><label>Nº CNJ</label><input id="fCnj" placeholder="0000000-00.0000.0.00.0000"></div>
+      <div class="f full"><label>Vara / comarca / sistema</label><input id="fVara" placeholder="Ex.: 7ª Vara Cível de Osasco · eproc"></div>
+      <div class="f full"><label>Valores</label><input id="fMoney" placeholder="Ex.: Excesso R$ 1.200/mês · restituição estimada R$ 40.000"></div>
+      <div class="f full"><label>Próximo passo</label><input id="fNext" placeholder="Ex.: Colher assinatura da procuração"></div>
+      <div class="f full"><label>Observações / andamentos</label><textarea id="fObs" placeholder="Uma anotação por linha. Ex.:&#10;Situação: análise concluída em 23/06&#10;Reunião: feita com o contador"></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn danger-link" id="btnExcluirCaso" style="display:none">Excluir caso</button>
+      <button class="btn plain" data-close="mCaso">Cancelar</button>
+      <button class="btn primary" id="btnSalvarCaso">Salvar caso</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL CLIENTE ===== -->
+<div class="overlay" id="mCliente">
+  <div class="modal">
+    <h2 id="mCliTitle">Novo cliente</h2>
+    <div class="sub">Cadastro manual — para carga em massa use ⬆ Importar clientes.</div>
+    <div class="fgrid">
+      <div class="f"><label>Nome / razão social *</label><input id="cNome"></div>
+      <div class="f"><label>Nome fantasia</label><input id="cEmpresa"></div>
+      <div class="f"><label>CNPJ / CPF</label><input id="cCnpj"></div>
+      <div class="f"><label>WhatsApp / telefone</label><input id="cTel" placeholder="(11) 99999-9999"></div>
+      <div class="f"><label>E-mail</label><input id="cEmail"></div>
+      <div class="f"><label>Operadora do plano</label><input id="cOper" placeholder="Ex.: Amil, SulAmérica…"></div>
+      <div class="f"><label>Mensalidade (R$)</label><input id="cMens" placeholder="Ex.: 4500"></div>
+      <div class="f"><label>Status do cliente</label><select id="cStatus"><option value="ativo">Ativo</option><option value="inativo">Inativo</option></select></div>
+      <div class="f full"><label>Notas</label><textarea id="cNotas"></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn danger-link" id="btnExcluirCli" style="display:none">Excluir cliente</button>
+      <button class="btn plain" data-close="mCliente">Cancelar</button>
+      <button class="btn primary" id="btnSalvarCli">Salvar cliente</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL IMPORTAÇÃO ===== -->
+<div class="overlay" id="mImport">
+  <div class="modal lg">
+    <h2>Importar base de clientes</h2>
+    <div class="sub">Aceita CSV exportado do CronosSeg/Excel (separado por <b>;</b> , <b>,</b> ou TAB) ou dados colados direto da planilha.</div>
+    <div class="drop">
+      <b>Arraste um arquivo .csv aqui</b> ou
+      <label class="fake">Escolher arquivo<input type="file" id="impFile" accept=".csv,.txt,.tsv,.xlsx,.xls"></label>
+      <div style="margin-top:8px;font-size:.74rem">…ou copie as linhas no Excel (com o cabeçalho) e cole abaixo</div>
+    </div>
+    <textarea id="impText" placeholder="nome;cnpj;telefone;email;operadora;mensalidade;status&#10;Padaria Silva Ltda;12.345.678/0001-90;11999998888;contato@silva.com;Amil;3800;ativo"></textarea>
+    <div style="display:flex;gap:10px;margin-top:12px;align-items:center;flex-wrap:wrap">
+      <button class="btn primary" id="btnImpParse">🔎 Analisar dados</button>
+      <label style="font-size:.78rem;font-weight:600;display:flex;gap:7px;align-items:center"><input type="checkbox" id="impHeader" checked> Primeira linha é cabeçalho</label>
+    </div>
+    <div class="map-wrap" id="mapWrap"><table id="mapTable"></table></div>
+    <div class="imp-status" id="impStatus"></div>
+    <div class="modal-foot">
+      <button class="btn plain" data-close="mImport">Fechar</button>
+      <button class="btn gold" id="btnImpGo" style="display:none">Importar clientes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL CONFIG / API KEY ===== -->
+<div class="overlay" id="mConfig">
+  <div class="modal">
+    <h2>⚙ Configurações de IA</h2>
+    <div class="sub">Escolha o provedor e configure a chave — tudo salvo somente neste navegador.</div>
+
+    <!-- Seletor de provedor -->
+    <div style="margin-bottom:18px">
+      <div style="font-size:.68rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8494b2;margin-bottom:8px">Provedor de IA</div>
+      <div class="dtabs" style="max-width:380px">
+        <button class="dtab" id="prvAnthropic" onclick="setProvider('anthropic')">🤖 Anthropic (Claude)</button>
+        <button class="dtab" id="prvOpenRouter" onclick="setProvider('openrouter')">🔀 OpenRouter</button>
+      </div>
+    </div>
+
+    <!-- Chave Anthropic -->
+    <div class="f" id="cfgAnthropic">
+      <label>Chave API Anthropic</label>
+      <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-...">
+      <div class="hint">Obtenha em <b>console.anthropic.com</b> → API Keys. Cobra por token direto na Anthropic.</div>
+    </div>
+
+    <!-- Chave OpenRouter -->
+    <div class="f" id="cfgOpenRouter" style="display:none">
+      <label>Chave API OpenRouter</label>
+      <input type="password" id="orKeyInput" placeholder="sk-or-v1-...">
+      <div class="hint">Obtenha em <b>openrouter.ai/keys</b> — acesso a dezenas de modelos, muitos gratuitos ou muito baratos. Recomendado para volume.</div>
+    </div>
+
+    <hr style="border:none;border-top:1px solid var(--line);margin:18px 0">
+    <div style="margin-bottom:10px;font-size:.68rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#8494b2">☁ Supabase (sincronização em nuvem)</div>
+    <div class="fgrid">
+      <div class="f full"><label>URL do projeto Supabase</label><input type="text" id="sbUrl" placeholder="https://xxxxxxxxxxxx.supabase.co"><div class="hint">Crie grátis em <b>supabase.com</b> → Project Settings → API → Project URL</div></div>
+      <div class="f full"><label>Anon Key</label><input type="password" id="sbKey" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."><div class="hint">Project Settings → API → <b>anon public</b></div></div>
+    </div>
+    <div id="sbStatus" style="font-size:.75rem;margin-top:8px;padding:8px 12px;border-radius:8px;display:none"></div>
+    <div class="modal-foot">
+      <button class="btn plain" data-close="mConfig">Cancelar</button>
+      <button class="btn gold" id="btnTestSb" style="display:none">☁ Testar conexão</button>
+      <button class="btn primary" id="btnSalvarConfig">Salvar configuração</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL ANÁLISE FALSO COLETIVO ===== -->
+<div class="overlay" id="mFC">
+  <div class="modal lg" style="max-width:820px">
+    <h2>🎯 Análise de Prospects — Falso Coletivo</h2>
+    <div class="sub">Clientes rankeados por probabilidade de elegibilidade para ação de falso coletivo (PME com beneficiários familiares).</div>
+    <div id="fcSummaryBox"></div>
+    <div class="fc-filter-bar">
+      <select id="fcFiltroOp"><option value="">Todas as operadoras</option></select>
+      <select id="fcFiltroMin"><option value="">Qualquer mensalidade</option><option value="1500">Acima R$ 1.500</option><option value="3000">Acima R$ 3.000</option><option value="5000">Acima R$ 5.000</option><option value="8000">Acima R$ 8.000</option></select>
+      <select id="fcFiltroN"><option value="20">Top 20</option><option value="50">Top 50</option><option value="100">Top 100</option><option value="0">Todos</option></select>
+    </div>
+    <div id="fcList"></div>
+    <div class="modal-foot">
+      <button class="btn plain" data-close="mFC">Fechar</button>
+      <button class="btn gold" id="btnFCAprofundar">🤖 Aprofundar top 10 com IA</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* =====================================================================
+   PDF.js worker
+===================================================================== */
+if(typeof pdfjsLib !== 'undefined'){
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+
+/* =====================================================================
+   ARMAZENAMENTO
+===================================================================== */
+const LS = { casos:"pj_casos", clientes:"pj_clientes", tpl:"pj_template", apiKey:"pj_api_key", orKey:"pj_or_key", provider:"pj_provider", sbUrl:"pj_sb_url", sbKey:"pj_sb_key" };
+const load = (k,fb)=>{ try{ const v=JSON.parse(localStorage.getItem(k)); return v??fb; }catch(e){ return fb; } };
+const save = (k,v)=>{
+  localStorage.setItem(k, JSON.stringify(v));
+  if(k===LS.casos) sbSet('casos',v);
+  else if(k===LS.clientes) sbSet('clientes',v);
+  else if(k===LS.tpl) sbSet('template',v);
+};
+
+/* =====================================================================
+   SUPABASE — sincronização em nuvem
+===================================================================== */
+let sb = null;
+const SB_URL_DEFAULT = "https://sjzirfwxqxemwwmvutdt.supabase.co";
+const SB_KEY_DEFAULT = "sb_publishable_UTGIoP9Vo1VnV8LZqQML8g_Frqc2NkD";
+let sbUrl = load(LS.sbUrl,"") || SB_URL_DEFAULT;
+let sbKey  = load(LS.sbKey,"") || SB_KEY_DEFAULT;
+
+function initSupabase(){
+  if(!sbUrl||!sbKey||!window.supabase) return;
+  try{ sb = window.supabase.createClient(sbUrl, sbKey); }catch(e){ sb=null; }
+}
+initSupabase();
+
+async function sbGet(table){
+  if(!sb) return null;
+  try{
+    const {data,error} = await sb.from('pj_store').select('payload').eq('id',table).maybeSingle();
+    if(error||!data) return null;
+    return data.payload;
+  }catch(e){ return null; }
+}
+async function sbSet(table, payload){
+  if(!sb) return;
+  try{ await sb.from('pj_store').upsert({id:table, payload, updated_at: new Date().toISOString()}); }catch(e){}
+}
+
+async function cloudSync(direction){
+  if(!sb){ toast("Supabase não configurado — clique em ⚙ API."); return; }
+  if(direction==="push"){
+    await Promise.all([sbSet('casos',casos), sbSet('clientes',clientes), sbSet('template',template)]);
+    toast("☁ Dados enviados para a nuvem.");
+  } else {
+    const [c,cl,t] = await Promise.all([sbGet('casos'),sbGet('clientes'),sbGet('template')]);
+    if(c){ casos=c; save(LS.casos,casos); }
+    if(cl){ clientes=cl; save(LS.clientes,clientes); }
+    if(typeof t==="string"){ template=t; save(LS.tpl,template); $("tplArea").value=template; }
+    renderAll(); toast("☁ Dados baixados da nuvem.");
+  }
+}
+
+async function autoSave(table, data){
+  save(LS[table]||table, data);
+  await sbSet(table, data);
+}
+
+async function initData(){
+  let c = await sbGet('casos');
+  let cl= await sbGet('clientes');
+  let t = await sbGet('template');
+  casos    = c  ?? load(LS.casos, null);
+  clientes = cl ?? load(LS.clientes, []);
+  template = (typeof t==="string") ? t : load(LS.tpl, TPL_PADRAO);
+  if(!casos){ casos = SEED; await autoSave('casos', casos); }
+}
+const uid = ()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+
+const TPL_PADRAO = `Olá, {nome}! Aqui é o Diniz, da DCG Seguros. 😊
+
+Estamos com uma frente jurídica, em parceria com o escritório Carvalho Advocacia, para empresas que pagam plano de saúde PME com beneficiários da própria família: a Justiça vem reconhecendo esses contratos como *falso coletivo*, limitando os reajustes ao índice da ANS e devolvendo até *5 anos* de valores pagos a mais — além de permitir adequar ou encerrar o contrato sem multa e sem aviso prévio de 60 dias.
+
+Posso fazer uma *análise gratuita* do seu contrato {operadora} e te mostrar se há créditos a recuperar? Sem custo e sem compromisso.`;
+
+const SEED = [
+  {id:uid(),etapa:1,tese:"revisao",nome:"Daniel (ind. contador Paulo)",reu:"Amil",obs:"Situação: análise concluída pelo Dr. Sandro em 23/06\nReunião: feita em 24/06 com Paulo e Daniel\nAtenção: beneficiário com doença grave — prioridade",money:"Excesso R$ 1.625,06/mês · restituição R$ 16.070,07",next:"Formalizar proposta e contrato de honorários"},
+  {id:uid(),etapa:1,tese:"revisao",nome:"Rodrigo (ind. Paulinha)",reu:"",obs:"Situação: indicação recebida em 01/07\nPendência: coletar contrato, boletos e vidas do plano",next:"Qualificar e enviar para diagnóstico DCG"},
+  {id:uid(),etapa:1,tese:"falso",nome:"Família Instituto Hoc",reu:"Amil",obs:"Situação: desdobramento do caso Instituto Hoc\nNota: Dr. Sandro dará seguimento (23/06)",next:"Mapear planos individuais/familiares da família"},
+  {id:uid(),etapa:2,tese:"revisao",nome:"Frank Wisbrun / Simone",reu:"",obs:"Situação: contrato + procuração enviados em 01/07\nAjuste: Simone será a signatária — refazer contratos\nPendência: relatórios/faturas a enviar pelo cliente",next:"Colher assinatura da Simone e receber relatórios"},
+  {id:uid(),etapa:2,tese:"revisao",nome:"Franciscus Home Care",reu:"",obs:"Situação: procuração emitida\nDocs: contrato de honorários preparado",next:"Concluir assinaturas e abrir diagnóstico"},
+  {id:uid(),etapa:3,tese:"restab",nome:"Antonio Marcos Rodrigues",reu:"",obs:"Ação: restabelecimento de plano cancelado\nFase: ação protocolada/iniciada",next:"Aguardar apreciação da tutela"},
+  {id:uid(),etapa:3,tese:"multa",nome:"Azienda Empreendimentos Ltda",reu:"",obs:"Ação: cobrança de multa — encerramento do plano\nFase: ação protocolada/iniciada"},
+  {id:uid(),etapa:3,tese:"falso",nome:"Dalva Capella Carvalheira Ltda",reu:"",cnj:"4017734-34.2026.8.26.0405",vara:"7ª Vara Cível de Osasco · eproc",obs:"Ação: revisão plano saúde — falso coletivo"},
+  {id:uid(),etapa:3,tese:"multa",nome:"Instituto Hoc de Hemoterapia Ltda",reu:"Amil Assistência Médica Internacional",obs:"Ação: cobrança de multa — encerramento do plano",next:"Família seguirá em novas ações (ver Diagnóstico)"},
+  {id:uid(),etapa:3,tese:"falso",nome:"Marcia Marisa da S. Carvalheira Ltda",reu:"Bradesco Saúde",cnj:"4076459-58.2026.8.26.0100",vara:"36ª Vara Cível · Foro Central SP · eproc",obs:"Ação: revisão plano saúde — falso coletivo\nAndamento: DJ 12/05 · eventos 15 e 16"},
+  {id:uid(),etapa:3,tese:"negativa",nome:"Samuel S. C. Martins & Ana Beatriz V. Cavalcante",reu:"Notre Dame Intermédica",cnj:"4016952-27.2026.8.26.0405",vara:"5ª Vara Cível de Osasco · eproc",obs:"Ação: negativa de tratamento — cirurgia/internação\nAndamento: DJ 29/05 · evento 6"},
+  {id:uid(),etapa:4,tese:"multa",nome:"Giovana Malavaze Namba",reu:"Porto Saúde S/A",obs:"Ação: cobrança de multa — encerramento do plano\nLiminar: deferida · entregue na Porto Seguro em 23/06\nCustas: recolhidas",next:"Monitorar cumprimento e boletos indevidos"},
+  {id:uid(),etapa:5,tese:"falso",nome:"Caso Porto Seguro Saúde (referência)",reu:"Porto Seguro Saúde S/A",obs:"Sentença: procedente — natureza individual/familiar reconhecida\nFaixa etária: 84,99% reduzido para 42,5% (59 anos)\nReajustes: futuros limitados aos índices ANS\nHonorários: 10% sobre a condenação",money:"Restituição R$ 30.986,91 + IPCA + Selic",next:"Usar como paradigma nas ações de falso coletivo"}
+];
+
+let casos    = [];
+let clientes = [];
+let template = TPL_PADRAO;
+let apiKey   = load(LS.apiKey, "");
+let orKey    = load(LS.orKey, "");
+let provider = load(LS.provider, "anthropic");
+
+/* ===== estado UI ===== */
+let aba="casos", filtroTese="todos", filtroCli="todos", filtroOferta="todos", busca="", cliPage=0;
+const PAGE=100;
+const $=id=>document.getElementById(id);
+
+const ETAPAS=[{id:1,nome:"Diagnóstico / Avaliação",cls:"c1"},{id:2,nome:"Contrato & Procuração",cls:"c2"},{id:3,nome:"Ação Protocolada",cls:"c3"},{id:4,nome:"Liminar Concedida",cls:"c4"},{id:5,nome:"Sentença / Paradigma",cls:"c5"}];
+const TESE_LABEL={falso:["t-falso","Falso coletivo"],multa:["t-multa","Multa · cancelamento"],negativa:["t-negativa","Negativa de cobertura"],restab:["t-restab","Restabelecimento"],revisao:["t-revisao","Revisão · diagnóstico"]};
+const OFERTAS={nao:"Não abordado",enviada:"Oferta enviada",interessado:"Interessado",caso:"Virou caso",recusou:"Recusou"};
+
+const esc=s=>(s??"").toString().replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+function toast(msg,dur=3200){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),dur);}
+
+/* ===== KANBAN ===== */
+function renderBoard(){
+  const board=$("board"); board.innerHTML="";
+  ETAPAS.forEach(et=>{
+    const list=casos.filter(c=>c.etapa===et.id).filter(c=>filtroTese==="todos"||c.tese===filtroTese).filter(c=>!busca||(c.nome+" "+(c.reu||"")+" "+(c.cnj||"")+" "+(c.obs||"")).toLowerCase().includes(busca));
+    const col=document.createElement("div"); col.className="col "+et.cls;
+    col.innerHTML=`<div class="col-head"><h2>${et.nome}</h2><span class="cnt">${list.length}</span></div>`;
+    list.forEach(c=>{
+      const [tCls,tLbl]=TESE_LABEL[c.tese]||TESE_LABEL.revisao;
+      const obsHtml=(c.obs||"").split("\n").filter(Boolean).map(l=>{const i=l.indexOf(":");return i>0?`<div class="info"><b>${esc(l.slice(0,i))}:</b> ${esc(l.slice(i+1))}</div>`:`<div class="info">${esc(l)}</div>`;}).join("");
+      const card=document.createElement("div"); card.className="card";
+      card.innerHTML=`
+        <span class="tese-tag ${tCls}">${tLbl}</span>
+        <h3>${esc(c.nome)}</h3>
+        <div class="vs ${c.reu?"":"none"}">${c.reu?"× "+esc(c.reu):"réu a definir"}</div>
+        ${c.cnj?`<span class="cnj">CNJ ${esc(c.cnj)}</span>`:""}
+        ${c.vara?`<div class="info"><b>Vara:</b> ${esc(c.vara)}</div>`:""}
+        ${obsHtml}
+        ${c.money?`<div class="money">💰 ${esc(c.money)}</div>`:""}
+        ${c.next?`<div class="next"><b>Próximo passo:</b> ${esc(c.next)}</div>`:""}
+        <div class="card-actions">
+          <button class="mini-btn" data-mv="-1" title="Voltar etapa">‹</button>
+          <button class="mini-btn" data-mv="1" title="Avançar etapa">›</button>
+          <button class="mini-btn" data-ed="1">✏️ Editar</button>
+          <button class="mini-btn danger" data-del="1">🗑</button>
+        </div>`;
+      card.querySelector("[data-ed]").onclick=()=>openCaso(c.id);
+      card.querySelector("[data-del]").onclick=()=>{if(confirm(`Excluir o caso "${c.nome}"?`)){casos=casos.filter(x=>x.id!==c.id);save(LS.casos,casos);renderAll();toast("Caso excluído.");}};
+      card.querySelectorAll("[data-mv]").forEach(b=>b.onclick=()=>{const nova=Math.min(5,Math.max(1,c.etapa+(+b.dataset.mv)));if(nova!==c.etapa){c.etapa=nova;save(LS.casos,casos);renderAll();}});
+      col.appendChild(card);
+    });
+    board.appendChild(col);
+  });
+}
+let casoEditId=null;
+function openCaso(id){
+  casoEditId=id||null;
+  const c=id?casos.find(x=>x.id===id):{};
+  $("mCasoTitle").textContent=id?"Editar caso":"Novo caso";
+  $("fNome").value=c.nome||"";$("fReu").value=c.reu||"";$("fTese").value=c.tese||"revisao";
+  $("fEtapa").value=c.etapa||1;$("fCnj").value=c.cnj||"";$("fVara").value=c.vara||"";
+  $("fMoney").value=c.money||"";$("fNext").value=c.next||"";$("fObs").value=c.obs||"";
+  $("btnExcluirCaso").style.display=id?"block":"none";
+  $("mCaso").classList.add("open");
+}
+$("btnNovoCaso").onclick=()=>openCaso(null);
+$("btnSalvarCaso").onclick=()=>{
+  const nome=$("fNome").value.trim();
+  if(!nome){alert("Informe o nome do cliente/partes.");return;}
+  const dados={nome,reu:$("fReu").value.trim(),tese:$("fTese").value,etapa:+$("fEtapa").value,cnj:$("fCnj").value.trim(),vara:$("fVara").value.trim(),money:$("fMoney").value.trim(),next:$("fNext").value.trim(),obs:$("fObs").value.trim()};
+  if(casoEditId){Object.assign(casos.find(x=>x.id===casoEditId),dados);toast("Caso atualizado.");}
+  else{casos.push({id:uid(),...dados});toast("Caso cadastrado.");}
+  save(LS.casos,casos);$("mCaso").classList.remove("open");renderAll();
+};
+$("btnExcluirCaso").onclick=()=>{if(casoEditId&&confirm("Excluir este caso?")){casos=casos.filter(x=>x.id!==casoEditId);save(LS.casos,casos);$("mCaso").classList.remove("open");renderAll();toast("Caso excluído.");}};
+
+/* ===== CLIENTES ===== */
+function waPhone(t){let d=(t||"").replace(/\D/g,"");if(!d)return"";if(d.startsWith("0"))d=d.slice(1);if(d.length===10||d.length===11)d="55"+d;return d;}
+function mensagem(cli){return template.replaceAll("{nome}",(cli.nome||"").split(" ")[0]||cli.nome||"").replaceAll("{empresa}",cli.empresa||cli.nome||"").replaceAll("{operadora}",cli.operadora?"da "+cli.operadora:"").replace(/ {2,}/g," ");}
+function cliFiltrados(){return clientes.filter(c=>filtroCli==="todos"||c.status===filtroCli).filter(c=>filtroOferta==="todos"||(c.oferta||"nao")===filtroOferta).filter(c=>!busca||(c.nome+" "+(c.empresa||"")+" "+(c.cnpj||"")+" "+(c.operadora||"")+" "+(c.email||"")).toLowerCase().includes(busca));}
+function renderClientes(){
+  const list=cliFiltrados(); const body=$("cliBody"); body.innerHTML="";
+  $("cliEmpty").style.display=clientes.length?"none":"block";
+  const maxPage=Math.max(0,Math.ceil(list.length/PAGE)-1);
+  if(cliPage>maxPage)cliPage=maxPage;
+  const page=list.slice(cliPage*PAGE,cliPage*PAGE+PAGE);
+  page.forEach(c=>{
+    const tr=document.createElement("tr"); const of=c.oferta||"nao";
+    tr.innerHTML=`
+      <td><span class="nm">${esc(c.nome)}</span>${c.empresa?`<span class="sub">${esc(c.empresa)}</span>`:""}${c.cnpj?`<span class="sub mono">${esc(c.cnpj)}</span>`:""}</td>
+      <td>${c.telefone?esc(c.telefone):"<span class='sub'>sem telefone</span>"}${c.email?`<span class="sub">${esc(c.email)}</span>`:""}</td>
+      <td>${c.operadora?esc(c.operadora):"—"}${c.mensalidade?`<span class="sub">R$ ${esc(c.mensalidade)}/mês</span>`:""}</td>
+      <td><span class="st ${c.status==="inativo"?"inativo":"ativo"}">${c.status==="inativo"?"Inativo":"Ativo"}</span></td>
+      <td><select class="of-${of}" data-of>${Object.entries(OFERTAS).map(([k,v])=>`<option value="${k}" ${k===of?"selected":""}>${v}</option>`).join("")}</select></td>
+      <td><div class="row-actions">
+        <button class="mini-btn" data-wa>📲 Oferta</button>
+        <button class="mini-btn" data-case>⚖️ Virar caso</button>
+        <button class="mini-btn" data-edit>✏️</button>
+        <button class="mini-btn danger" data-del>🗑</button>
+      </div></td>`;
+    tr.querySelector("[data-of]").onchange=e=>{c.oferta=e.target.value;save(LS.clientes,clientes);renderClientes();};
+    tr.querySelector("[data-wa]").onclick=()=>{const fone=waPhone(c.telefone);if(!fone){alert("Sem telefone.");return;}window.open(`https://wa.me/${fone}?text=${encodeURIComponent(mensagem(c))}`,"_blank");if((c.oferta||"nao")==="nao"){c.oferta="enviada";save(LS.clientes,clientes);renderClientes();}};
+    tr.querySelector("[data-case]").onclick=()=>{if(c.casoId&&casos.some(x=>x.id===c.casoId)){toast("Cliente já tem caso no kanban.");return;}const novo={id:uid(),etapa:1,tese:"revisao",nome:c.nome+(c.empresa?" ("+c.empresa+")":""),reu:c.operadora||"",obs:["Origem: base de clientes DCG",c.cnpj?"CNPJ/CPF: "+c.cnpj:"",c.telefone?"Contato: "+c.telefone:"",c.mensalidade?"Mensalidade atual: R$ "+c.mensalidade:""].filter(Boolean).join("\n"),next:"Solicitar contrato, boletos e relação de vidas"};casos.push(novo);c.casoId=novo.id;c.oferta="caso";save(LS.casos,casos);save(LS.clientes,clientes);renderAll();toast("Caso criado no kanban ⚖️");};
+    tr.querySelector("[data-edit]").onclick=()=>openCliente(c.id);
+    tr.querySelector("[data-del]").onclick=()=>{if(confirm(`Excluir "${c.nome}"?`)){clientes=clientes.filter(x=>x.id!==c.id);save(LS.clientes,clientes);renderAll();}};
+    body.appendChild(tr);
+  });
+  $("pagInfo").textContent=list.length?`${cliPage*PAGE+1}–${Math.min((cliPage+1)*PAGE,list.length)} de ${list.length} clientes`:"0 clientes";
+  $("pagPrev").disabled=cliPage<=0; $("pagNext").disabled=(cliPage+1)*PAGE>=list.length;
+}
+$("pagPrev").onclick=()=>{cliPage--;renderClientes();}; $("pagNext").onclick=()=>{cliPage++;renderClientes();};
+let cliEditId=null;
+function openCliente(id){
+  cliEditId=id||null; const c=id?clientes.find(x=>x.id===id):{};
+  $("mCliTitle").textContent=id?"Editar cliente":"Novo cliente";
+  $("cNome").value=c.nome||"";$("cEmpresa").value=c.empresa||"";$("cCnpj").value=c.cnpj||"";
+  $("cTel").value=c.telefone||"";$("cEmail").value=c.email||"";$("cOper").value=c.operadora||"";
+  $("cMens").value=c.mensalidade||"";$("cStatus").value=c.status||"ativo";$("cNotas").value=c.notas||"";
+  $("btnExcluirCli").style.display=id?"block":"none"; $("mCliente").classList.add("open");
+}
+$("btnNovoCli").onclick=()=>openCliente(null);
+$("btnSalvarCli").onclick=()=>{
+  const nome=$("cNome").value.trim(); if(!nome){alert("Informe o nome.");return;}
+  const dados={nome,empresa:$("cEmpresa").value.trim(),cnpj:$("cCnpj").value.trim(),telefone:$("cTel").value.trim(),email:$("cEmail").value.trim(),operadora:$("cOper").value.trim(),mensalidade:$("cMens").value.trim(),status:$("cStatus").value,notas:$("cNotas").value.trim()};
+  if(cliEditId){Object.assign(clientes.find(x=>x.id===cliEditId),dados);toast("Cliente atualizado.");}
+  else{clientes.push({id:uid(),oferta:"nao",...dados});toast("Cliente cadastrado.");}
+  save(LS.clientes,clientes);$("mCliente").classList.remove("open");renderAll();
+};
+$("btnExcluirCli").onclick=()=>{if(cliEditId&&confirm("Excluir este cliente?")){clientes=clientes.filter(x=>x.id!==cliEditId);save(LS.clientes,clientes);$("mCliente").classList.remove("open");renderAll();}};
+$("btnLimparCli").onclick=()=>{if(clientes.length&&confirm(`Apagar TODOS os ${clientes.length} clientes? (casos não são afetados)`)){clientes=[];save(LS.clientes,clientes);renderAll();toast("Base limpa.");}};
+
+/* ===== DEDUPLICAÇÃO ===== */
+function dedupKey(c){
+  const n=norm(c.nome||"");
+  const cpf=(c.cnpj||"").replace(/\D/g,"");
+  const tel=(c.telefone||"").replace(/\D/g,"").slice(-8);
+  /* chave primária: nome+cnpj se tiver cnpj, senão nome+tel */
+  if(cpf.length>=8) return n+"|"+cpf;
+  if(tel.length>=8) return n+"|tel"+tel;
+  return n;
+}
+function deduplicar(){
+  const antes=clientes.length;
+  const vistos=new Map();
+  clientes.forEach(c=>{
+    const k=dedupKey(c);
+    if(!vistos.has(k)) vistos.set(k,c);
+  });
+  clientes=Array.from(vistos.values());
+  const removidos=antes-clientes.length;
+  save(LS.clientes,clientes);
+  renderAll();
+  return removidos;
+}
+$("btnDedup").onclick=()=>{
+  const r=deduplicar();
+  toast(r>0?`✅ ${r} duplicado(s) removido(s)`:"Nenhum duplicado encontrado.");
+};
+
+/* ===== IMPORTAÇÃO CSV ===== */
+const CAMPOS={ignorar:"— ignorar —",nome:"Nome / razão social",empresa:"Nome fantasia",cnpj:"CNPJ / CPF",telefone:"Telefone / WhatsApp",email:"E-mail",operadora:"Operadora / plano",mensalidade:"Mensalidade",status:"Status (ativo/inativo)"};
+const ALIAS={nome:["nome","cliente","razao social","razaosocial","razao","contato","beneficiario","segurado","empresa","razao_social","denominacao"],empresa:["fantasia","nome fantasia","nome_fantasia"],cnpj:["cnpj","cpf","documento","doc","cpf/cnpj","cnpj/cpf","cnpj_cpf"],telefone:["whatsapp","celular","telefone","fone","tel","movel","phone","ddd_telefone_1","ddd_celular_1"],email:["email","e-mail","mail","e_mail"],operadora:["operadora","seguradora","convenio","plano","produto"],mensalidade:["mensalidade","valor mensal","valor","premio","mensal","mensalidade_atual"],status:["status","situacao","ativo","situação","situacao_cadastral"]};
+const norm=s=>s.toString().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").trim();
+function detectDelim(l){const c=[[";",(l.match(/;/g)||[]).length],["\t",(l.match(/\t/g)||[]).length],[",",(l.match(/,/g)||[]).length]];c.sort((a,b)=>b[1]-a[1]);return c[0][1]>0?c[0][0]:";";}
+function splitLine(line,d){const out=[];let cur="",q=false;for(let i=0;i<line.length;i++){const ch=line[i];if(ch==='"'){if(q&&line[i+1]==='"'){cur+='"';i++;}else q=!q;}else if(ch===d&&!q){out.push(cur);cur="";}else cur+=ch;}out.push(cur);return out.map(s=>s.trim());}
+
+/* Lê qualquer arquivo e retorna array de arrays (linhas × colunas) */
+async function fileToRows(file){
+  const ext=file.name.split(".").pop().toLowerCase();
+  if(ext==="xlsx"||ext==="xls"){
+    if(typeof XLSX==="undefined") throw new Error("SheetJS não carregou — verifique internet.");
+    const buf=await file.arrayBuffer();
+    const wb=XLSX.read(buf,{type:"array"});
+    const ws=wb.Sheets[wb.SheetNames[0]];
+    return XLSX.utils.sheet_to_array(ws,{defval:""});
+  }
+  /* CSV / TXT / TSV — detecta encoding */
+  const tryEncodings=["utf-8","windows-1252","iso-8859-1"];
+  let text="";
+  for(const enc of tryEncodings){
+    try{ text=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsText(file,enc);}); break; }catch(e){}
+  }
+  const lines=text.replace(/\r/g,"").split("\n").filter(l=>l.trim());
+  const d=detectDelim(lines[0]||"");
+  return lines.map(l=>splitLine(l,d));
+}
+
+let impRows=[],impMap=[];
+
+function buildMapUI(rows){
+  const hasHeader=$("impHeader").checked;
+  const header=hasHeader?rows[0]:[];
+  impRows=hasHeader?rows.slice(1):rows;
+  const nCols=Math.max(...impRows.map(r=>r.length),header.length);
+  impMap=Array.from({length:nCols},(_,i)=>{
+    if(!hasHeader) return ["nome","cnpj","telefone","email","operadora","mensalidade","status"][i]||"ignorar";
+    const h=norm(String(header[i]||""));
+    for(const[campo,aliases]of Object.entries(ALIAS)){if(aliases.some(a=>h===a||h.includes(a)))return campo;}
+    return"ignorar";
+  });
+  const mt=$("mapTable"); const preview=impRows.slice(0,3);
+  mt.innerHTML="<tr>"+impMap.map((m,i)=>`<th>Col ${i+1}${hasHeader?"<br><span style='font-weight:400'>"+esc(String(header[i]||"").slice(0,20))+"</span>":""}</th>`).join("")+"</tr>"
+    +"<tr>"+impMap.map((m,i)=>`<td><select data-col="${i}">${Object.entries(CAMPOS).map(([k,v])=>`<option value="${k}" ${k===m?"selected":""}>${v}</option>`).join("")}</select></td>`).join("")+"</tr>"
+    +preview.map(r=>"<tr>"+impMap.map((_,i)=>`<td>${esc(String(r[i]||"").slice(0,28))}</td>`).join("")+"</tr>").join("");
+  mt.querySelectorAll("select").forEach(s=>s.onchange=()=>{impMap[+s.dataset.col]=s.value;});
+  $("mapWrap").style.display="block"; $("btnImpGo").style.display="inline-block";
+  $("impStatus").textContent=`✅ ${impRows.length} linha(s) detectada(s)`;
+}
+
+async function parseImport(){
+  const text=$("impText").value.trim();
+  if(!text){alert("Cole os dados ou escolha um arquivo primeiro.");return;}
+  const lines=text.replace(/\r/g,"").split("\n").filter(l=>l.trim());
+  const d=detectDelim(lines[0]);
+  buildMapUI(lines.map(l=>splitLine(l,d)));
+}
+$("btnImpParse").onclick=parseImport;
+
+$("impFile").onchange=async e=>{
+  const f=e.target.files[0]; if(!f) return;
+  try{
+    toast("Lendo arquivo…");
+    const rows=await fileToRows(f);
+    if(rows.length<2){alert("Arquivo sem dados.");return;}
+    /* Pré-visualiza o CSV no textarea para referência */
+    const d=";";
+    $("impText").value=rows.map(r=>r.map(c=>String(c)).join(d)).join("\n");
+    buildMapUI(rows);
+  }catch(err){alert("Erro ao ler arquivo: "+err.message);}
+  e.target.value="";
+};
+
+const importDrop=document.querySelector(".drop");
+importDrop.addEventListener("dragover",e=>e.preventDefault());
+importDrop.addEventListener("drop",async e=>{
+  e.preventDefault();
+  const f=e.dataTransfer.files[0]; if(!f) return;
+  try{
+    toast("Lendo arquivo…");
+    const rows=await fileToRows(f);
+    $("impText").value=rows.map(r=>r.map(c=>String(c)).join(";")).join("\n");
+    buildMapUI(rows);
+  }catch(err){alert("Erro: "+err.message);}
+});
+$("btnImpGo").onclick=()=>{
+  if(!impRows.length){alert("Analise os dados primeiro.");return;}
+  if(!impMap.includes("nome")){alert("Mapeie ao menos a coluna Nome.");return;}
+  const existentes=new Set(clientes.map(c=>norm(c.nome)+"|"+(c.cnpj||"").replace(/\D/g,"")));
+  let add=0,dup=0;
+  impRows.forEach(r=>{
+    const c={id:uid(),oferta:"nao",status:"ativo"};
+    impMap.forEach((campo,i)=>{if(campo==="ignorar")return;const v=(r[i]||"").trim();if(!v)return;if(campo==="status"){const nv=norm(v);c.status=(nv.includes("inat")||nv.includes("cancel")||nv==="0"||nv==="nao"||nv==="não")?"inativo":"ativo";}else if(campo==="mensalidade"){c.mensalidade=v.replace(/[rR]\$\s?/,"");}else c[campo]=v;});
+    if(!c.nome){dup++;return;}
+    const key=norm(c.nome)+"|"+(c.cnpj||"").replace(/\D/g,"");
+    if(existentes.has(key)){dup++;return;}
+    existentes.add(key); clientes.push(c); add++;
+  });
+  const removidos=deduplicar();
+  $("mImport").classList.remove("open");
+  $("impText").value="";$("mapWrap").style.display="none";$("btnImpGo").style.display="none";$("impStatus").textContent="";
+  impRows=[];impMap=[]; aba="clientes";syncAba();renderAll();
+  toast(`✅ ${add} importado(s)`+(dup?` · ${dup} ignorado(s)`:"")+(removidos?` · ${removidos} duplicado(s) removido(s)`:""));
+};
+function openImport(){$("mImport").classList.add("open");}
+$("btnImport").onclick=openImport;
+$("btnExportCli").onclick=()=>{
+  if(!clientes.length){alert("Base vazia.");return;}
+  const cab=["nome","empresa","cnpj","telefone","email","operadora","mensalidade","status","oferta","notas"];
+  const q=v=>{v=(v??"").toString();return/[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};
+  const csv="﻿"+cab.join(";")+"\n"+clientes.map(c=>cab.map(k=>q(k==="oferta"?OFERTAS[c.oferta||"nao"]:c[k])).join(";")).join("\n");
+  baixar(csv,"clientes-plano-justo.csv","text/csv;charset=utf-8");
+};
+
+/* ===== BACKUP ===== */
+function baixar(conteudo,nome,tipo){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([conteudo],{type:tipo}));a.download=nome;a.click();URL.revokeObjectURL(a.href);}
+$("btnBackup").onclick=()=>{const dump={app:"plano-justo-painel",versao:3,exportadoEm:new Date().toISOString(),casos,clientes,template};baixar(JSON.stringify(dump,null,2),"backup-plano-justo.json","application/json");toast("Backup baixado.");};
+$("btnRestore").onclick=()=>$("fileRestore").click();
+$("fileRestore").onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  const rd=new FileReader();
+  rd.onload=()=>{try{const d=JSON.parse(rd.result);if(!Array.isArray(d.casos)||!Array.isArray(d.clientes))throw 0;if(!confirm(`Restaurar backup de ${d.exportadoEm?d.exportadoEm.slice(0,10):"data desconhecida"}?\n${d.casos.length} casos e ${d.clientes.length} clientes vão SUBSTITUIR os dados atuais.`))return;casos=d.casos;clientes=d.clientes;if(typeof d.template==="string")template=d.template;save(LS.casos,casos);save(LS.clientes,clientes);save(LS.tpl,template);$("tplArea").value=template;renderAll();toast("Backup restaurado.");}catch(err){alert("Arquivo inválido.");}};
+  rd.readAsText(f,"utf-8"); e.target.value="";
+};
+
+/* ===== CONFIG / API KEY ===== */
+const OR_MODELS=[
+  {g:"★ Gratuitos — $0 por documento",opts:[
+    {v:"google/gemma-4-31b-it:free",l:"Gemma 4 31B (Google) — gratuito ★ recomendado"},
+    {v:"google/gemma-4-26b-a4b-it:free",l:"Gemma 4 26B MoE (Google) — gratuito"},
+    {v:"nvidia/nemotron-3-ultra-550b-a55b:free",l:"Nemotron 550B Ultra (NVIDIA) — gratuito, enorme"},
+    {v:"openai/gpt-oss-120b:free",l:"GPT OSS 120B (OpenAI open) — gratuito"},
+    {v:"qwen/qwen3-next-80b-a3b-instruct:free",l:"Qwen3 80B (Alibaba) — gratuito"},
+    {v:"nvidia/nemotron-3-super-120b-a12b:free",l:"Nemotron Super 120B (NVIDIA) — gratuito"},
+  ]},
+  {g:"Baratos — adicione créditos",opts:[
+    {v:"google/gemini-2.0-flash-001",l:"Gemini 2.0 Flash — ~$0,075/M tokens"},
+    {v:"openai/gpt-4o-mini",l:"GPT-4o Mini — ~$0,15/M tokens"},
+    {v:"deepseek/deepseek-chat-v3-0324",l:"DeepSeek V3 — ~$0,27/M tokens"},
+    {v:"mistralai/mistral-small-3.2-24b-instruct",l:"Mistral Small 3.2 24B — barato"},
+    {v:"anthropic/claude-haiku-4-5-20251001",l:"Claude Haiku 4.5 — rápido e barato"},
+  ]},
+  {g:"Premium via OpenRouter",opts:[
+    {v:"anthropic/claude-sonnet-4-6",l:"Claude Sonnet 4.6 — qualidade superior"},
+    {v:"openai/gpt-4o",l:"GPT-4o — OpenAI"},
+    {v:"google/gemini-2.5-pro-preview-06-05",l:"Gemini 2.5 Pro — Google, longo contexto"},
+  ]},
+];
+const ANTHRO_MODELS=[
+  {g:"Anthropic (direto)",opts:[
+    {v:"claude-haiku-4-5-20251001",l:"Haiku 4.5 — rápido e econômico"},
+    {v:"claude-sonnet-4-6",l:"Sonnet 4.6 — qualidade superior"},
+    {v:"claude-opus-4-8",l:"Opus 4.8 — máxima qualidade"},
+  ]},
+];
+function updateModelSelect(){
+  const sel=$("aiModel"); sel.innerHTML="";
+  const groups=provider==="openrouter"?OR_MODELS:ANTHRO_MODELS;
+  groups.forEach(g=>{
+    const og=document.createElement("optgroup"); og.label=g.g;
+    g.opts.forEach(o=>{const op=document.createElement("option");op.value=o.v;op.textContent=o.l;og.appendChild(op);});
+    sel.appendChild(og);
+  });
+  if(provider==="openrouter") sel.value="google/gemma-4-31b-it:free";
+  else sel.value="claude-sonnet-4-6";
+}
+function setProvider(p){
+  provider=p;
+  $("prvAnthropic").classList.toggle("on",p==="anthropic");
+  $("prvOpenRouter").classList.toggle("on",p==="openrouter");
+  $("cfgAnthropic").style.display=p==="anthropic"?"block":"none";
+  $("cfgOpenRouter").style.display=p==="openrouter"?"block":"none";
+  updateModelSelect();
+  const hasKey=p==="anthropic"?!!apiKey:!!orKey;
+  $("apiNotice").style.display=hasKey?"none":"flex";
+}
+function openConfig(){
+  $("apiKeyInput").value=apiKey;
+  $("orKeyInput").value=orKey;
+  setProvider(provider);
+  $("mConfig").classList.add("open");
+}
+$("btnConfig").onclick=openConfig;
+$("openCfgLink").onclick=openConfig;
+$("btnSalvarConfig").onclick=()=>{
+  apiKey=$("apiKeyInput").value.trim();
+  orKey=$("orKeyInput").value.trim();
+  save(LS.apiKey,apiKey); save(LS.orKey,orKey); save(LS.provider,provider);
+  $("mConfig").classList.remove("open");
+  const hasKey=provider==="anthropic"?!!apiKey:!!orKey;
+  $("apiNotice").style.display=hasKey?"none":"flex";
+  toast("Configuração salva!");
+};
+
+/* ===== NAVEGAÇÃO ABAS ===== */
+function syncAba(){
+  $("tabCasos").classList.toggle("on",aba==="casos");
+  $("tabClientes").classList.toggle("on",aba==="clientes");
+  $("tabDocs").classList.toggle("on",aba==="docs");
+  $("viewCasos").style.display=aba==="casos"?"block":"none";
+  $("viewClientes").style.display=aba==="clientes"?"block":"none";
+  $("viewDocs").style.display=aba==="docs"?"block":"none";
+  $("btnNovoCaso").style.display=aba==="casos"?"inline-flex":"none";
+  $("btnImport").style.display=aba==="clientes"?"inline-flex":"none";
+  $("q").placeholder=aba==="casos"?"Buscar caso, operadora, CNJ…":aba==="clientes"?"Buscar cliente, CNPJ, operadora…":"";
+  $("q").style.display=aba==="docs"?"none":"block";
+  if(aba==="docs"){const hk=provider==="anthropic"?!!apiKey:!!orKey;$("apiNotice").style.display=hk?"none":"flex";}
+}
+$("tabCasos").onclick=()=>{aba="casos";syncAba();};
+$("tabClientes").onclick=()=>{aba="clientes";syncAba();};
+$("tabDocs").onclick=()=>{aba="docs";syncAba();};
+$("filters").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b||!b.dataset.f)return;document.querySelectorAll("#filters .chip").forEach(c=>c.classList.remove("on"));b.classList.add("on");filtroTese=b.dataset.f;renderBoard();});
+document.querySelectorAll("[data-cf]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-cf]").forEach(c=>c.classList.remove("on"));b.classList.add("on");filtroCli=b.dataset.cf;cliPage=0;renderClientes();});
+$("ofFilter").onchange=e=>{filtroOferta=e.target.value;cliPage=0;renderClientes();};
+$("q").addEventListener("input",e=>{busca=e.target.value.trim().toLowerCase();cliPage=0;if(aba==="casos")renderBoard();else renderClientes();});
+$("tplArea").value=template;
+$("tplArea").addEventListener("input",e=>{template=e.target.value;save(LS.tpl,template);});
+document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>$(b.dataset.close).classList.remove("open"));
+document.querySelectorAll(".overlay").forEach(o=>o.addEventListener("click",e=>{if(e.target===o)o.classList.remove("open");}));
+
+function renderKpis(){
+  $("kTotal").textContent=casos.length;
+  $("kJud").textContent=casos.filter(c=>c.etapa>=3&&c.etapa<=4).length;
+  $("kLim").textContent=casos.filter(c=>c.etapa===4).length;
+  $("kCli").textContent=clientes.length;
+  $("kOf").textContent=clientes.filter(c=>["enviada","interessado","caso"].includes(c.oferta)).length;
+  $("kInt").textContent=clientes.filter(c=>["interessado","caso"].includes(c.oferta)).length;
+}
+function renderAll(){renderKpis();renderBoard();renderClientes();}
+
+/* =====================================================================
+   DOCUMENTOS IA
+===================================================================== */
+
+/* ----- extração de texto ----- */
+async function extractText(file){
+  const ext=file.name.split(".").pop().toLowerCase();
+  if(ext==="pdf"){
+    if(typeof pdfjsLib==="undefined") throw new Error("PDF.js não carregou — verifique conexão com internet.");
+    const buf=await file.arrayBuffer();
+    const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+    let txt="";
+    for(let p=1;p<=pdf.numPages;p++){
+      const page=await pdf.getPage(p);
+      const content=await page.getTextContent();
+      txt+=content.items.map(i=>i.str).join(" ")+"\n";
+    }
+    return txt.trim();
+  }
+  if(ext==="docx"){
+    if(typeof mammoth==="undefined") throw new Error("mammoth.js não carregou — verifique conexão com internet.");
+    const buf=await file.arrayBuffer();
+    const result=await mammoth.extractRawText({arrayBuffer:buf});
+    return result.value.trim();
+  }
+  if(["png","jpg","jpeg","webp","gif","bmp"].includes(ext)){
+    return await fileToBase64Payload(file);
+  }
+  return await file.text();
+}
+
+async function fileToBase64Payload(file){
+  return new Promise((res,rej)=>{
+    const rd=new FileReader();
+    rd.onload=()=>res({type:"image",base64:rd.result.split(",")[1],mediaType:file.type||"image/jpeg"});
+    rd.onerror=rej;
+    rd.readAsDataURL(file);
+  });
+}
+
+/* ----- chunking para docs grandes ----- */
+const CHUNK_SIZE=28000, CHUNK_OVERLAP=400;
+function chunkText(text){
+  if(text.length<=CHUNK_SIZE) return [text];
+  const chunks=[];
+  let pos=0;
+  while(pos<text.length){
+    chunks.push(text.slice(pos,pos+CHUNK_SIZE));
+    pos+=CHUNK_SIZE-CHUNK_OVERLAP;
+  }
+  return chunks;
+}
+
+/* ----- chamada API (Anthropic direto ou OpenRouter) ----- */
+const SYS_PROMPT="Você é um assistente jurídico especializado em planos de saúde PME, falso coletivo e direito do consumidor, trabalhando para DCG Seguros e Carvalho Advocacia. Seja preciso, conciso e estruturado nas respostas.";
+
+async function callClaude(prompt,textOrPayload,model){
+  if(provider==="openrouter") return callOpenRouter(prompt,textOrPayload,model);
+
+  if(!apiKey) throw new Error("Chave API Anthropic não configurada — clique em ⚙ API.");
+  let messages;
+  if(textOrPayload&&typeof textOrPayload==="object"&&textOrPayload.type==="image"){
+    messages=[{role:"user",content:[
+      {type:"image",source:{type:"base64",media_type:textOrPayload.mediaType,data:textOrPayload.base64}},
+      {type:"text",text:prompt}
+    ]}];
+  }else{
+    const fullPrompt=prompt.includes("{texto}")?prompt.replace("{texto}",textOrPayload):prompt+"\n\n"+textOrPayload;
+    messages=[{role:"user",content:fullPrompt}];
+  }
+  const resp=await fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",
+    headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+    body:JSON.stringify({model,max_tokens:4096,system:SYS_PROMPT,messages})
+  });
+  if(!resp.ok){const err=await resp.json().catch(()=>({}));throw new Error(`Anthropic ${resp.status}: ${err.error?.message||resp.statusText}`);}
+  const data=await resp.json();
+  return data.content[0].text;
+}
+
+async function callOpenRouter(prompt,textOrPayload,model){
+  if(!orKey) throw new Error("Chave OpenRouter não configurada — clique em ⚙ API.");
+  let userContent;
+  if(textOrPayload&&typeof textOrPayload==="object"&&textOrPayload.type==="image"){
+    userContent=[
+      {type:"image_url",image_url:{url:`data:${textOrPayload.mediaType};base64,${textOrPayload.base64}`}},
+      {type:"text",text:prompt}
+    ];
+  }else{
+    const fullPrompt=prompt.includes("{texto}")?prompt.replace("{texto}",textOrPayload):prompt+"\n\n"+textOrPayload;
+    userContent=fullPrompt;
+  }
+  const resp=await fetch("https://openrouter.ai/api/v1/chat/completions",{
+    method:"POST",
+    headers:{"Content-Type":"application/json","Authorization":"Bearer "+orKey,"HTTP-Referer":"https://planojusto.diseg.online","X-Title":"Plano Justo"},
+    body:JSON.stringify({model,max_tokens:4096,messages:[{role:"system",content:SYS_PROMPT},{role:"user",content:userContent}]})
+  });
+  if(!resp.ok){const err=await resp.json().catch(()=>({}));throw new Error(`OpenRouter ${resp.status}: ${err.error?.message||resp.statusText}`);}
+  const data=await resp.json();
+  const msg=data.choices[0].message;
+  return msg.content||msg.reasoning||"(resposta vazia do modelo)";
+}
+
+/* ----- prompts por tipo ----- */
+function buildPrompt(type,customPrompt){
+  if(type==="caso") return `Você é um assistente jurídico especializado em planos de saúde PME e "falso coletivo" (DCG Seguros × Carvalho Advocacia).
+Analise o texto e extraia os dados do caso em JSON puro (apenas o objeto, sem blocos de código):
+{
+  "nome": "nome do cliente ou empresa",
+  "reu": "operadora ou réu (ex: Amil, Bradesco Saúde, Porto Seguro)",
+  "tese": "falso | multa | negativa | restab | revisao",
+  "etapa": 1,
+  "cnj": "número CNJ ou vazio",
+  "vara": "vara e comarca ou vazio",
+  "money": "valores (excesso mensal, restituição estimada) ou vazio",
+  "next": "próximo passo sugerido",
+  "obs": "anotações por linha no formato Chave: valor",
+  "resumo": "resumo do caso em até 3 linhas"
+}
+Tese: "falso"=plano PME familiar/falso coletivo; "multa"=multa/cancelamento/aviso prévio; "negativa"=negativa de cobertura; "restab"=restabelecimento de plano cancelado; "revisao"=revisão geral/diagnóstico.
+Texto:`;
+  if(type==="cliente") return `Extraia os dados do cliente do texto em JSON puro:
+{
+  "nome": "nome ou razão social",
+  "empresa": "nome fantasia",
+  "cnpj": "CNPJ ou CPF",
+  "telefone": "telefone ou WhatsApp",
+  "email": "email",
+  "operadora": "operadora do plano de saúde",
+  "mensalidade": "valor mensal sem R$ e sem /mês",
+  "status": "ativo ou inativo",
+  "notas": "observações relevantes"
+}
+Texto:`;
+  if(type==="contrato") return `Você é especialista em direito de planos de saúde PME. Analise o documento e responda em markdown:
+
+## Identificação
+- Contratante / empresa / CNPJ
+- Operadora
+- Tipo de plano e número de vidas
+- Quem são os beneficiários?
+
+## Falso Coletivo
+- Todos os beneficiários são da família do sócio? (sim / não / não identificado)
+- Caracteriza "falso coletivo" perante a ANS? Justifique
+- Cláusula de aviso prévio de 60 dias: sim / não
+- Cláusula de multa por rescisão: sim / não
+
+## Reajustes
+- Percentuais praticados por ano (liste se disponível)
+- Índice ANS aplicável (VCMH ou IPCA)
+- Excesso estimado últimos 5 anos (se possível calcular)
+
+## Tese Jurídica Recomendada
+- Tese principal
+- Fundamentos: RN ANS 195/2009, RN 455/2020, CDC arts. 39/51, STJ Tema 952
+- Potencial de recuperação
+
+## Próximos Passos
+
+Documento:`;
+  if(type==="email") return `Extraia e organize as informações deste email/mensagem em JSON puro:
+{
+  "assunto": "assunto ou título",
+  "remetente": "quem enviou",
+  "data": "data mencionada ou vazio",
+  "empresa_cliente": "empresa do cliente mencionada",
+  "operadora": "operadora de plano mencionada",
+  "valores": "valores mencionados",
+  "acao_necessaria": "o que precisa ser feito — seja específico",
+  "urgente": true ou false,
+  "resumo": "resumo em 2-3 linhas"
+}
+Email/mensagem:`;
+  if(type==="resumo") return `Resuma este documento de forma clara e estruturada para uso jurídico interno:
+
+## Tipo e Identificação
+## Partes Envolvidas
+## Pontos Principais
+## Valores e Datas Relevantes
+## Ação Necessária
+
+Documento:`;
+  if(type==="livre") return customPrompt||"Analise o seguinte documento:\n\n{texto}";
+  return "Analise o seguinte documento:\n\n";
+}
+
+/* ----- processo de análise de um item ----- */
+async function processItem(item,model,type,customPrompt){
+  const prompt=buildPrompt(type,customPrompt);
+  let rawText;
+  try{ rawText=await extractText(item.file||{name:item.name+".txt",text:()=>Promise.resolve(item.text),arrayBuffer:()=>Promise.resolve(new TextEncoder().encode(item.text).buffer)}); }
+  catch(e){ throw new Error("Extração: "+e.message); }
+
+  const isImage=typeof rawText==="object"&&rawText.type==="image";
+  if(isImage){
+    return await callClaude(prompt,rawText,model);
+  }
+
+  const chunks=chunkText(rawText);
+  if(chunks.length===1) return await callClaude(prompt,chunks[0],model);
+
+  const summaries=[];
+  for(let i=0;i<chunks.length;i++){
+    setItemChunkInfo(item.id,`Parte ${i+1}/${chunks.length}…`);
+    const s=await callClaude(prompt,chunks[i],model);
+    summaries.push(s);
+  }
+  setItemChunkInfo(item.id,"Sintetizando partes…");
+  const synth=await callClaude(`O documento abaixo foi processado em ${chunks.length} partes. Sintetize em uma análise única e coesa, eliminando repetições:\n\n`+summaries.join("\n\n---\n\n"),"",model);
+  return synth;
+}
+
+/* ----- fila de arquivos ----- */
+let docQueue=[];
+let processingStop=false;
+
+function fileIcon(name){
+  const ext=(name||"").split(".").pop().toLowerCase();
+  if(["pdf"].includes(ext)) return "📄";
+  if(["docx","doc"].includes(ext)) return "📝";
+  if(["csv","xls","xlsx"].includes(ext)) return "📊";
+  if(["png","jpg","jpeg","webp","gif"].includes(ext)) return "🖼";
+  if(["eml","msg"].includes(ext)) return "✉️";
+  return "📋";
+}
+function fmtSize(b){if(b<1024)return b+"B";if(b<1048576)return(b/1024).toFixed(1)+"KB";return(b/1048576).toFixed(1)+"MB";}
+
+const MAX_DOC_SIZE = 20 * 1024 * 1024; // 20MB — CSVs grandes vão para aba Clientes
+
+async function addToQueue(files){
+  const arr = Array.from(files);
+  const grandes = arr.filter(f=>f.size>MAX_DOC_SIZE);
+  if(grandes.length){
+    toast(`⚠ ${grandes.length} arquivo(s) acima de 20MB ignorado(s) — importe CSVs grandes pela aba Clientes → 📁 Pasta de arquivos`);
+  }
+  const validos = arr.filter(f=>f.size<=MAX_DOC_SIZE);
+
+  /* Inicia TODOS os FileReaders de forma síncrona antes de qualquer await */
+  const readers = validos.map(f=>{
+    const r = new FileReader();
+    r.readAsArrayBuffer(f);
+    return {f, r};
+  });
+
+  for(const {f, r} of readers){
+    if(docQueue.find(q=>q.name===f.name&&q.size===f.size)) continue;
+    const item={id:uid(),name:f.name,size:f.size,status:"wait",result:null,error:null};
+    try{
+      const buf = await new Promise((res,rej)=>{
+        if(r.readyState===FileReader.DONE){ res(r.result); return; }
+        r.onload=()=>res(r.result);
+        r.onerror=()=>rej(r.error);
+      });
+      item.file={
+        name:f.name, type:f.type||"",
+        arrayBuffer:()=>Promise.resolve(buf),
+        text:()=>Promise.resolve(new TextDecoder("utf-8",{fatal:false}).decode(buf))
+      };
+    }catch(e){ item.file=f; }
+    docQueue.push(item);
+  }
+  renderQueue();
+}
+function addPasteToQueue(){
+  const text=$("pasteArea").value.trim();
+  const name=($("pasteName").value.trim()||"Texto colado")+(docQueue.length?" #"+docQueue.length:"");
+  if(!text){alert("Cole algum texto primeiro.");return;}
+  docQueue.push({id:uid(),name,size:text.length,text,status:"wait",result:null,error:null});
+  $("pasteArea").value=""; $("pasteName").value="";
+  renderQueue(); toast("Texto adicionado à fila.");
+}
+function removeFromQueue(id){docQueue=docQueue.filter(q=>q.id!==id);renderQueue();}
+function clearQueue(){docQueue=[];renderQueue();}
+
+function setItemStatus(id,status){const q=docQueue.find(x=>x.id===id);if(q)q.status=status;renderQueue();}
+function setItemChunkInfo(id,info){
+  const el=document.querySelector(`[data-qi="${id}"] .q-chunk`);
+  if(el)el.textContent=info;
+}
+
+function renderQueue(){
+  const area=$("docQueue"); area.innerHTML="";
+  $("queueWrap").style.display=docQueue.length?"block":"none";
+  $("queueCount").textContent=`${docQueue.length} arquivo(s)`;
+  if(!docQueue.length){area.innerHTML='<div class="q-empty">Fila vazia</div>';return;}
+  docQueue.forEach(q=>{
+    const div=document.createElement("div");
+    div.className="q-item"; div.dataset.qi=q.id;
+    div.innerHTML=`<span class="q-icon">${fileIcon(q.name)}</span><span class="q-name" title="${esc(q.name)}">${esc(q.name)}</span><span class="q-size">${q.text?q.size+"chars":fmtSize(q.size)}</span><span class="q-st ${q.status}" data-status>${q.status==="wait"?"aguardando":q.status==="proc"?"processando…":q.status==="done"?"pronto":"erro"}</span><button class="q-del" data-del>✕</button><span class="q-chunk" style="display:none;font-size:.65rem;color:var(--blue);margin-left:4px"></span>`;
+    div.querySelector("[data-del]").onclick=()=>removeFromQueue(q.id);
+    area.appendChild(div);
+  });
+}
+
+/* ----- resultados ----- */
+let results=[];
+function addResult(item,text,error){
+  results.push({id:item.id,name:item.name,text:error?null:text,error:error||null,ts:new Date().toISOString(),type:$("analysisType").value});
+  renderResults();
+}
+function clearResults(){results=[];renderResults();}
+
+function tryParseJSON(text){
+  try{
+    let s=text.trim();
+    const m=s.match(/\{[\s\S]*\}/);
+    if(m)s=m[0];
+    return JSON.parse(s);
+  }catch(e){return null;}
+}
+
+function renderResults(){
+  const area=$("resultsArea");
+  $("resultCount").textContent=results.length?`(${results.length})`:"";;
+  if(!results.length){
+    area.innerHTML='<div class="results-empty"><div class="ico">🗂</div><h3>Nenhum resultado ainda</h3><p>Adicione arquivos ou cole um texto, escolha o tipo de análise e clique em <b>▶ Processar tudo</b>.</p></div>';
+    return;
+  }
+  area.innerHTML="";
+  results.slice().reverse().forEach(r=>{
+    const card=document.createElement("div");
+    card.className="result-card open";
+    const parsed=r.text?tryParseJSON(r.text):null;
+    const isJSON=!!parsed;
+    const badgeCls=r.error?"err":"ok";
+    const badgeTxt=r.error?"Erro":isJSON?"JSON extraído":"Pronto";
+    card.innerHTML=`
+      <div class="rc-head">
+        <span class="rc-ico">${fileIcon(r.name)}</span>
+        <span class="rc-name">${esc(r.name)}</span>
+        <span class="rc-badge ${badgeCls}">${badgeTxt}</span>
+      </div>
+      <div class="rc-body">
+        ${r.error?`<div style="color:var(--red);font-size:.8rem;padding:4px 0">❌ ${esc(r.error)}</div>`:""}
+        ${r.text&&isJSON?`<div class="json-box">${esc(JSON.stringify(parsed,null,2))}</div>`:""}
+        ${r.text&&!isJSON?`<div class="prose">${marked.parse(r.text)}</div>`:""}
+        <div class="rc-actions">
+          ${!r.error?`<button class="rc-mini" data-copy>📋 Copiar</button>`:""}
+          ${parsed&&r.type==="caso"?`<button class="rc-mini emerald" data-addcaso>⚖️ Adicionar ao kanban</button>`:""}
+          ${parsed&&r.type==="cliente"?`<button class="rc-mini blue" data-addcli>👥 Adicionar à base</button>`:""}
+          <button class="rc-mini" data-del>🗑 Remover</button>
+        </div>
+      </div>`;
+    card.querySelector(".rc-head").onclick=()=>card.classList.toggle("open");
+    const cp=card.querySelector("[data-copy]");
+    if(cp)cp.onclick=()=>{navigator.clipboard.writeText(r.text);toast("Copiado!");};
+    const dc=card.querySelector("[data-del]");
+    if(dc)dc.onclick=()=>{results=results.filter(x=>x.id!==r.id);renderResults();};
+    const ac=card.querySelector("[data-addcaso]");
+    if(ac)ac.onclick=()=>{
+      const d=parsed;
+      const novo={id:uid(),etapa:d.etapa||1,tese:(["falso","multa","negativa","restab","revisao"].includes(d.tese)?d.tese:"revisao"),nome:d.nome||r.name,reu:d.reu||"",cnj:d.cnj||"",vara:d.vara||"",money:d.money||"",next:d.next||"",obs:d.obs||""};
+      casos.push(novo);save(LS.casos,casos);renderAll();
+      toast(`Caso "${novo.nome}" adicionado ao kanban!`);aba="casos";syncAba();
+    };
+    const acl=card.querySelector("[data-addcli]");
+    if(acl)acl.onclick=()=>{
+      const d=parsed;
+      clientes.push({id:uid(),oferta:"nao",nome:d.nome||r.name,empresa:d.empresa||"",cnpj:d.cnpj||"",telefone:d.telefone||"",email:d.email||"",operadora:d.operadora||"",mensalidade:d.mensalidade||"",status:d.status||"ativo",notas:d.notas||""});
+      save(LS.clientes,clientes);renderAll();
+      toast(`Cliente "${d.nome||r.name}" adicionado à base!`);
+    };
+    area.appendChild(card);
+  });
+}
+
+/* ----- processar tudo ----- */
+$("btnProcessAll").onclick=async()=>{
+  const pending=docQueue.filter(q=>q.status==="wait");
+  if(pending.length===0&&docMode==="paste"){
+    if($("pasteArea").value.trim()) addPasteToQueue();
+    else{alert("Adicione arquivos ou cole um texto.");return;}
+  }
+  if(!docQueue.length){alert("Adicione arquivos ou cole um texto antes de processar.");return;}
+  const activeKey=provider==="anthropic"?apiKey:orKey;
+  if(!activeKey){$("apiNotice").style.display="flex";toast("Configure a chave API (botão ⚙ API).");return;}
+  const toProcess=docQueue.filter(q=>q.status==="wait");
+  if(!toProcess.length){toast("Todos os itens já foram processados. Limpe a fila para reprocessar.");return;}
+  processingStop=false;
+  $("btnProcessAll").disabled=true; $("btnStopProc").style.display="inline-block";
+  $("progressBar").style.display="block";
+  const model=$("aiModel").value;
+  const type=$("analysisType").value;
+  const customPrompt=$("customPrompt").value;
+  let done=0;
+  for(const item of toProcess){
+    if(processingStop) break;
+    setItemStatus(item.id,"proc");
+    const chunkEl=document.querySelector(`[data-qi="${item.id}"] .q-chunk`);
+    if(chunkEl)chunkEl.style.display="inline";
+    try{
+      const result=await processItem(item,model,type,customPrompt);
+      item.status="done"; item.result=result;
+      addResult(item,result,null);
+    }catch(e){
+      item.status="err"; item.error=e.message;
+      addResult(item,null,e.message);
+    }
+    if(chunkEl)chunkEl.style.display="none";
+    renderQueue();
+    done++;
+    $("progressFill").style.width=`${(done/toProcess.length)*100}%`;
+  }
+  $("btnProcessAll").disabled=false; $("btnStopProc").style.display="none";
+  setTimeout(()=>{$("progressBar").style.display="none";$("progressFill").style.width="0";},1500);
+  if(!processingStop) toast(`✅ ${done} documento(s) processado(s).`);
+};
+$("btnStopProc").onclick=()=>{processingStop=true;$("btnStopProc").style.display="none";toast("Processamento interrompido.");};
+
+/* ----- exportar resultados ----- */
+$("btnExportResults").onclick=()=>{
+  if(!results.length){toast("Nenhum resultado para exportar.");return;}
+  const exp={exportadoEm:new Date().toISOString(),total:results.length,resultados:results};
+  baixar(JSON.stringify(exp,null,2),"resultados-docs-planojusto.json","application/json");
+};
+$("btnCopyAllResults").onclick=()=>{
+  if(!results.length){toast("Nenhum resultado.");return;}
+  const txt=results.map(r=>`=== ${r.name} ===\n${r.error?"ERRO: "+r.error:r.text}`).join("\n\n");
+  navigator.clipboard.writeText(txt); toast("Todos os resultados copiados!");
+};
+$("btnClearResults").onclick=()=>{if(results.length&&confirm("Limpar todos os resultados?"))clearResults();};
+
+/* ----- sub-tabs arquivos/colar ----- */
+let docMode="files";
+$("dtabFiles").onclick=()=>{docMode="files";$("dtabFiles").classList.add("on");$("dtabPaste").classList.remove("on");$("modeFiles").style.display="block";$("modePaste").style.display="none";};
+$("dtabPaste").onclick=()=>{docMode="paste";$("dtabPaste").classList.add("on");$("dtabFiles").classList.remove("on");$("modePaste").style.display="block";$("modeFiles").style.display="none";};
+
+/* ----- análise type → mostrar prompt livre ----- */
+$("analysisType").onchange=()=>{$("customPrompt").style.display=$("analysisType").value==="livre"?"block":"none";};
+
+/* ----- leitura recursiva de pasta via FileSystemEntry API ----- */
+const SUPPORTED_EXT=new Set(["pdf","docx","doc","txt","csv","html","htm","eml","msg","png","jpg","jpeg","webp","gif","bmp"]);
+function isSupportedFile(name){return SUPPORTED_EXT.has(name.split(".").pop().toLowerCase());}
+
+async function readDirEntries(reader){
+  const all=[];let batch;
+  do{batch=await new Promise((res,rej)=>reader.readEntries(res,rej));all.push(...batch);}
+  while(batch.length>0);
+  return all;
+}
+async function readEntry(entry){
+  if(entry.isFile){
+    const file=await new Promise((res,rej)=>entry.file(res,rej));
+    return isSupportedFile(file.name)?[file]:[];
+  }
+  if(entry.isDirectory){
+    const sub=await readDirEntries(entry.createReader());
+    const nested=await Promise.all(sub.map(readEntry));
+    return nested.flat();
+  }
+  return[];
+}
+
+/* ----- drag & drop com suporte a pastas recursivas ----- */
+const dropZone=$("docDrop");
+dropZone.addEventListener("dragover",e=>{e.preventDefault();dropZone.classList.add("drag-over");});
+dropZone.addEventListener("dragleave",()=>dropZone.classList.remove("drag-over"));
+dropZone.addEventListener("drop",async e=>{
+  e.preventDefault();dropZone.classList.remove("drag-over");
+  const items=Array.from(e.dataTransfer.items||[]);
+  if(items.length&&typeof items[0].webkitGetAsEntry==="function"){
+    toast("Lendo pasta… aguarde.");
+    const all=[];
+    for(const item of items){
+      const entry=item.webkitGetAsEntry();
+      if(entry){const files=await readEntry(entry);all.push(...files);}
+    }
+    if(all.length){await addToQueue(all);toast(`${all.length} arquivo(s) encontrado(s).`);return;}
+  }
+  await addToQueue(e.dataTransfer.files);
+});
+
+/* ----- seleção via botão (arquivos avulsos ou pasta inteira) ----- */
+$("docFiles").onchange=async e=>{ await addToQueue(e.target.files); e.target.value=""; };
+$("docFolder").onchange=async e=>{
+  const filtered=Array.from(e.target.files).filter(f=>isSupportedFile(f.name));
+  toast("Lendo arquivos…");
+  await addToQueue(filtered);
+  toast(`${filtered.length} arquivo(s) da pasta adicionado(s) à fila.`);
+  e.target.value="";
+};
+$("btnClearQueue").onclick=clearQueue;
+
+/* ----- botão processar texto colado ao clicar processar em modo paste ----- */
+document.addEventListener("keydown",e=>{
+  if(e.ctrlKey&&e.key==="Enter"&&docMode==="paste"&&aba==="docs") addPasteToQueue();
+});
+
+/* ===== CLOUD SYNC BUTTONS ===== */
+$("btnCloudPull").onclick=()=>cloudSync("pull");
+$("btnCloudPush").onclick=()=>cloudSync("push");
+
+/* ===== PASTA DE CSVs — importar vários arquivos de uma vez ===== */
+$("folderCsvImport").onchange=async e=>{
+  const files=Array.from(e.target.files).filter(f=>/\.(csv|txt|tsv|xlsx|xls)$/i.test(f.name));
+  if(!files.length){toast("Nenhum arquivo compatível encontrado na pasta.");e.target.value="";return;}
+  toast(`Lendo ${files.length} arquivo(s)…`);
+  let totalAdd=0, totalDup=0, totalErros=0;
+  const existentes=new Set(clientes.map(c=>norm(c.nome)+"|"+(c.cnpj||"").replace(/\D/g,"")));
+  for(const file of files){
+    try{
+      const rows=await fileToRows(file);
+      if(rows.length<2) continue;
+      const header=rows[0]; const dataRows=rows.slice(1);
+      const localMap=Array.from({length:header.length},(_,i)=>{
+        const h=norm(String(header[i]||""));
+        for(const[campo,aliases]of Object.entries(ALIAS)){if(aliases.some(a=>h===a||h.includes(a)))return campo;}
+        return "ignorar";
+      });
+      if(!localMap.includes("nome")) continue;
+      dataRows.forEach(r=>{
+        const c={id:uid(),oferta:"nao",status:"ativo"};
+        localMap.forEach((campo,i)=>{if(campo==="ignorar")return;const v=String(r[i]||"").trim();if(!v)return;if(campo==="status"){const nv=norm(v);c.status=(nv.includes("inat")||nv.includes("cancel")||nv==="0")?"inativo":"ativo";}else if(campo==="mensalidade"){c.mensalidade=v.replace(/[rR]\$\s?/,"");}else c[campo]=v;});
+        if(!c.nome){totalDup++;return;}
+        const key=norm(c.nome)+"|"+(c.cnpj||"").replace(/\D/g,"");
+        if(existentes.has(key)){totalDup++;return;}
+        existentes.add(key);clientes.push(c);totalAdd++;
+      });
+    }catch(err){totalErros++;}
+  }
+  const removidos=deduplicar();
+  aba="clientes"; syncAba(); renderAll();
+  toast(`✅ ${totalAdd} importado(s) de ${files.length} arquivo(s)`+(totalDup?` · ${totalDup} ignorado(s)`:"")+( totalErros?` · ${totalErros} erro(s)`:"")+( removidos?` · ${removidos} duplicado(s) removido(s)`:""));
+  e.target.value="";
+};
+
+/* ===== CONFIG SUPABASE ===== */
+const _origSalvarConfig=$("btnSalvarConfig").onclick;
+$("btnSalvarConfig").onclick=async()=>{
+  apiKey=$("apiKeyInput").value.trim();
+  orKey=$("orKeyInput").value.trim();
+  sbUrl=$("sbUrl").value.trim();
+  sbKey=$("sbKey").value.trim();
+  save(LS.apiKey,apiKey); save(LS.orKey,orKey); save(LS.provider,provider);
+  localStorage.setItem(LS.sbUrl, JSON.stringify(sbUrl));
+  localStorage.setItem(LS.sbKey, JSON.stringify(sbKey));
+  sb=null; if(sbUrl&&sbKey) initSupabase();
+  $("mConfig").classList.remove("open");
+  const hasKey=provider==="anthropic"?!!apiKey:!!orKey;
+  $("apiNotice").style.display=hasKey?"none":"flex";
+  toast(sb?"Configuração salva! Supabase conectado ☁":"Configuração salva.");
+};
+$("btnTestSb").onclick=async()=>{
+  const url=$("sbUrl").value.trim(), key=$("sbKey").value.trim();
+  if(!url||!key){alert("Preencha URL e Key primeiro.");return;}
+  try{
+    const tmp=window.supabase.createClient(url,key);
+    const {error}=await tmp.from('pj_store').select('id').limit(1);
+    const st=$("sbStatus");
+    if(error&&error.code==="42P01"){st.style.cssText="display:block;background:#fdf7e3;border:1px solid #f3df9a;color:#7a5800;padding:8px 12px;border-radius:8px;font-size:.75rem";st.innerHTML='⚠ Conectado! Mas a tabela <b>pj_store</b> não existe. <a href="https://supabase.com/dashboard" target="_blank">Crie no SQL Editor</a>:<br><code style="font-size:.68rem;display:block;margin-top:4px;background:#fff;padding:4px 8px;border-radius:4px">create table pj_store (id text primary key, payload jsonb, updated_at timestamptz default now());<br>alter table pj_store enable row level security;<br>create policy "all" on pj_store for all using (true) with check (true);</code>';}
+    else if(error){st.style.cssText="display:block;background:#fdecec;border:1px solid #f5c2c2;color:#b34040;padding:8px 12px;border-radius:8px;font-size:.75rem";st.textContent="❌ Erro: "+error.message;}
+    else{st.style.cssText="display:block;background:#e9fbf3;border:1px solid #b7e4ce;color:#0b7d58;padding:8px 12px;border-radius:8px;font-size:.75rem";st.textContent="✅ Supabase conectado e tabela pronta!";}
+  }catch(e){$("sbStatus").style.cssText="display:block;background:#fdecec;color:#b34040;padding:8px 12px;border-radius:8px;font-size:.75rem";$("sbStatus").textContent="❌ "+e.message;}
+};
+
+/* =====================================================================
+   MOTOR DE ANÁLISE — FALSO COLETIVO
+===================================================================== */
+
+const FC_OPERADORAS = {
+  amil:5, 'amil assistência':5, 'amil saúde':5,
+  bradesco:4, 'bradesco saúde':4, 'bradesco seguros':4,
+  porto:4, 'porto seguro':4, 'porto saúde':4,
+  sulamerica:4, 'sulamérica':4, 'sul america':4, 'sul américa':4,
+  'notre dame':4, intermedica:4, 'intermédica':4, notredame:4,
+  unimed:3, 'golden cross':3, hapvida:3, 'prevent senior':3,
+  'são cristóvão':2, 'sao cristovao':2, omint:3, lincx:3,
+  care:2, ameplan:2, qualicorp:2
+};
+
+function fcScoreOperadora(op){
+  if(!op) return 0;
+  const n = norm(op);
+  for(const[k,v] of Object.entries(FC_OPERADORAS)){
+    if(n.includes(k)) return v;
+  }
+  return 1;
+}
+
+function fcScoreMensalidade(mens){
+  const v = parseFloat((mens||'0').toString().replace(/[^0-9,\.]/g,'').replace(',','.'));
+  if(v >= 12000) return 6;
+  if(v >= 8000)  return 5;
+  if(v >= 5000)  return 4;
+  if(v >= 3000)  return 3;
+  if(v >= 1500)  return 2;
+  if(v >= 500)   return 1;
+  return 0;
+}
+
+function fcRazoes(c, scoreOp, scoreMens){
+  const razoes = [];
+  if(scoreOp >= 4) razoes.push({txt:`${c.operadora} — alta frequência de reajustes acima do VCMH/ANS`, tipo:'red'});
+  else if(scoreOp >= 2) razoes.push({txt:`${c.operadora} — reajustes moderados, vale verificar histórico`, tipo:'amber'});
+  const mens = parseFloat((c.mensalidade||'0').toString().replace(/[^0-9,\.]/g,'').replace(',','.'));
+  if(mens >= 5000) razoes.push({txt:`Mensalidade R$ ${mens.toLocaleString('pt-BR')} — potencial de recuperação alto (últimos 5 anos)`, tipo:'green'});
+  else if(mens >= 1500) razoes.push({txt:`Mensalidade R$ ${mens.toLocaleString('pt-BR')} — recuperação proporcional ao excesso cobrado`, tipo:'amber'});
+  if(!c.operadora) razoes.push({txt:'Operadora não informada — confirmar com cliente', tipo:'blue'});
+  if(!c.telefone && !c.email) razoes.push({txt:'Sem contato — enriquecer dados antes de abordar', tipo:'amber'});
+  if(c.oferta === 'interessado') razoes.push({txt:'Já demonstrou interesse — prioridade máxima', tipo:'green'});
+  return razoes;
+}
+
+function fcScore(c){
+  if(c.oferta === 'recusou') return -99;
+  if(c.oferta === 'caso') return -98;
+  const op  = fcScoreOperadora(c.operadora);
+  const men = fcScoreMensalidade(c.mensalidade);
+  let bonus = 0;
+  if(c.cnpj) bonus += 1;
+  if(c.telefone || c.email) bonus += 1;
+  if(c.oferta === 'interessado') bonus += 3;
+  if(c.oferta === 'enviada') bonus += 1;
+  return op * 2 + men * 2 + bonus;
+}
+
+let fcData = [];
+
+function renderFC(){
+  const opFil  = norm($('fcFiltroOp').value);
+  const minMen = parseFloat($('fcFiltroMin').value||'0');
+  const topN   = parseInt($('fcFiltroN').value||'20');
+
+  let lista = fcData.filter(c => {
+    if(opFil && !norm(c.operadora||'').includes(opFil)) return false;
+    const m = parseFloat((c.mensalidade||'0').toString().replace(/[^0-9,\.]/g,'').replace(',','.'));
+    if(minMen && m < minMen) return false;
+    return true;
+  });
+
+  const mostrar = topN > 0 ? lista.slice(0, topN) : lista;
+  const $list = $('fcList');
+  if(!mostrar.length){ $list.innerHTML='<div class="fc-empty">Nenhum cliente com esses filtros.</div>'; return; }
+
+  $list.innerHTML = mostrar.map((c, i) => {
+    const scoreOp  = fcScoreOperadora(c.operadora);
+    const scoreMen = fcScoreMensalidade(c.mensalidade);
+    const total    = Math.max(0, fcScore(c));
+    const pct      = Math.min(100, Math.round(total / 20 * 100));
+    const razoes   = fcRazoes(c, scoreOp, scoreMen);
+    const mens     = parseFloat((c.mensalidade||'0').toString().replace(/[^0-9,\.]/g,'').replace(',','.'));
+    const recup5   = mens > 0 ? `~R$ ${Math.round(mens * 12 * 5 * 0.3).toLocaleString('pt-BR')} potencial` : '';
+
+    return `<div class="fc-card" data-id="${esc(c.id)}">
+      <div class="fc-rank ${i < 3 ? 'top' : ''}">${i + 1}º</div>
+      <div>
+        <div class="fc-nome">${esc(c.nome)}${c.empresa && c.empresa !== c.nome ? ` <span style="font-weight:400;color:#8494b2">· ${esc(c.empresa)}</span>` : ''}</div>
+        <div class="fc-meta">${c.operadora ? esc(c.operadora) : '—'} ${mens > 0 ? `· R$ ${mens.toLocaleString('pt-BR')}/mês` : ''} ${recup5 ? `<b style="color:var(--emerald)">· ${recup5}</b>` : ''}</div>
+        <div class="fc-tags">${razoes.map(r => `<span class="fc-tag ${r.tipo}">${r.txt}</span>`).join('')}</div>
+        ${c._aiAnalise ? `<div class="fc-razao">🤖 <b>IA:</b> ${esc(c._aiAnalise)}</div>` : ''}
+        <div class="fc-actions">
+          ${c.oferta !== 'caso' ? `<button class="mini-btn" data-fc-caso="${c.id}">⚖️ Virar caso</button>` : '<span style="font-size:.72rem;color:var(--emerald)">✓ Já é caso</span>'}
+          ${c.telefone ? `<button class="mini-btn" data-fc-wa="${c.id}">📲 WhatsApp</button>` : ''}
+          <button class="mini-btn" data-fc-edit="${c.id}">✏️ Editar</button>
+        </div>
+      </div>
+      <div class="fc-score">
+        <div class="score-num">${total}</div>
+        <div class="score-bar-wrap"><div class="score-bar" style="width:${pct}%"></div></div>
+        <div style="font-size:.62rem;color:#8494b2;margin-top:3px">score</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  /* eventos */
+  $list.querySelectorAll('[data-fc-caso]').forEach(b => b.onclick = () => {
+    const c = clientes.find(x => x.id === b.dataset.fcCaso); if(!c) return;
+    if(c.casoId && casos.some(x => x.id === c.casoId)){ toast('Cliente já tem caso.'); return; }
+    const novo = {id:uid(),etapa:1,tese:'falso',nome:c.nome+(c.empresa&&c.empresa!==c.nome?' ('+c.empresa+')':''),reu:c.operadora||'',obs:['Origem: análise falso coletivo',c.cnpj?'CNPJ: '+c.cnpj:'',c.telefone?'Contato: '+c.telefone:'',c.mensalidade?'Mensalidade: R$ '+c.mensalidade:''].filter(Boolean).join('\n'),next:'Solicitar contrato, boletos e relação de vidas'};
+    casos.push(novo); c.casoId = novo.id; c.oferta = 'caso';
+    save(LS.casos, casos); save(LS.clientes, clientes); renderAll();
+    toast(`⚖️ Caso criado: ${c.nome}`); abrirFC();
+  });
+  $list.querySelectorAll('[data-fc-wa]').forEach(b => b.onclick = () => {
+    const c = clientes.find(x => x.id === b.dataset.fcWa); if(!c) return;
+    const fone = waPhone(c.telefone); if(!fone){ alert('Sem telefone.'); return; }
+    window.open(`https://wa.me/${fone}?text=${encodeURIComponent(mensagem(c))}`, '_blank');
+    if((c.oferta||'nao')==='nao'){ c.oferta='enviada'; save(LS.clientes,clientes); }
+  });
+  $list.querySelectorAll('[data-fc-edit]').forEach(b => b.onclick = () => openCliente(b.dataset.fcEdit));
+}
+
+function abrirFC(){
+  /* Calcula scores de todos os elegíveis */
+  fcData = clientes
+    .filter(c => c.status !== 'inativo' && c.oferta !== 'recusou')
+    .map(c => ({...c, _score: fcScore(c)}))
+    .filter(c => c._score >= 0)
+    .sort((a, b) => b._score - a._score);
+
+  /* Preenche filtro de operadoras */
+  const ops = [...new Set(fcData.map(c => c.operadora).filter(Boolean))].sort();
+  $('fcFiltroOp').innerHTML = '<option value="">Todas as operadoras</option>' +
+    ops.map(o => `<option value="${esc(norm(o))}">${esc(o)}</option>`).join('');
+
+  /* Resumo */
+  const comOp   = fcData.filter(c => c.operadora).length;
+  const comMens = fcData.filter(c => parseFloat((c.mensalidade||'0').toString().replace(/[^0-9,\.]/g,'').replace(',','.')) >= 1500).length;
+  const interesse = fcData.filter(c => c.oferta === 'interessado').length;
+  $('fcSummaryBox').innerHTML = `
+    <div class="fc-summary">
+      <h3>📊 Visão geral da base elegível</h3>
+      <p>Clientes ativos excluindo recusados e já convertidos em caso, ordenados por score de elegibilidade.</p>
+      <div class="fc-stats">
+        <div class="fc-stat"><div class="v">${fcData.length}</div><div class="l">elegíveis</div></div>
+        <div class="fc-stat"><div class="v">${comOp}</div><div class="l">com operadora</div></div>
+        <div class="fc-stat"><div class="v">${comMens}</div><div class="l">mensalidade ≥R$1,5k</div></div>
+        <div class="fc-stat"><div class="v">${interesse}</div><div class="l">já interessados</div></div>
+      </div>
+    </div>`;
+
+  renderFC();
+  $('mFC').classList.add('open');
+}
+
+$('btnAnalisaFC').onclick = () => {
+  if(!clientes.length){ toast('Base de clientes vazia.'); return; }
+  abrirFC();
+};
+
+['fcFiltroOp','fcFiltroMin','fcFiltroN'].forEach(id => $(id).onchange = renderFC);
+
+/* Aprofundar com IA — envia top 10 para Claude */
+$('btnFCAprofundar').onclick = async () => {
+  const activeKey = provider === 'anthropic' ? apiKey : orKey;
+  if(!activeKey){ toast('Configure a chave API (botão ⚙ API).'); return; }
+  const top10 = fcData.slice(0, 10);
+  if(!top10.length){ toast('Nenhum prospect para analisar.'); return; }
+  $('btnFCAprofundar').disabled = true;
+  $('btnFCAprofundar').textContent = '⏳ Analisando…';
+  const model = provider === 'anthropic' ? 'claude-sonnet-4-6' : 'google/gemma-4-31b-it:free';
+  const lista = top10.map((c,i) => {
+    const bens = c.beneficiarios || c.vidas || c.dependentes || '?';
+    const vigencia = c.vigencia || c.inicio || c.dataInicio || '';
+    const reajuste = c.reajuste || c.reajuste_pct || '';
+    return `${i+1}. ${c.nome}${c.empresa&&c.empresa!==c.nome?' ('+c.empresa+')':''} | Operadora: ${c.operadora||'?'} | Mensalidade: R$${c.mensalidade||'?'} | Beneficiários: ${bens} | CNPJ: ${c.cnpj||'?'}${vigencia?' | Desde: '+vigencia:''}${reajuste?' | Último reajuste: '+reajuste:''}`;
+  }).join('\n');
+  const prompt = `Você é especialista sênior em Direito dos Planos de Saúde, com foco em FALSO COLETIVO PME (parceria DCG Seguros × Carvalho Advocacia / Dr. Sandro Pigoretti de Carvalho, OAB/SP).
+
+## FUNDAMENTO JURÍDICO DO FALSO COLETIVO
+
+**Conceito:** Plano PME (pessoa jurídica) cujos beneficiários são EXCLUSIVAMENTE familiares do sócio, sem empregados reais. A lei trata esses contratos como plano INDIVIDUAL/FAMILIAR — os reajustes devem obedecer os índices ANS para planos individuais, não VCMH/sinistralidade livre.
+
+**Legislação base:**
+- Lei 9.656/98, art. 16, VII — define beneficiário e modalidades
+- RN ANS 195/2009 — categorias de contrato (individual, coletivo por adesão, coletivo empresarial)
+- RN ANS 309/2012 — agrupamento obrigatório de contratos <30 vidas (art. 3º e 4º)
+- CDC — Lei 8.078/90 (Súmulas 100 TJSP + 608 STJ: aplica-se CDC a contratos de plano de saúde)
+
+**Jurisprudência pacificada — STJ:**
+- REsp 1.701.600/SP (3ª Turma, Minª Nancy Andrighi, 09/03/2018): microempresa com 2 beneficiários (titular + cônjuge/filho) NÃO atinge a finalidade dos contratos coletivos = FALSO COLETIVO = regime individual
+- REsp 1.553.013 (Min. Ricardo Villas Bôas Cueva, 13/03/2018): RN 309/2012 impõe agrupamento obrigatório — operadora não pode aplicar VCMH isoladamente em contratos <30 vidas
+- STJ Tema 610 (REsp 1.360.969/RS): PRESCRIÇÃO TRIENAL — art. 206 §3º IV CC (3 anos da última mensalidade contestada)
+- STJ Tema 952: reajuste de faixa etária acima de 84,99% na faixa dos 59 anos = ABUSIVO; teto de 42,5% (média do Painel de Precificação ANS, RN 563/2022)
+
+**Jurisprudência TJSP consolidada:**
+- 1ª Câmara Direito Privado (Des. Claudio Godoy): mantém condenações contra Bradesco, exclui reajustes VCMH, aplica índices ANS
+- 8ª Câmara Direito Privado (Des. Benedito Antonio Okuno): STJ REsp 1.701.600 como precedente vinculante, recurso de Sul América desprovido em 14/05/2025
+- 5ª Vara Cível Osasco: Dras. Maria Helena Steffen, Gilvana Mastrandéa, Rossana Mazzoni — sentenças recentes favoráveis em 2022, 2024, 2026
+
+**Índices ANS reais para planos individuais (reajuste permitido):**
+2022: 15,50% | 2023: 9,23% | 2024: 6,91% | 2025: 6,09%
+*(Operadoras PME aplicaram ~19-20% nesses mesmos anos → diferença = restituição)*
+
+**Casos reais de resultado (referência):**
+- Bradesco (7 beneficiários / família): R$2.109 → R$9.419 em 9 anos; com ANS seria R$4.808 → diferença R$4.611/mês restituível
+- Sul América (3 beneficiários / casal de sócios): restituição 3 anos retroativos, tutela urgência multa R$1.000/boleto
+- Porto Seguro (4 beneficiários / sócia + família): sentença 28/05/2026, restituição R$30.986,91 (mar/2023–mar/2026) + faixa etária 84,99%→42,5%
+
+**Tese secundária — cancelamento sem aviso prévio (RN 455/2020 ANS):**
+Operadoras exigem 60 dias de aviso prévio ao consumidor que cancela. Isso é NULO por força da RN 455/2020. Tutelar casos onde cobranças seguiram após a data de cancelamento solicitada pelo cliente.
+
+## SUA ANÁLISE
+
+Para cada cliente abaixo, forneça:
+(a) **prob**: "Alta", "Média" ou "Baixa" — probabilidade de ser falso coletivo
+(b) **motivo**: 1 frase com a razão PRINCIPAL (ex: "3 vidas familiares + Bradesco + reajuste ~22% vs ANS 9,23%")
+(c) **next**: próximo passo concreto (ex: "Pedir contrato + lista beneficiários + boletos 3 anos" ou "Verificar quantidade de beneficiários — pode ser empresa com empregados reais")
+(d) **est**: estimativa de restituição em R$ (se Alta, calcule mensalidade × 36 meses × 30% diferença; se incerto, escreva "A definir após documentos")
+
+**Clientes a analisar:**
+${lista}
+
+**Responda APENAS com JSON puro, array, sem texto antes ou depois:**
+[{"i":1,"prob":"Alta","motivo":"...","next":"...","est":"..."},...]`;
+
+  try{
+    const resp = await callClaude(prompt, '', model);
+    const arr = JSON.parse(resp.match(/\[[\s\S]*\]/)?.[0] || '[]');
+    arr.forEach(item => {
+      const c = fcData[item.i - 1];
+      if(c){ c._aiAnalise = `[${item.prob}] ${item.motivo} → ${item.next}${item.est?' | 💰 Est.: '+item.est:''}`; }
+    });
+    renderFC();
+    toast('✅ Análise IA concluída!');
+  }catch(e){ toast('Erro IA: ' + e.message); }
+  $('btnFCAprofundar').disabled = false;
+  $('btnFCAprofundar').textContent = '🤖 Aprofundar top 10 com IA';
+};
+
+/* ===== INIT ===== */
+updateModelSelect();
+setProvider(provider);
+syncAba();
+$("sbUrl").value=sbUrl; $("sbKey").value=sbKey;
+if(sbUrl&&sbKey) $("btnTestSb").style.display="inline-flex";
+$("btnSalvarConfig").addEventListener("click",()=>{ if($("sbUrl").value.trim()) $("btnTestSb").style.display="inline-flex"; });
+
+(async()=>{
+  await initData();
+  $("tplArea").value=template;
+  renderAll();
+  const _hk=provider==="anthropic"?!!apiKey:!!orKey;
+  $("apiNotice").style.display=_hk?"none":"flex";
+  if(sb) toast("☁ Supabase conectado",2000);
+})();
+</script>
+</body>
+</html>
