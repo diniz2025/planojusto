@@ -339,6 +339,7 @@ details.tpl .hint{font-size:.72rem;color:#8494b2;margin-top:8px}
       <span class="sep"></span>
       <button class="chip" id="btnNovoCli">＋ Cliente manual</button>
       <label class="chip" title="Importa todos os CSVs/Excel de uma pasta de uma vez">📁 Pasta de arquivos<input type="file" id="folderCsvImport" webkitdirectory accept=".csv,.txt,.tsv,.xlsx,.xls" multiple style="display:none"></label>
+      <button class="chip" id="btnDedup">🔄 Remover duplicados</button>
       <button class="chip" id="btnExportCli">⬇ Exportar CSV</button>
       <button class="chip" id="btnLimparCli">🗑 Limpar base</button>
     </div>
@@ -823,6 +824,34 @@ $("btnSalvarCli").onclick=()=>{
 $("btnExcluirCli").onclick=()=>{if(cliEditId&&confirm("Excluir este cliente?")){clientes=clientes.filter(x=>x.id!==cliEditId);save(LS.clientes,clientes);$("mCliente").classList.remove("open");renderAll();}};
 $("btnLimparCli").onclick=()=>{if(clientes.length&&confirm(`Apagar TODOS os ${clientes.length} clientes? (casos não são afetados)`)){clientes=[];save(LS.clientes,clientes);renderAll();toast("Base limpa.");}};
 
+/* ===== DEDUPLICAÇÃO ===== */
+function dedupKey(c){
+  const n=norm(c.nome||"");
+  const cpf=(c.cnpj||"").replace(/\D/g,"");
+  const tel=(c.telefone||"").replace(/\D/g,"").slice(-8);
+  /* chave primária: nome+cnpj se tiver cnpj, senão nome+tel */
+  if(cpf.length>=8) return n+"|"+cpf;
+  if(tel.length>=8) return n+"|tel"+tel;
+  return n;
+}
+function deduplicar(){
+  const antes=clientes.length;
+  const vistos=new Map();
+  clientes.forEach(c=>{
+    const k=dedupKey(c);
+    if(!vistos.has(k)) vistos.set(k,c);
+  });
+  clientes=Array.from(vistos.values());
+  const removidos=antes-clientes.length;
+  save(LS.clientes,clientes);
+  renderAll();
+  return removidos;
+}
+$("btnDedup").onclick=()=>{
+  const r=deduplicar();
+  toast(r>0?`✅ ${r} duplicado(s) removido(s)`:"Nenhum duplicado encontrado.");
+};
+
 /* ===== IMPORTAÇÃO CSV ===== */
 const CAMPOS={ignorar:"— ignorar —",nome:"Nome / razão social",empresa:"Nome fantasia",cnpj:"CNPJ / CPF",telefone:"Telefone / WhatsApp",email:"E-mail",operadora:"Operadora / plano",mensalidade:"Mensalidade",status:"Status (ativo/inativo)"};
 const ALIAS={nome:["nome","cliente","razao social","razaosocial","razao","contato","beneficiario","segurado","empresa","razao_social","denominacao"],empresa:["fantasia","nome fantasia","nome_fantasia"],cnpj:["cnpj","cpf","documento","doc","cpf/cnpj","cnpj/cpf","cnpj_cpf"],telefone:["whatsapp","celular","telefone","fone","tel","movel","phone","ddd_telefone_1","ddd_celular_1"],email:["email","e-mail","mail","e_mail"],operadora:["operadora","seguradora","convenio","plano","produto"],mensalidade:["mensalidade","valor mensal","valor","premio","mensal","mensalidade_atual"],status:["status","situacao","ativo","situação","situacao_cadastral"]};
@@ -921,10 +950,11 @@ $("btnImpGo").onclick=()=>{
     if(existentes.has(key)){dup++;return;}
     existentes.add(key); clientes.push(c); add++;
   });
-  save(LS.clientes,clientes); $("mImport").classList.remove("open");
+  const removidos=deduplicar();
+  $("mImport").classList.remove("open");
   $("impText").value="";$("mapWrap").style.display="none";$("btnImpGo").style.display="none";$("impStatus").textContent="";
   impRows=[];impMap=[]; aba="clientes";syncAba();renderAll();
-  toast(`✅ ${add} cliente(s) importado(s)`+(dup?` · ${dup} ignorado(s)`:""));
+  toast(`✅ ${add} importado(s)`+(dup?` · ${dup} ignorado(s)`:"")+(removidos?` · ${removidos} duplicado(s) removido(s)`:""));
 };
 function openImport(){$("mImport").classList.add("open");}
 $("btnImport").onclick=openImport;
@@ -1573,8 +1603,9 @@ $("folderCsvImport").onchange=async e=>{
       });
     }catch(err){totalErros++;}
   }
-  save(LS.clientes,clientes); aba="clientes"; syncAba(); renderAll();
-  toast(`✅ ${totalAdd} cliente(s) importado(s) de ${files.length} arquivo(s)`+(totalDup?` · ${totalDup} duplicado(s)`:"")+( totalErros?` · ${totalErros} erro(s)`:""));
+  const removidos=deduplicar();
+  aba="clientes"; syncAba(); renderAll();
+  toast(`✅ ${totalAdd} importado(s) de ${files.length} arquivo(s)`+(totalDup?` · ${totalDup} ignorado(s)`:"")+( totalErros?` · ${totalErros} erro(s)`:"")+( removidos?` · ${removidos} duplicado(s) removido(s)`:""));
   e.target.value="";
 };
 
