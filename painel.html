@@ -1280,13 +1280,32 @@ function fileIcon(name){
 }
 function fmtSize(b){if(b<1024)return b+"B";if(b<1048576)return(b/1024).toFixed(1)+"KB";return(b/1048576).toFixed(1)+"MB";}
 
+const MAX_DOC_SIZE = 20 * 1024 * 1024; // 20MB — CSVs grandes vão para aba Clientes
+
 async function addToQueue(files){
-  for(const f of Array.from(files)){
+  const arr = Array.from(files);
+  const grandes = arr.filter(f=>f.size>MAX_DOC_SIZE);
+  if(grandes.length){
+    toast(`⚠ ${grandes.length} arquivo(s) acima de 20MB ignorado(s) — importe CSVs grandes pela aba Clientes → 📁 Pasta de arquivos`);
+  }
+  const validos = arr.filter(f=>f.size<=MAX_DOC_SIZE);
+
+  /* Inicia TODOS os FileReaders de forma síncrona antes de qualquer await */
+  const readers = validos.map(f=>{
+    const r = new FileReader();
+    r.readAsArrayBuffer(f);
+    return {f, r};
+  });
+
+  for(const {f, r} of readers){
     if(docQueue.find(q=>q.name===f.name&&q.size===f.size)) continue;
     const item={id:uid(),name:f.name,size:f.size,status:"wait",result:null,error:null};
     try{
-      /* Lê o conteúdo IMEDIATAMENTE para evitar erro de permissão posterior */
-      const buf=await f.arrayBuffer();
+      const buf = await new Promise((res,rej)=>{
+        if(r.readyState===FileReader.DONE){ res(r.result); return; }
+        r.onload=()=>res(r.result);
+        r.onerror=()=>rej(r.error);
+      });
       item.file={
         name:f.name, type:f.type||"",
         arrayBuffer:()=>Promise.resolve(buf),
