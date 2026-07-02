@@ -834,8 +834,8 @@ async function sha256hex(s){
 const hashSenha = (usuario,senha)=>sha256hex(`planojusto|${usuario.toLowerCase().trim()}|${senha}`);
 
 const SEED_USUARIOS = [
-  {id:"u-diniz", nome:"Diniz — DCG Seguros",             usuario:"diniz",    papel:"admin",    ativo:true, hash:"e3ea3533eca4b776542ef279858ccd2f5860ae264de170d2dd3793bfb29a5bf3"},
-  {id:"u-sandro",nome:"Dr. Sandro — Carvalho Advocacia", usuario:"drsandro", papel:"juridico", ativo:true, hash:"34ec81e071b972beafd843796eae2c08a9e7f1c28f2eb3b82d490307bdc0cc65"}
+  {id:"u-diniz", nome:"Diniz — DCG Seguros",             usuario:"diniz",    papel:"admin",    ativo:true, hash:"5b5b5b7fe22262b9a5fb3cb1a09ff1b2cad4b87f9ec6d0906bd64afefdf57de6"},
+  {id:"u-sandro",nome:"Dr. Sandro — Carvalho Advocacia", usuario:"drsandro", papel:"juridico", ativo:true, hash:"b56dae920e46258edca64a935d74660eb9b629f4357764611f6476b628933171"}
 ];
 
 const isAdmin = ()=>!!sessao && sessao.papel==="admin";
