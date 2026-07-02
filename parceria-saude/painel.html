@@ -718,7 +718,7 @@ async function initData(){
   clientes = cl ?? load(LS.clientes, null);
   template = (typeof t==="string") ? t : load(LS.tpl, TPL_PADRAO);
   if(!casos){ casos = SEED; await autoSave('casos', casos); }
-  if(!clientes || !clientes.length){ clientes = SEED_CLIENTES; await autoSave('clientes', clientes); }
+  if(!clientes || clientes.length < SEED_CLIENTES.length){ clientes = SEED_CLIENTES; await autoSave('clientes', clientes); }
 }
 const uid = ()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 
