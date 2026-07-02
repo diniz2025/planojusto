@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plano Justo — Revisão Jurídica de Planos de Saúde PME | DCG + Carvalho Advocacia</title>
+<meta name="description" content="Sua empresa familiar paga plano de saúde coletivo com reajustes de plano empresarial? A Justiça pode enquadrar seu contrato nas regras da ANS para planos individuais e recuperar até 5 anos de valores pagos a mais.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0a1428;
+  --navy:#10234f;
+  --navy-2:#152e63;
+  --blue:#1d4ed8;
+  --sky:#3b82f6;
+  --amber:#f5b301;
+  --amber-soft:#fff3cd;
+  --emerald:#10b981;
+  --paper:#f6f8fc;
+  --line:#e4e9f2;
+  --txt:#33415c;
+  --radius:18px;
+  --shadow:0 10px 40px rgba(16,35,79,.10);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,sans-serif;color:var(--txt);background:#fff;line-height:1.65;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:'Sora',sans-serif;color:var(--ink);line-height:1.2}
+img{max-width:100%}
+a{text-decoration:none;color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:.78rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);background:#e8efff;border:1px solid #d3e0ff;padding:7px 14px;border-radius:999px;margin-bottom:18px}
+.eyebrow.dark{color:var(--amber);background:rgba(245,179,1,.12);border-color:rgba(245,179,1,.35)}
+section{padding:96px 0}
+.sec-head{max-width:720px;margin:0 auto 56px;text-align:center}
+.sec-head h2{font-size:clamp(1.7rem,3.4vw,2.5rem);margin-bottom:14px}
+.sec-head p{font-size:1.06rem}
+
+/* ============ NAV ============ */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;transition:.3s;padding:18px 0}
+nav.scrolled{background:rgba(10,20,40,.92);backdrop-filter:blur(14px);box-shadow:0 4px 30px rgba(0,0,0,.25);padding:12px 0}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;gap:20px}
+.logo{display:flex;align-items:center;gap:10px;font-family:'Sora';font-weight:800;font-size:1.25rem;color:#fff}
+.logo-mark{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--amber),#ffd75e);display:grid;place-items:center;color:var(--ink);font-size:1.1rem;box-shadow:0 4px 14px rgba(245,179,1,.4)}
+.logo small{display:block;font-family:'Inter';font-weight:500;font-size:.62rem;letter-spacing:.14em;color:#9db1d8;text-transform:uppercase}
+.nav-links{display:flex;gap:28px;font-size:.92rem;font-weight:600;color:#c7d3ea}
+.nav-links a:hover{color:#fff}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;font-weight:700;font-size:.98rem;padding:14px 28px;border-radius:12px;cursor:pointer;border:none;transition:.25s;font-family:'Inter'}
+.btn-amber{background:linear-gradient(135deg,#ffc82e,var(--amber));color:var(--ink);box-shadow:0 8px 24px rgba(245,179,1,.35)}
+.btn-amber:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(245,179,1,.5)}
+.btn-ghost{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.2)}
+.btn-ghost:hover{background:rgba(255,255,255,.16)}
+.btn-navy{background:var(--navy);color:#fff}
+.btn-navy:hover{background:var(--blue);transform:translateY(-2px)}
+.btn-wa{background:#22c15e;color:#fff;box-shadow:0 8px 24px rgba(34,193,94,.35)}
+.btn-wa:hover{transform:translateY(-2px)}
+.nav-cta{padding:11px 22px;font-size:.9rem}
+
+/* ============ HERO ============ */
+.hero{position:relative;background:radial-gradient(1100px 600px at 85% -10%,#1e3a8a 0%,transparent 55%),radial-gradient(900px 500px at -10% 110%,#132a5e 0%,transparent 50%),linear-gradient(160deg,var(--ink) 0%,var(--navy) 100%);color:#dbe4f5;padding:190px 0 120px;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:56px 56px;mask-image:radial-gradient(ellipse at 60% 40%,#000 30%,transparent 75%)}
+.hero-grid{position:relative;display:grid;grid-template-columns:1.15fr .85fr;gap:60px;align-items:center}
+.hero h1{font-size:clamp(2.1rem,4.6vw,3.4rem);color:#fff;font-weight:800;margin-bottom:22px}
+.hero h1 .hl{color:var(--amber);position:relative;white-space:nowrap}
+.hero p.lead{font-size:1.15rem;max-width:560px;margin-bottom:34px;color:#b9c7e4}
+.hero-ctas{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:38px}
+.hero-badges{display:flex;gap:26px;flex-wrap:wrap;font-size:.85rem;color:#93a6cc}
+.hero-badges span{display:flex;align-items:center;gap:8px}
+.hero-badges b{color:#fff}
+.tick{color:var(--emerald);font-weight:800}
+
+/* hero card stack */
+.hero-visual{position:relative;min-height:430px}
+.hcard{position:absolute;background:#fff;border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.35);padding:20px 22px;color:var(--txt);animation:float 7s ease-in-out infinite}
+.hcard h4{font-size:.8rem;color:#7185a8;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;font-family:'Inter'}
+.hcard .big{font-family:'Sora';font-weight:800;font-size:1.6rem;color:var(--ink)}
+.hcard .sub{font-size:.8rem;color:#8494b2}
+.hc1{top:8%;left:4%;width:250px;animation-delay:0s}
+.hc1 .big{color:var(--emerald)}
+.hc2{top:39%;right:0;width:265px;animation-delay:1.4s}
+.hc3{bottom:2%;left:12%;width:280px;animation-delay:2.8s}
+.hc2 .bar{height:9px;border-radius:99px;background:#eef2f9;margin-top:10px;overflow:hidden}
+.hc2 .bar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#ef4444,#f97316);transition:width 1.6s cubic-bezier(.2,.7,.2,1)}
+.hc2 .bar.ok i{background:linear-gradient(90deg,var(--emerald),#34d399)}
+.hc2 .lbl{display:flex;justify-content:space-between;font-size:.74rem;margin-top:12px;color:#8494b2;font-weight:600}
+.hc3{display:flex;gap:14px;align-items:center}
+.hc3 .dot{width:46px;height:46px;flex:none;border-radius:12px;background:#e9fbf3;display:grid;place-items:center;font-size:1.3rem}
+.hc3 p{font-size:.86rem;line-height:1.45}
+.hc3 b{color:var(--ink)}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+
+/* ============ NUM STRIP ============ */
+.numstrip{background:var(--ink);border-top:1px solid rgba(255,255,255,.06);padding:38px 0}
+.numgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;text-align:center}
+.numgrid .n{font-family:'Sora';font-weight:800;font-size:clamp(1.5rem,3vw,2.2rem);color:var(--amber)}
+.numgrid .l{font-size:.85rem;color:#93a6cc;margin-top:4px}
+
+/* ============ PAIN ============ */
+.pain{background:var(--paper)}
+.pain-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;max-width:920px;margin:0 auto}
+.pain-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:26px 28px;display:flex;gap:18px;align-items:flex-start;transition:.3s}
+.pain-card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+.pain-ico{width:48px;height:48px;flex:none;border-radius:13px;background:#fdecec;display:grid;place-items:center;font-size:1.35rem}
+.pain-card h3{font-size:1.04rem;margin-bottom:6px}
+.pain-card p{font-size:.92rem}
+.pain-note{max-width:760px;margin:44px auto 0;text-align:center;background:var(--amber-soft);border:1px solid #f3df9a;border-radius:var(--radius);padding:22px 30px;font-size:.98rem;color:#6b5510}
+.pain-note b{color:#4a3a05}
+
+/* ============ TESES ============ */
+.teses-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:26px}
+.tese{position:relative;background:linear-gradient(165deg,var(--navy) 0%,var(--ink) 100%);border-radius:var(--radius);padding:34px 32px;color:#c3d0ea;overflow:hidden;transition:.3s}
+.tese:hover{transform:translateY(-5px);box-shadow:0 24px 50px rgba(16,35,79,.35)}
+.tese::after{content:"";position:absolute;top:-40px;right:-40px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(245,179,1,.18),transparent 70%)}
+.tese .num{font-family:'Sora';font-weight:800;font-size:.8rem;color:var(--ink);background:var(--amber);width:34px;height:34px;border-radius:10px;display:grid;place-items:center;margin-bottom:18px}
+.tese h3{color:#fff;font-size:1.22rem;margin-bottom:12px}
+.tese p{font-size:.94rem;margin-bottom:16px}
+.tese .base{display:flex;flex-wrap:wrap;gap:8px}
+.tese .base span{font-size:.72rem;font-weight:600;padding:5px 11px;border-radius:99px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#aebde0}
+.tese .alvo{margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.1);font-size:.84rem}
+.tese .alvo b{color:var(--amber)}
+
+/* ============ STEPS ============ */
+.steps{background:var(--paper)}
+.steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;counter-reset:step}
+.step{position:relative;background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:36px 30px;transition:.3s}
+.step:hover{transform:translateY(-5px);box-shadow:var(--shadow)}
+.step::before{counter-increment:step;content:counter(step,decimal-leading-zero);position:absolute;top:26px;right:26px;font-family:'Sora';font-weight:800;font-size:2.4rem;color:#eef2f9}
+.step .ico{width:54px;height:54px;border-radius:14px;background:linear-gradient(135deg,#e8efff,#f0f5ff);display:grid;place-items:center;font-size:1.5rem;margin-bottom:20px}
+.step h3{font-size:1.12rem;margin-bottom:10px}
+.step p{font-size:.93rem}
+.step .tag{display:inline-block;margin-top:16px;font-size:.74rem;font-weight:700;color:var(--emerald);background:#e9fbf3;padding:5px 12px;border-radius:99px}
+
+/* ============ RESULTS ============ */
+.res-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+.res{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:30px;transition:.3s;display:flex;flex-direction:column}
+.res:hover{transform:translateY(-5px);box-shadow:var(--shadow)}
+.res .op{font-size:.74rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#8494b2;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.res .op i{width:9px;height:9px;border-radius:50%;background:var(--emerald);display:inline-block}
+.res .val{font-family:'Sora';font-weight:800;font-size:1.75rem;color:var(--ink);margin-bottom:4px}
+.res .val small{font-size:.85rem;color:var(--emerald);font-weight:700}
+.res p{font-size:.9rem;margin-top:10px;flex:1}
+.res .foot{margin-top:18px;padding-top:16px;border-top:1px dashed var(--line);font-size:.78rem;color:#8494b2}
+.res-disclaimer{text-align:center;font-size:.8rem;color:#8494b2;margin-top:30px}
+
+/* ============ SIMULADOR ============ */
+.sim{background:linear-gradient(160deg,var(--ink),var(--navy));color:#c3d0ea}
+.sim .sec-head h2{color:#fff}
+.sim-box{display:grid;grid-template-columns:1fr 1fr;gap:0;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:22px;overflow:hidden;backdrop-filter:blur(6px)}
+.sim-in{padding:44px}
+.sim-in label{display:block;font-weight:600;color:#fff;font-size:.95rem;margin:26px 0 10px}
+.sim-in label:first-child{margin-top:0}
+.sim-in output{float:right;font-family:'Sora';font-weight:700;color:var(--amber)}
+input[type=range]{width:100%;appearance:none;height:7px;border-radius:99px;background:rgba(255,255,255,.15);outline:none}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:24px;height:24px;border-radius:50%;background:var(--amber);cursor:pointer;border:4px solid var(--ink);box-shadow:0 0 0 2px var(--amber)}
+.sim-hint{font-size:.78rem;color:#7d92bd;margin-top:8px}
+.sim-out{background:rgba(255,255,255,.06);padding:44px;display:flex;flex-direction:column;justify-content:center;gap:26px;border-left:1px solid rgba(255,255,255,.1)}
+.sim-out .item .l{font-size:.82rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#8fa3ca;margin-bottom:6px}
+.sim-out .item .v{font-family:'Sora';font-weight:800;font-size:2rem;color:#fff}
+.sim-out .item .v.gold{color:var(--amber);font-size:2.5rem}
+.sim-out .btn{margin-top:6px}
+.sim-foot{font-size:.75rem;color:#7d92bd;margin-top:34px;text-align:center;max-width:820px;margin-left:auto;margin-right:auto}
+
+/* ============ QUEM ============ */
+.quem-grid{display:grid;grid-template-columns:1fr 1fr;gap:26px;max-width:980px;margin:0 auto}
+.quem{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:38px;transition:.3s}
+.quem:hover{box-shadow:var(--shadow)}
+.quem .avatar{width:66px;height:66px;border-radius:18px;display:grid;place-items:center;font-family:'Sora';font-weight:800;font-size:1.4rem;color:#fff;margin-bottom:22px}
+.quem.a .avatar{background:linear-gradient(135deg,var(--blue),var(--sky))}
+.quem.b .avatar{background:linear-gradient(135deg,var(--ink),var(--navy-2))}
+.quem h3{font-size:1.2rem}
+.quem .role{font-size:.85rem;font-weight:700;color:var(--blue);margin:4px 0 16px}
+.quem p{font-size:.93rem}
+.quem ul{margin-top:16px;list-style:none}
+.quem li{font-size:.88rem;padding:7px 0;display:flex;gap:10px;align-items:flex-start}
+.quem li::before{content:"✓";color:var(--emerald);font-weight:800;flex:none}
+.fluxo{max-width:980px;margin:30px auto 0;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:26px 34px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;justify-content:center;font-size:.9rem;font-weight:600;color:var(--ink)}
+.fluxo .arrow{color:var(--amber);font-weight:800}
+
+/* ============ IA 24/7 ============ */
+.ia{background:var(--paper)}
+.ia-grid{display:grid;grid-template-columns:1fr 1fr;gap:70px;align-items:center}
+.ia-feats{list-style:none;margin-top:28px}
+.ia-feats li{display:flex;gap:16px;padding:15px 0;border-bottom:1px solid var(--line);align-items:flex-start}
+.ia-feats li:last-child{border:none}
+.ia-feats .fi{width:42px;height:42px;flex:none;border-radius:12px;background:#e8efff;display:grid;place-items:center;font-size:1.15rem}
+.ia-feats b{display:block;color:var(--ink);font-size:.98rem;margin-bottom:2px}
+.ia-feats p{font-size:.88rem}
+.phone{width:330px;margin:0 auto;background:var(--ink);border-radius:38px;padding:14px;box-shadow:0 30px 70px rgba(16,35,79,.35)}
+.phone-screen{background:#e7ddd3;border-radius:26px;overflow:hidden;display:flex;flex-direction:column;height:520px}
+.wa-head{background:var(--navy);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:12px}
+.wa-head .pfp{width:38px;height:38px;border-radius:50%;background:var(--amber);display:grid;place-items:center;font-weight:800;color:var(--ink);font-family:'Sora'}
+.wa-head b{font-size:.9rem;display:block}
+.wa-head small{font-size:.7rem;color:#9fd3a8}
+.wa-body{flex:1;padding:16px 12px;display:flex;flex-direction:column;gap:10px;overflow:hidden}
+.msg{max-width:82%;padding:10px 13px;border-radius:12px;font-size:.8rem;line-height:1.45;opacity:0;transform:translateY(12px);transition:.5s;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.msg.show{opacity:1;transform:none}
+.msg.in{background:#fff;border-top-left-radius:3px;align-self:flex-start}
+.msg.out{background:#d7f7c5;border-top-right-radius:3px;align-self:flex-end}
+.msg b{color:var(--ink)}
+
+/* ============ FAQ ============ */
+.faq-list{max-width:820px;margin:0 auto}
+details{background:#fff;border:1px solid var(--line);border-radius:14px;margin-bottom:14px;overflow:hidden;transition:.3s}
+details[open]{box-shadow:var(--shadow);border-color:#cdd9ee}
+summary{cursor:pointer;padding:22px 26px;font-weight:700;color:var(--ink);font-size:1rem;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:16px;font-family:'Sora'}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font-size:1.5rem;color:var(--blue);transition:.3s;flex:none}
+details[open] summary::after{transform:rotate(45deg)}
+details .a{padding:0 26px 24px;font-size:.94rem}
+
+/* ============ CTA FINAL ============ */
+.final{background:radial-gradient(900px 480px at 50% -20%,#1e3a8a 0%,transparent 60%),linear-gradient(160deg,var(--ink),var(--navy));color:#b9c7e4;text-align:center}
+.final h2{color:#fff;font-size:clamp(1.8rem,3.6vw,2.6rem);max-width:780px;margin:0 auto 18px}
+.final p{max-width:600px;margin:0 auto 36px;font-size:1.05rem}
+.final .btn{font-size:1.05rem;padding:18px 40px}
+.final .mini{margin-top:22px;font-size:.82rem;color:#7d92bd}
+
+/* ============ FOOTER ============ */
+footer{background:var(--ink);color:#8fa3ca;padding:60px 0 30px;border-top:1px solid rgba(255,255,255,.06)}
+.foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:40px;margin-bottom:44px}
+.foot-grid h4{color:#fff;font-size:.95rem;margin-bottom:16px}
+.foot-grid p,.foot-grid a{font-size:.86rem;display:block;margin-bottom:10px}
+.foot-grid a:hover{color:#fff}
+.foot-legal{border-top:1px solid rgba(255,255,255,.08);padding-top:26px;font-size:.75rem;line-height:1.7;color:#647aa5}
+
+/* ============ WA FLOAT ============ */
+.wa-float{position:fixed;bottom:26px;right:26px;z-index:99;width:62px;height:62px;border-radius:50%;background:#22c15e;display:grid;place-items:center;box-shadow:0 10px 30px rgba(34,193,94,.45);transition:.3s}
+.wa-float:hover{transform:scale(1.08)}
+.wa-float::before{content:"";position:absolute;inset:0;border-radius:50%;background:#22c15e;animation:pulse 2s infinite;z-index:-1}
+@keyframes pulse{0%{transform:scale(1);opacity:.6}100%{transform:scale(1.7);opacity:0}}
+.wa-float svg{width:32px;height:32px;fill:#fff}
+
+/* ============ REVEAL ============ */
+.rv{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease}
+.rv.on{opacity:1;transform:none}
+
+/* ============ RESPONSIVE ============ */
+@media(max-width:960px){
+  .hero-grid{grid-template-columns:1fr}
+  .hero-visual{display:none}
+  .numgrid{grid-template-columns:repeat(2,1fr)}
+  .pain-grid,.teses-grid,.quem-grid{grid-template-columns:1fr}
+  .steps-grid,.res-grid{grid-template-columns:1fr}
+  .sim-box{grid-template-columns:1fr}
+  .sim-out{border-left:none;border-top:1px solid rgba(255,255,255,.1)}
+  .ia-grid{grid-template-columns:1fr}
+  .foot-grid{grid-template-columns:1fr}
+  .nav-links{display:none}
+  section{padding:70px 0}
+  .hero{padding:150px 0 90px}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= NAV ================= -->
+<nav id="nav">
+  <div class="wrap nav-inner">
+    <a href="#" class="logo">
+      <span class="logo-mark">⚖</span>
+      <span>Plano Justo<small>DCG · Carvalho Advocacia</small></span>
+    </a>
+    <div class="nav-links">
+      <a href="#teses">Direitos</a>
+      <a href="#como">Como funciona</a>
+      <a href="#resultados">Resultados</a>
+      <a href="#simulador">Simulador</a>
+      <a href="#faq">Dúvidas</a>
+    </div>
+    <a class="btn btn-amber nav-cta" href="#" data-wa="Olá! Quero uma análise gratuita do plano de saúde da minha empresa.">Análise gratuita</a>
+  </div>
+</nav>
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow dark">Para PMEs e empresas familiares</span>
+      <h1>Sua empresa paga <span class="hl">reajuste de empresa grande</span> num plano que é da sua família?</h1>
+      <p class="lead">Se o plano de saúde "empresarial" da sua PME cobre só você e seus familiares, a Justiça pode reconhecer o <b style="color:#fff">falso coletivo</b>: reajustes limitados ao índice da ANS, devolução do que foi pago a mais nos últimos anos e proteção contra cancelamento e multas abusivas.</p>
+      <div class="hero-ctas">
+        <a class="btn btn-amber" href="#" data-wa="Olá! Quero saber se o plano da minha empresa se enquadra como falso coletivo.">Verificar meu plano agora</a>
+        <a class="btn btn-ghost" href="#como">Entenda o processo</a>
+      </div>
+      <div class="hero-badges">
+        <span><i class="tick">✓</i> Análise técnica <b>sem custo</b></span>
+        <span><i class="tick">✓</i> Atuação judicial por <b>advocacia especializada</b></span>
+        <span><i class="tick">✓</i> Você <b>mantém o plano ativo</b></span>
+      </div>
+    </div>
+    <div class="hero-visual" aria-hidden="true">
+      <div class="hcard hc1">
+        <h4>Restituição em sentença</h4>
+        <div class="big">R$ 30.986,91</div>
+        <div class="sub">+ correção IPCA e juros Selic</div>
+      </div>
+      <div class="hcard hc2">
+        <h4>Reajuste por faixa etária</h4>
+        <div class="lbl"><span>Aplicado pela operadora</span><span>84,99%</span></div>
+        <div class="bar"><i data-w="85"></i></div>
+        <div class="lbl"><span>Fixado pela Justiça</span><span>42,5%</span></div>
+        <div class="bar ok"><i data-w="42"></i></div>
+      </div>
+      <div class="hcard hc3">
+        <div class="dot">🛡️</div>
+        <p><b>Liminar deferida:</b> cobrança de multa e "aviso prévio" de 60 dias suspensa pelo juiz.</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= NUMBER STRIP ================= -->
+<div class="numstrip">
+  <div class="wrap numgrid">
+    <div><div class="n" data-count="227">0</div><div class="l">processos ativos na banca parceira</div></div>
+    <div><div class="n">R$ <span data-count="30986">0</span></div><div class="l">restituição obtida em sentença recente</div></div>
+    <div><div class="n"><span data-count="5">0</span> anos</div><div class="l">de valores recuperáveis retroativamente</div></div>
+    <div><div class="n"><span data-count="100">0</span>%</div><div class="l">digital: análise, contrato e acompanhamento</div></div>
+  </div>
+</div>
+
+<!-- ================= PAIN ================= -->
+<section class="pain" id="pain">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="eyebrow">Você se reconhece?</span>
+      <h2>Os 4 sinais de que sua empresa está pagando plano de saúde errado</h2>
+      <p>Milhares de PMEs contratam plano "coletivo empresarial" que, na prática, funciona como plano individual — só que sem nenhuma das proteções da ANS.</p>
+    </div>
+    <div class="pain-grid">
+      <div class="pain-card rv"><div class="pain-ico">👨‍👩‍👧</div><div><h3>Só a família no contrato</h3><p>O CNPJ existe, mas as vidas do plano são você, cônjuge, filhos ou pais. Sem vínculo empregatício real com terceiros.</p></div></div>
+      <div class="pain-card rv"><div class="pain-ico">📈</div><div><h3>Reajustes muito acima da ANS</h3><p>Aumentos anuais de 20%, 40% ou mais por "sinistralidade" e "VCMH", enquanto o índice da ANS para individuais fica em um dígito.</p></div></div>
+      <div class="pain-card rv"><div class="pain-ico">🎂</div><div><h3>Salto absurdo aos 59 anos</h3><p>Reajuste por faixa etária de 80%, 90% ou mais na última faixa — prática que o STJ já limitou no Tema 952.</p></div></div>
+      <div class="pain-card rv"><div class="pain-ico">⛓️</div><div><h3>Preso por multa e aviso prévio</h3><p>Para cancelar, exigem 60 dias de aviso prévio, fidelidade de 12 ou 24 meses e multas — regras baseadas em norma que já foi anulada na Justiça.</p></div></div>
+    </div>
+    <div class="pain-note rv">💡 <b>A norma que sustentava o aviso prévio de 60 dias e a fidelidade mínima</b> (art. 17, § único, da RN ANS 195/2009) <b>foi declarada nula</b> em Ação Civil Pública com trânsito em julgado, e a própria ANS a revogou pela RN 455/2020. A operadora pode até apontar o contrato — mas contrato não convalida cláusula abusiva.</div>
+  </div>
+</section>
+
+<!-- ================= TESES ================= -->
+<section id="teses">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="eyebrow">Seus direitos</span>
+      <h2>As 4 frentes jurídicas que protegem sua empresa</h2>
+      <p>Cada contrato passa por uma análise técnica que identifica qual (ou quais) dessas frentes se aplica ao seu caso.</p>
+    </div>
+    <div class="teses-grid">
+      <article class="tese rv">
+        <div class="num">01</div>
+        <h3>Falso coletivo → regras de plano individual</h3>
+        <p>Quando o plano "empresarial" cobre apenas o dono e a família, a Justiça reconhece a natureza individual/familiar do contrato: reajustes anuais passam a seguir o índice da ANS e o que foi pago a mais volta para você.</p>
+        <div class="base"><span>RN ANS 195/2009</span><span>CDC art. 51</span><span>Jurisprudência TJSP</span></div>
+        <div class="alvo"><b>Para quem:</b> PMEs cujo plano tem só sócios e familiares como beneficiários.</div>
+      </article>
+      <article class="tese rv">
+        <div class="num">02</div>
+        <h3>Reajuste por faixa etária abusivo</h3>
+        <p>Percentuais desproporcionais na mudança de faixa — ou qualquer reajuste etário após os 60 anos — podem ser revistos judicialmente, com devolução das diferenças pagas.</p>
+        <div class="base"><span>STJ Tema 952</span><span>Estatuto do Idoso art. 15 §3º</span></div>
+        <div class="alvo"><b>Para quem:</b> beneficiários que sofreram salto de mensalidade aos 44, 49, 54 ou 59 anos.</div>
+      </article>
+      <article class="tese rv">
+        <div class="num">03</div>
+        <h3>Cancelamento sem multa nem 60 dias</h3>
+        <p>Sua empresa pode encerrar o contrato coletivo imediatamente, sem aviso prévio de 60 dias, sem multa de fidelidade e sem pagar mensalidades após o pedido formal — e com devolução do que foi cobrado indevidamente.</p>
+        <div class="base"><span>ACP 0136265-83.2013.4.02.5101</span><span>RN 455/2020</span><span>CDC arts. 39 e 51</span></div>
+        <div class="alvo"><b>Para quem:</b> empresas travadas em contratos com fidelidade de 12/24 meses ou cobranças pós-cancelamento.</div>
+      </article>
+      <article class="tese rv">
+        <div class="num">04</div>
+        <h3>Negativa de cobertura e urgências</h3>
+        <p>Negativa de cirurgia, internação, home care ou tratamento prescrito pode ser revertida com liminar, muitas vezes em poucos dias — inclusive com indenização quando há agravamento.</p>
+        <div class="base"><span>Lei 9.656/98</span><span>Súmula 608 STJ</span><span>Tutela de urgência</span></div>
+        <div class="alvo"><b>Para quem:</b> pacientes com tratamento negado, adiado ou interrompido pela operadora.</div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= STEPS ================= -->
+<section class="steps" id="como">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="eyebrow">Como funciona</span>
+      <h2>Do diagnóstico à restituição em 3 etapas</h2>
+      <p>Você não precisa entender de lei nem de plano de saúde. Nossa dupla — consultoria de seguros + advocacia — cuida de tudo.</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step rv">
+        <div class="ico">🔎</div>
+        <h3>Diagnóstico gratuito</h3>
+        <p>Você envia contrato, boletos e a relação de beneficiários pelo WhatsApp. A consultoria DCG identifica o enquadramento do plano e calcula quanto está sendo pago a mais, mês a mês.</p>
+        <span class="tag">Sem custo · em até 72h</span>
+      </div>
+      <div class="step rv">
+        <div class="ico">📋</div>
+        <h3>Parecer jurídico e proposta</h3>
+        <p>O escritório parceiro valida a tese aplicável, apresenta o potencial de recuperação retroativa e formaliza contrato de honorários e procuração — tudo assinado digitalmente.</p>
+        <span class="tag">Transparência total</span>
+      </div>
+      <div class="step rv">
+        <div class="ico">⚖️</div>
+        <h3>Ação com pedido de liminar</h3>
+        <p>Protocolo da ação com pedido de tutela de urgência quando cabível. Você acompanha cada andamento e o plano permanece ativo durante todo o processo.</p>
+        <span class="tag">Acompanhamento contínuo</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= RESULTS ================= -->
+<section id="resultados">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="eyebrow">Resultados reais</span>
+      <h2>O que a tese já garantiu em casos concretos</h2>
+      <p>Decisões obtidas pela advocacia parceira em ações de revisão e encerramento de planos coletivos.</p>
+    </div>
+    <div class="res-grid">
+      <div class="res rv">
+        <div class="op"><i></i>Sentença · Falso coletivo</div>
+        <div class="val">R$ 30.986,91 <small>restituídos</small></div>
+        <p>Contrato reconhecido como individual/familiar, reajustes futuros limitados ao índice ANS, reajuste etário de 84,99% reduzido para 42,5% e devolução das diferenças com IPCA + Selic.</p>
+        <div class="foot">Justiça de SP · honorários pagos pela operadora</div>
+      </div>
+      <div class="res rv">
+        <div class="op"><i></i>Liminar · Encerramento sem multa</div>
+        <div class="val">R$ 0 <small>de multa e aviso prévio</small></div>
+        <p>Beneficiária que pediu cancelamento e continuou recebendo boletos obteve liminar suspendendo as cobranças de "aviso prévio" de 60 dias e multa por fidelidade.</p>
+        <div class="foot">Deferida e cumprida em 2026</div>
+      </div>
+      <div class="res rv">
+        <div class="op"><i></i>Análise técnica · Revisão PME</div>
+        <div class="val">R$ 1.625/mês <small>de excesso</small></div>
+        <p>Diagnóstico de plano PME apontou R$ 1.625,06 pagos a mais por mês e potencial de restituição de R$ 16.070,07 — caso encaminhado para ação revisional.</p>
+        <div class="foot">Diagnóstico DCG · 2026</div>
+      </div>
+    </div>
+    <p class="res-disclaimer">Resultados de casos reais conduzidos pela banca parceira. Cada processo é único: valores e prazos variam conforme contrato, operadora e provas. Nenhum resultado é prometido ou garantido.</p>
+  </div>
+</section>
+
+<!-- ================= SIMULADOR ================= -->
+<section class="sim" id="simulador">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="eyebrow dark">Simulador</span>
+      <h2>Quanto sua empresa pode estar pagando a mais?</h2>
+      <p style="color:#8fa3ca">Ajuste os controles e veja uma estimativa do excesso mensal e do potencial retroativo de até 5 anos.</p>
+    </div>
+    <div class="sim-box rv">
+      <div class="sim-in">
+        <label>Mensalidade total do plano <output id="oMens">R$ 5.000</output></label>
+        <input type="range" id="rMens" min="800" max="40000" step="100" value="5000">
+        <label>Último reajuste aplicado pela operadora <output id="oRea">25%</output></label>
+        <input type="range" id="rRea" min="8" max="120" step="1" value="25">
+        <div class="sim-hint">Índice ANS para planos individuais usado como referência: ~7% a.a.</div>
+        <label>Há quantos anos paga reajustes acima da ANS? <output id="oAnos">3 anos</output></label>
+        <input type="range" id="rAnos" min="1" max="5" step="1" value="3">
+      </div>
+      <div class="sim-out">
+        <div class="item"><div class="l">Excesso estimado por mês</div><div class="v" id="vMes">R$ 0</div></div>
+        <div class="item"><div class="l">Potencial retroativo estimado</div><div class="v gold" id="vRetro">R$ 0</div></div>
+        <a class="btn btn-amber" href="#" id="btnSim" data-wa="">Quero a análise real do meu contrato</a>
+      </div>
+    </div>
+    <p class="sim-foot">⚠️ Estimativa meramente ilustrativa, calculada sobre a diferença entre o reajuste informado e o índice de referência da ANS. O valor real depende do contrato, do histórico de reajustes e da análise jurídica individual — e será apurado no diagnóstico gratuito. Restituições judiciais incluem correção monetária (IPCA) e juros (Selic), conforme Lei 14.905/2024.</p>
+  </div>
+</section>
+
+<!-- ================= QUEM ================= -->
+<section id="quem">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="eyebrow">Quem cuida do seu caso</span>
+      <h2>Consultoria de seguros + advocacia especializada</h2>
+      <p>Uma parceria que une quem entende de plano de saúde por dentro com quem sabe cobrá-lo na Justiça.</p>
+    </div>
+    <div class="quem-grid">
+      <div class="quem a rv">
+        <div class="avatar">D</div>
+        <h3>DCG Consultoria de Seguros</h3>
+        <div class="role">Diagnóstico técnico e gestão do benefício</div>
+        <p>Décadas de experiência no mercado segurador, com atuação em planos de saúde PME, apólices e sinistros.</p>
+        <ul>
+          <li>Análise de contrato, boletos e composição de vidas</li>
+          <li>Cálculo do excesso pago vs. índice ANS</li>
+          <li>Reenquadramento e gestão do plano após a ação</li>
+        </ul>
+      </div>
+      <div class="quem b rv">
+        <div class="avatar">C</div>
+        <h3>Carvalho Advocacia</h3>
+        <div class="role">Dr. Sandro Pigoretti de Carvalho · Direito da Saúde</div>
+        <p>Banca especializada em ações contra operadoras de saúde, com centenas de processos ativos e resultados em liminares e sentenças.</p>
+        <ul>
+          <li>Parecer jurídico individualizado por contrato</li>
+          <li>Ações revisionais, liminares e restituições</li>
+          <li>Acompanhamento processual até o fim</li>
+        </ul>
+      </div>
+    </div>
+    <div class="fluxo rv">
+      <span>Você envia os documentos</span><span class="arrow">→</span>
+      <span>DCG diagnostica</span><span class="arrow">→</span>
+      <span>Dr. Sandro valida a tese</span><span class="arrow">→</span>
+      <span>Ação protocolada</span><span class="arrow">→</span>
+      <span>Você recupera</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= IA 24/7 ================= -->
+<section class="ia" id="ia">
+  <div class="wrap ia-grid">
+    <div class="rv">
+      <span class="eyebrow">Atendimento inteligente</span>
+      <h2 style="font-size:clamp(1.6rem,3vw,2.3rem);margin-bottom:16px">Seu caso não espera horário comercial</h2>
+      <p>Nosso atendimento digital funciona 24 horas por dia: a triagem inicial do seu plano começa no WhatsApp, no seu ritmo, e um especialista humano assume assim que o diagnóstico é agendado.</p>
+      <ul class="ia-feats">
+        <li><div class="fi">💬</div><div><b>Triagem imediata no WhatsApp</b><p>Responda 5 perguntas e saiba na hora se seu plano tem perfil de falso coletivo.</p></div></li>
+        <li><div class="fi">📄</div><div><b>Envio de documentos simplificado</b><p>Fotografe contrato e boletos direto na conversa — sem e-mail, sem burocracia.</p></div></li>
+        <li><div class="fi">🔔</div><div><b>Acompanhamento do processo</b><p>Você recebe atualização a cada andamento relevante do seu caso.</p></div></li>
+        <li><div class="fi">🔒</div><div><b>Sigilo e LGPD</b><p>Seus dados e documentos são tratados com confidencialidade e usados apenas para a análise.</p></div></li>
+      </ul>
+    </div>
+    <div class="rv">
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="wa-head"><div class="pfp">PJ</div><div><b>Plano Justo</b><small>online agora</small></div></div>
+          <div class="wa-body" id="waBody">
+            <div class="msg in">Olá! 👋 Sou o assistente do <b>Plano Justo</b>. Quer verificar se o plano da sua empresa pode ser revisado?</div>
+            <div class="msg out">Quero sim. Meu plano é PME e só tem minha família.</div>
+            <div class="msg in">Perfeito, esse é exatamente o perfil que analisamos. Quantas vidas tem o plano e qual foi o último reajuste?</div>
+            <div class="msg out">4 vidas. O reajuste veio 38% esse ano 😤</div>
+            <div class="msg in">38% está muito acima do índice ANS. 📊 Me envie uma foto do boleto e do contrato que iniciamos seu <b>diagnóstico gratuito</b> agora.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FAQ ================= -->
+<section id="faq">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="eyebrow">Dúvidas frequentes</span>
+      <h2>Perguntas que todo empresário faz antes de agir</h2>
+    </div>
+    <div class="faq-list rv">
+      <details>
+        <summary>Posso perder o plano ou sofrer retaliação da operadora por entrar com a ação?</summary>
+        <div class="a">Não. O contrato permanece ativo durante o processo e a operadora não pode rescindir ou negar cobertura como represália — isso configuraria nova ilegalidade, passível de liminar e indenização. Em muitos casos, a primeira medida do juiz é justamente proibir qualquer alteração no plano.</div>
+      </details>
+      <details>
+        <summary>Meu plano é "empresarial" de verdade, com CNPJ e tudo. Ainda assim pode ser falso coletivo?</summary>
+        <div class="a">O que define o falso coletivo não é o CNPJ, e sim a realidade das vidas cobertas. Se os beneficiários são o sócio e seus familiares, sem vínculo empregatício real com terceiros, o contrato funciona como individual/familiar — e a Justiça pode determinar que siga as regras da ANS para essa categoria, com reajustes limitados e proteção contra rescisão unilateral.</div>
+      </details>
+      <details>
+        <summary>Quanto posso recuperar e de quanto tempo?</summary>
+        <div class="a">A restituição alcança as diferenças pagas nos últimos 5 anos (prazo prescricional), com correção monetária pelo IPCA e juros pela Selic. O valor depende da mensalidade, do histórico de reajustes e da tese aplicável — por isso o diagnóstico calcula seu número real antes de qualquer decisão.</div>
+      </details>
+      <details>
+        <summary>Quero apenas cancelar o plano sem pagar multa nem 60 dias. Dá?</summary>
+        <div class="a">Sim. A exigência de aviso prévio de 60 dias e permanência mínima nasceu de dispositivo da RN 195/2009 que foi anulado judicialmente e revogado pela própria ANS (RN 455/2020). Cobranças posteriores ao pedido formal de cancelamento e multas de fidelidade desproporcionais são reiteradamente afastadas pela Justiça, inclusive em liminar.</div>
+      </details>
+      <details>
+        <summary>Quanto custa? E se eu não ganhar?</summary>
+        <div class="a">O diagnóstico técnico é gratuito e sem compromisso. Se houver caso, o escritório apresenta proposta de honorários clara antes de qualquer assinatura — você decide com o número na mão. Condições, riscos e cenários são explicados por escrito no parecer.</div>
+      </details>
+      <details>
+        <summary>Quais documentos preciso enviar?</summary>
+        <div class="a">Em geral: contrato do plano (ou proposta de adesão), últimos boletos/faturas, relação de beneficiários e cartas de reajuste. Não achou tudo? Sem problema — orientamos como solicitar a documentação à operadora, que é obrigada a fornecê-la.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CTA FINAL ================= -->
+<section class="final">
+  <div class="wrap rv">
+    <span class="eyebrow dark">Comece agora</span>
+    <h2>Cada mês que passa é mais um boleto pago acima do que a lei permite</h2>
+    <p>Envie seu contrato hoje e receba em até 72h o diagnóstico do seu plano: enquadramento, excesso mensal e potencial de recuperação.</p>
+    <a class="btn btn-amber" href="#" data-wa="Olá! Quero enviar meu contrato para o diagnóstico gratuito do plano da minha empresa.">Iniciar diagnóstico gratuito no WhatsApp</a>
+    <div class="mini">Sem custo · sem compromisso · resposta em até 72h úteis</div>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <h4>⚖ Plano Justo</h4>
+        <p>Parceria entre a DCG Consultoria de Seguros e a Carvalho Advocacia para revisão, encerramento e defesa de contratos de plano de saúde de PMEs e famílias.</p>
+        <p>📍 Osasco/SP · atendimento em todo o Brasil (processo 100% digital)</p>
+      </div>
+      <div>
+        <h4>Navegação</h4>
+        <a href="#teses">Seus direitos</a>
+        <a href="#como">Como funciona</a>
+        <a href="#resultados">Resultados</a>
+        <a href="#simulador">Simulador</a>
+        <a href="#faq">Dúvidas frequentes</a>
+      </div>
+      <div>
+        <h4>Contato</h4>
+        <a href="#" data-wa="Olá! Vim pelo site Plano Justo.">WhatsApp</a>
+        <a href="mailto:dcgseguros@gmail.com">dcgseguros@gmail.com</a>
+      </div>
+    </div>
+    <div class="foot-legal">
+      <p>O diagnóstico técnico é realizado pela DCG Consultoria de Seguros. A atuação judicial é conduzida com exclusividade por advocacia regularmente inscrita na OAB. Este site tem caráter informativo e não constitui promessa de resultado: cada caso é analisado individualmente e os resultados citados referem-se a processos específicos, não sendo garantia de êxito em situações futuras. Dados pessoais e documentos enviados são tratados nos termos da LGPD (Lei 13.709/2018), exclusivamente para fins de análise e prestação dos serviços contratados.</p>
+      <p style="margin-top:10px">© 2026 Plano Justo — DCG Consultoria de Seguros & Carvalho Advocacia. Todos os direitos reservados.</p>
+    </div>
+  </div>
+</footer>
+
+<!-- ================= WA FLOAT ================= -->
+<a href="#" class="wa-float" data-wa="Olá! Vim pelo site Plano Justo e quero verificar meu plano de saúde." aria-label="Falar no WhatsApp">
+  <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.6-6.1c-.3-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1-.2.3-.6.8-.8 1-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.4-2.9c-.3-.4 0-.6.2-.8l.4-.5c.1-.2.2-.3.3-.5v-.5c0-.1-.6-1.4-.8-1.9-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1.1 2.7c.1.2 1.8 2.8 4.5 3.9.6.3 1.1.4 1.5.6.6.2 1.2.2 1.6.1.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.2-.3-.2-.5-.3z"/></svg>
+</a>
+
+<script>
+/* ===================== CONFIGURAÇÃO ===================== */
+/* Troque aqui o número que recebe os leads (formato: 55 + DDD + número) */
+const WHATSAPP_NUMBER = "5511999537331";
+/* ========================================================= */
+
+/* Links WhatsApp */
+document.querySelectorAll("[data-wa]").forEach(el=>{
+  el.addEventListener("click",e=>{
+    e.preventDefault();
+    const msg = encodeURIComponent(el.dataset.wa || "Olá! Vim pelo site Plano Justo.");
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`,"_blank");
+  });
+});
+
+/* Nav scrolled */
+const nav = document.getElementById("nav");
+addEventListener("scroll",()=>nav.classList.toggle("scrolled",scrollY>40));
+
+/* Reveal on scroll */
+const io = new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){e.target.classList.add("on");io.unobserve(e.target);}
+}),{threshold:.12});
+document.querySelectorAll(".rv").forEach(el=>io.observe(el));
+
+/* Hero bars */
+setTimeout(()=>document.querySelectorAll(".hc2 .bar i").forEach(b=>b.style.width=b.dataset.w+"%"),600);
+
+/* Counters */
+const cio = new IntersectionObserver(es=>es.forEach(e=>{
+  if(!e.isIntersecting) return;
+  const el = e.target, end = +el.dataset.count, t0 = performance.now(), dur = 1800;
+  const fmt = n => end>=1000 ? n.toLocaleString("pt-BR") : n;
+  (function tick(t){
+    const p = Math.min((t-t0)/dur,1), eased = 1-Math.pow(1-p,3);
+    el.textContent = fmt(Math.round(end*eased));
+    if(p<1) requestAnimationFrame(tick);
+  })(t0);
+  cio.unobserve(el);
+}),{threshold:.5});
+document.querySelectorAll("[data-count]").forEach(el=>cio.observe(el));
+
+/* Simulador */
+const R = id=>document.getElementById(id);
+const BRL = n=>n.toLocaleString("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:0});
+const ANS = 0.07; // índice de referência
+function simular(){
+  const M = +R("rMens").value, rea = +R("rRea").value/100, anos = +R("rAnos").value;
+  R("oMens").textContent = BRL(M);
+  R("oRea").textContent = Math.round(rea*100)+"%";
+  R("oAnos").textContent = anos+(anos>1?" anos":" ano");
+  const excesso = Math.max(0, M * (rea-ANS)/(1+rea));
+  const retro = excesso*12*anos;
+  R("vMes").textContent = BRL(excesso);
+  R("vRetro").textContent = BRL(retro);
+  R("btnSim").dataset.wa = `Olá! Fiz a simulação no site Plano Justo: mensalidade ${BRL(M)}, reajuste de ${Math.round(rea*100)}%, excesso estimado de ${BRL(excesso)}/mês e retroativo de ${BRL(retro)}. Quero a análise real do meu contrato.`;
+}
+["rMens","rRea","rAnos"].forEach(id=>R(id).addEventListener("input",simular));
+simular();
+
+/* Chat animation (replays when visible) */
+const waBody = document.getElementById("waBody");
+const chatIO = new IntersectionObserver(es=>es.forEach(e=>{
+  if(!e.isIntersecting) return;
+  waBody.querySelectorAll(".msg").forEach((m,i)=>setTimeout(()=>m.classList.add("show"), 700*i+300));
+  chatIO.unobserve(waBody);
+}),{threshold:.4});
+chatIO.observe(waBody);
+</script>
+</body>
+</html>
