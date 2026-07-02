@@ -1278,11 +1278,21 @@ function fileIcon(name){
 }
 function fmtSize(b){if(b<1024)return b+"B";if(b<1048576)return(b/1024).toFixed(1)+"KB";return(b/1048576).toFixed(1)+"MB";}
 
-function addToQueue(files){
-  Array.from(files).forEach(f=>{
-    if(docQueue.find(q=>q.name===f.name&&q.size===f.size)) return;
-    docQueue.push({id:uid(),name:f.name,size:f.size,file:f,status:"wait",result:null,error:null});
-  });
+async function addToQueue(files){
+  for(const f of Array.from(files)){
+    if(docQueue.find(q=>q.name===f.name&&q.size===f.size)) continue;
+    const item={id:uid(),name:f.name,size:f.size,status:"wait",result:null,error:null};
+    try{
+      /* Lê o conteúdo IMEDIATAMENTE para evitar erro de permissão posterior */
+      const buf=await f.arrayBuffer();
+      item.file={
+        name:f.name, type:f.type||"",
+        arrayBuffer:()=>Promise.resolve(buf),
+        text:()=>Promise.resolve(new TextDecoder("utf-8",{fatal:false}).decode(buf))
+      };
+    }catch(e){ item.file=f; }
+    docQueue.push(item);
+  }
   renderQueue();
 }
 function addPasteToQueue(){
@@ -1489,17 +1499,19 @@ dropZone.addEventListener("drop",async e=>{
       const entry=item.webkitGetAsEntry();
       if(entry){const files=await readEntry(entry);all.push(...files);}
     }
-    if(all.length){addToQueue(all);toast(`${all.length} arquivo(s) encontrado(s).`);return;}
+    if(all.length){await addToQueue(all);toast(`${all.length} arquivo(s) encontrado(s).`);return;}
   }
-  addToQueue(e.dataTransfer.files);
+  await addToQueue(e.dataTransfer.files);
 });
 
 /* ----- seleção via botão (arquivos avulsos ou pasta inteira) ----- */
-$("docFiles").onchange=e=>addToQueue(e.target.files);
-$("docFolder").onchange=e=>{
+$("docFiles").onchange=async e=>{ await addToQueue(e.target.files); e.target.value=""; };
+$("docFolder").onchange=async e=>{
   const filtered=Array.from(e.target.files).filter(f=>isSupportedFile(f.name));
-  addToQueue(filtered);
+  toast("Lendo arquivos…");
+  await addToQueue(filtered);
   toast(`${filtered.length} arquivo(s) da pasta adicionado(s) à fila.`);
+  e.target.value="";
 };
 $("btnClearQueue").onclick=clearQueue;
 
