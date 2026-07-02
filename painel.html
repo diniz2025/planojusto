@@ -14,6 +14,8 @@
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
 <!-- marked.js para renderizar markdown nos resultados -->
 <script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
+<!-- SheetJS para leitura de Excel (.xlsx/.xls) -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <!-- Supabase para persistência em nuvem -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -336,7 +338,7 @@ details.tpl .hint{font-size:.72rem;color:#8494b2;margin-top:8px}
       </select>
       <span class="sep"></span>
       <button class="chip" id="btnNovoCli">＋ Cliente manual</button>
-      <label class="chip" title="Importa todos os CSVs de uma pasta de uma vez">📁 Pasta de CSVs<input type="file" id="folderCsvImport" webkitdirectory accept=".csv,.txt,.tsv" multiple style="display:none"></label>
+      <label class="chip" title="Importa todos os CSVs/Excel de uma pasta de uma vez">📁 Pasta de arquivos<input type="file" id="folderCsvImport" webkitdirectory accept=".csv,.txt,.tsv,.xlsx,.xls" multiple style="display:none"></label>
       <button class="chip" id="btnExportCli">⬇ Exportar CSV</button>
       <button class="chip" id="btnLimparCli">🗑 Limpar base</button>
     </div>
@@ -528,7 +530,7 @@ details.tpl .hint{font-size:.72rem;color:#8494b2;margin-top:8px}
     <div class="sub">Aceita CSV exportado do CronosSeg/Excel (separado por <b>;</b> , <b>,</b> ou TAB) ou dados colados direto da planilha.</div>
     <div class="drop">
       <b>Arraste um arquivo .csv aqui</b> ou
-      <label class="fake">Escolher arquivo<input type="file" id="impFile" accept=".csv,.txt,.tsv"></label>
+      <label class="fake">Escolher arquivo<input type="file" id="impFile" accept=".csv,.txt,.tsv,.xlsx,.xls"></label>
       <div style="margin-top:8px;font-size:.74rem">…ou copie as linhas no Excel (com o cabeçalho) e cole abaixo</div>
     </div>
     <textarea id="impText" placeholder="nome;cnpj;telefone;email;operadora;mensalidade;status&#10;Padaria Silva Ltda;12.345.678/0001-90;11999998888;contato@silva.com;Amil;3800;ativo"></textarea>
@@ -821,29 +823,89 @@ $("btnLimparCli").onclick=()=>{if(clientes.length&&confirm(`Apagar TODOS os ${cl
 
 /* ===== IMPORTAÇÃO CSV ===== */
 const CAMPOS={ignorar:"— ignorar —",nome:"Nome / razão social",empresa:"Nome fantasia",cnpj:"CNPJ / CPF",telefone:"Telefone / WhatsApp",email:"E-mail",operadora:"Operadora / plano",mensalidade:"Mensalidade",status:"Status (ativo/inativo)"};
-const ALIAS={nome:["nome","cliente","razao social","razaosocial","razao","contato","beneficiario","segurado"],empresa:["fantasia","nome fantasia","empresa"],cnpj:["cnpj","cpf","documento","doc","cpf/cnpj","cnpj/cpf"],telefone:["whatsapp","celular","telefone","fone","tel","movel"],email:["email","e-mail","mail"],operadora:["operadora","seguradora","convenio","plano","produto"],mensalidade:["mensalidade","valor mensal","valor","premio","mensal"],status:["status","situacao","ativo","situação"]};
+const ALIAS={nome:["nome","cliente","razao social","razaosocial","razao","contato","beneficiario","segurado","empresa","razao_social","denominacao"],empresa:["fantasia","nome fantasia","nome_fantasia"],cnpj:["cnpj","cpf","documento","doc","cpf/cnpj","cnpj/cpf","cnpj_cpf"],telefone:["whatsapp","celular","telefone","fone","tel","movel","phone","ddd_telefone_1","ddd_celular_1"],email:["email","e-mail","mail","e_mail"],operadora:["operadora","seguradora","convenio","plano","produto"],mensalidade:["mensalidade","valor mensal","valor","premio","mensal","mensalidade_atual"],status:["status","situacao","ativo","situação","situacao_cadastral"]};
 const norm=s=>s.toString().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").trim();
 function detectDelim(l){const c=[[";",(l.match(/;/g)||[]).length],["\t",(l.match(/\t/g)||[]).length],[",",(l.match(/,/g)||[]).length]];c.sort((a,b)=>b[1]-a[1]);return c[0][1]>0?c[0][0]:";";}
 function splitLine(line,d){const out=[];let cur="",q=false;for(let i=0;i<line.length;i++){const ch=line[i];if(ch==='"'){if(q&&line[i+1]==='"'){cur+='"';i++;}else q=!q;}else if(ch===d&&!q){out.push(cur);cur="";}else cur+=ch;}out.push(cur);return out.map(s=>s.trim());}
+
+/* Lê qualquer arquivo e retorna array de arrays (linhas × colunas) */
+async function fileToRows(file){
+  const ext=file.name.split(".").pop().toLowerCase();
+  if(ext==="xlsx"||ext==="xls"){
+    if(typeof XLSX==="undefined") throw new Error("SheetJS não carregou — verifique internet.");
+    const buf=await file.arrayBuffer();
+    const wb=XLSX.read(buf,{type:"array"});
+    const ws=wb.Sheets[wb.SheetNames[0]];
+    return XLSX.utils.sheet_to_array(ws,{defval:""});
+  }
+  /* CSV / TXT / TSV — detecta encoding */
+  const tryEncodings=["utf-8","windows-1252","iso-8859-1"];
+  let text="";
+  for(const enc of tryEncodings){
+    try{ text=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsText(file,enc);}); break; }catch(e){}
+  }
+  const lines=text.replace(/\r/g,"").split("\n").filter(l=>l.trim());
+  const d=detectDelim(lines[0]||"");
+  return lines.map(l=>splitLine(l,d));
+}
+
 let impRows=[],impMap=[];
-function parseImport(){
-  const text=$("impText").value; const lines=text.replace(/\r/g,"").split("\n").filter(l=>l.trim());
-  if(lines.length<1){alert("Cole os dados ou escolha um arquivo primeiro.");return;}
-  const d=detectDelim(lines[0]); const rows=lines.map(l=>splitLine(l,d)); const nCols=Math.max(...rows.map(r=>r.length));
-  const hasHeader=$("impHeader").checked; const header=hasHeader?rows[0]:[];
+
+function buildMapUI(rows){
+  const hasHeader=$("impHeader").checked;
+  const header=hasHeader?rows[0]:[];
   impRows=hasHeader?rows.slice(1):rows;
-  impMap=Array.from({length:nCols},(_,i)=>{if(!hasHeader)return"ignorar";const h=norm(header[i]||"");for(const[campo,aliases]of Object.entries(ALIAS)){if(aliases.some(a=>h===a||h.includes(a)))return campo;}return"ignorar";});
-  if(!hasHeader)impMap=impMap.map((_,i)=>["nome","cnpj","telefone","email","operadora","mensalidade","status"][i]||"ignorar");
+  const nCols=Math.max(...impRows.map(r=>r.length),header.length);
+  impMap=Array.from({length:nCols},(_,i)=>{
+    if(!hasHeader) return ["nome","cnpj","telefone","email","operadora","mensalidade","status"][i]||"ignorar";
+    const h=norm(String(header[i]||""));
+    for(const[campo,aliases]of Object.entries(ALIAS)){if(aliases.some(a=>h===a||h.includes(a)))return campo;}
+    return"ignorar";
+  });
   const mt=$("mapTable"); const preview=impRows.slice(0,3);
-  mt.innerHTML="<tr>"+impMap.map((m,i)=>`<th>Coluna ${i+1}${hasHeader?"<br><span style='font-weight:400'>"+esc(header[i]||"")+"</span>":""}</th>`).join("")+"</tr>"+"<tr>"+impMap.map((m,i)=>`<td><select data-col="${i}">${Object.entries(CAMPOS).map(([k,v])=>`<option value="${k}" ${k===m?"selected":""}>${v}</option>`).join("")}</select></td>`).join("")+"</tr>"+preview.map(r=>"<tr>"+impMap.map((_,i)=>`<td>${esc((r[i]||"").slice(0,32))}</td>`).join("")+"</tr>").join("");
+  mt.innerHTML="<tr>"+impMap.map((m,i)=>`<th>Col ${i+1}${hasHeader?"<br><span style='font-weight:400'>"+esc(String(header[i]||"").slice(0,20))+"</span>":""}</th>`).join("")+"</tr>"
+    +"<tr>"+impMap.map((m,i)=>`<td><select data-col="${i}">${Object.entries(CAMPOS).map(([k,v])=>`<option value="${k}" ${k===m?"selected":""}>${v}</option>`).join("")}</select></td>`).join("")+"</tr>"
+    +preview.map(r=>"<tr>"+impMap.map((_,i)=>`<td>${esc(String(r[i]||"").slice(0,28))}</td>`).join("")+"</tr>").join("");
   mt.querySelectorAll("select").forEach(s=>s.onchange=()=>{impMap[+s.dataset.col]=s.value;});
   $("mapWrap").style.display="block"; $("btnImpGo").style.display="inline-block";
-  $("impStatus").textContent=`${impRows.length} linha(s) detectada(s) · separador "${d==="\t"?"TAB":d}"`;
+  $("impStatus").textContent=`✅ ${impRows.length} linha(s) detectada(s)`;
+}
+
+async function parseImport(){
+  const text=$("impText").value.trim();
+  if(!text){alert("Cole os dados ou escolha um arquivo primeiro.");return;}
+  const lines=text.replace(/\r/g,"").split("\n").filter(l=>l.trim());
+  const d=detectDelim(lines[0]);
+  buildMapUI(lines.map(l=>splitLine(l,d)));
 }
 $("btnImpParse").onclick=parseImport;
-$("impFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{$("impText").value=rd.result;parseImport();};rd.readAsText(f,"utf-8");};
-document.querySelector(".drop").addEventListener("dragover",e=>e.preventDefault());
-document.querySelector(".drop").addEventListener("drop",e=>{e.preventDefault();const f=e.dataTransfer.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{$("impText").value=rd.result;parseImport();};rd.readAsText(f,"utf-8");});
+
+$("impFile").onchange=async e=>{
+  const f=e.target.files[0]; if(!f) return;
+  try{
+    toast("Lendo arquivo…");
+    const rows=await fileToRows(f);
+    if(rows.length<2){alert("Arquivo sem dados.");return;}
+    /* Pré-visualiza o CSV no textarea para referência */
+    const d=";";
+    $("impText").value=rows.map(r=>r.map(c=>String(c)).join(d)).join("\n");
+    buildMapUI(rows);
+  }catch(err){alert("Erro ao ler arquivo: "+err.message);}
+  e.target.value="";
+};
+
+const importDrop=document.querySelector(".drop");
+importDrop.addEventListener("dragover",e=>e.preventDefault());
+importDrop.addEventListener("drop",async e=>{
+  e.preventDefault();
+  const f=e.dataTransfer.files[0]; if(!f) return;
+  try{
+    toast("Lendo arquivo…");
+    const rows=await fileToRows(f);
+    $("impText").value=rows.map(r=>r.map(c=>String(c)).join(";")).join("\n");
+    buildMapUI(rows);
+  }catch(err){alert("Erro: "+err.message);}
+});
 $("btnImpGo").onclick=()=>{
   if(!impRows.length){alert("Analise os dados primeiro.");return;}
   if(!impMap.includes("nome")){alert("Mapeie ao menos a coluna Nome.");return;}
@@ -1452,37 +1514,34 @@ $("btnCloudPush").onclick=()=>cloudSync("push");
 
 /* ===== PASTA DE CSVs — importar vários arquivos de uma vez ===== */
 $("folderCsvImport").onchange=async e=>{
-  const files=Array.from(e.target.files).filter(f=>/\.(csv|txt|tsv)$/i.test(f.name));
-  if(!files.length){toast("Nenhum CSV encontrado na pasta.");e.target.value="";return;}
+  const files=Array.from(e.target.files).filter(f=>/\.(csv|txt|tsv|xlsx|xls)$/i.test(f.name));
+  if(!files.length){toast("Nenhum arquivo compatível encontrado na pasta.");e.target.value="";return;}
   toast(`Lendo ${files.length} arquivo(s)…`);
-  let totalAdd=0, totalDup=0;
+  let totalAdd=0, totalDup=0, totalErros=0;
   const existentes=new Set(clientes.map(c=>norm(c.nome)+"|"+(c.cnpj||"").replace(/\D/g,"")));
   for(const file of files){
     try{
-      const text=await file.text();
-      const lines=text.replace(/\r/g,"").split("\n").filter(l=>l.trim());
-      if(lines.length<2) continue;
-      const d=detectDelim(lines[0]);
-      const rows=lines.map(l=>splitLine(l,d));
+      const rows=await fileToRows(file);
+      if(rows.length<2) continue;
       const header=rows[0]; const dataRows=rows.slice(1);
       const localMap=Array.from({length:header.length},(_,i)=>{
-        const h=norm(header[i]||"");
+        const h=norm(String(header[i]||""));
         for(const[campo,aliases]of Object.entries(ALIAS)){if(aliases.some(a=>h===a||h.includes(a)))return campo;}
         return "ignorar";
       });
       if(!localMap.includes("nome")) continue;
       dataRows.forEach(r=>{
         const c={id:uid(),oferta:"nao",status:"ativo"};
-        localMap.forEach((campo,i)=>{if(campo==="ignorar")return;const v=(r[i]||"").trim();if(!v)return;if(campo==="status"){const nv=norm(v);c.status=(nv.includes("inat")||nv.includes("cancel")||nv==="0")?"inativo":"ativo";}else if(campo==="mensalidade"){c.mensalidade=v.replace(/[rR]\$\s?/,"");}else c[campo]=v;});
+        localMap.forEach((campo,i)=>{if(campo==="ignorar")return;const v=String(r[i]||"").trim();if(!v)return;if(campo==="status"){const nv=norm(v);c.status=(nv.includes("inat")||nv.includes("cancel")||nv==="0")?"inativo":"ativo";}else if(campo==="mensalidade"){c.mensalidade=v.replace(/[rR]\$\s?/,"");}else c[campo]=v;});
         if(!c.nome){totalDup++;return;}
         const key=norm(c.nome)+"|"+(c.cnpj||"").replace(/\D/g,"");
         if(existentes.has(key)){totalDup++;return;}
         existentes.add(key);clientes.push(c);totalAdd++;
       });
-    }catch(err){}
+    }catch(err){totalErros++;}
   }
   save(LS.clientes,clientes); aba="clientes"; syncAba(); renderAll();
-  toast(`✅ ${totalAdd} cliente(s) importado(s) de ${files.length} arquivo(s)`+(totalDup?` · ${totalDup} duplicado(s)`:""));
+  toast(`✅ ${totalAdd} cliente(s) importado(s) de ${files.length} arquivo(s)`+(totalDup?` · ${totalDup} duplicado(s)`:"")+( totalErros?` · ${totalErros} erro(s)`:""));
   e.target.value="";
 };
 
