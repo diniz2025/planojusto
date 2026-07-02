@@ -111,6 +111,35 @@ td select.of-recusou{border-color:#f5c2c2;background:#fdf0f0;color:#b34040}
 .pagbar button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 12px;font-weight:700}
 .pagbar button:disabled{opacity:.4;cursor:default}
 .empty{padding:60px 20px;text-align:center;color:#8494b2}.empty h3{margin-bottom:8px}.empty .abtn{margin-top:16px}
+
+/* ===== ANÁLISE FALSO COLETIVO ===== */
+.fc-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:10px;display:grid;grid-template-columns:32px 1fr auto;gap:12px;align-items:start}
+.fc-rank{font-family:'Sora';font-weight:800;font-size:1.1rem;color:var(--ink);padding-top:2px}
+.fc-rank.top{color:var(--amber)}
+.fc-nome{font-weight:700;font-size:.9rem;color:var(--ink);margin-bottom:3px}
+.fc-meta{font-size:.74rem;color:#66759a;margin-bottom:6px}
+.fc-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px}
+.fc-tag{font-size:.62rem;font-weight:700;padding:3px 8px;border-radius:99px;letter-spacing:.03em}
+.fc-tag.red{background:#fdecec;color:var(--red)}
+.fc-tag.amber{background:#fdf7e3;color:#9a6c00}
+.fc-tag.green{background:#e9fbf3;color:#0b7d58}
+.fc-tag.blue{background:#e8efff;color:var(--blue)}
+.fc-razao{font-size:.74rem;color:#33415c;line-height:1.5;border-top:1px dashed var(--line);padding-top:8px;margin-top:4px}
+.fc-score{text-align:right}
+.score-bar-wrap{width:72px;height:8px;background:#e9edf5;border-radius:99px;overflow:hidden;margin-top:4px}
+.score-bar{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--sky),var(--blue))}
+.score-num{font-family:'Sora';font-weight:800;font-size:1rem;color:var(--blue)}
+.fc-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.fc-empty{text-align:center;padding:40px 20px;color:#8494b2}
+.fc-summary{background:linear-gradient(135deg,#0a1428,#10234f);color:#fff;border-radius:14px;padding:18px 20px;margin-bottom:18px}
+.fc-summary h3{font-family:'Sora';font-size:.95rem;margin-bottom:4px}
+.fc-summary p{font-size:.78rem;color:#9db1d8;line-height:1.5}
+.fc-stats{display:flex;gap:18px;margin-top:10px;flex-wrap:wrap}
+.fc-stat .v{font-family:'Sora';font-weight:800;font-size:1.3rem;color:var(--amber)}
+.fc-stat .l{font-size:.65rem;color:#9db1d8;text-transform:uppercase;letter-spacing:.06em}
+.ai-badge{display:inline-flex;align-items:center;gap:5px;background:#e8efff;color:var(--blue);border-radius:8px;padding:4px 10px;font-size:.72rem;font-weight:700;margin-bottom:14px}
+.fc-filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.fc-filter-bar select{border:1px solid var(--line);border-radius:99px;padding:7px 12px;font-size:.78rem;font-weight:600;background:#fff;color:var(--txt);outline:none;font-family:'Inter'}
 details.tpl{background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:16px;overflow:hidden}
 details.tpl summary{cursor:pointer;padding:14px 18px;font-weight:700;color:var(--ink);font-size:.85rem;list-style:none;font-family:'Sora'}
 details.tpl summary::-webkit-details-marker{display:none}
@@ -339,6 +368,7 @@ details.tpl .hint{font-size:.72rem;color:#8494b2;margin-top:8px}
       <span class="sep"></span>
       <button class="chip" id="btnNovoCli">＋ Cliente manual</button>
       <label class="chip" title="Importa todos os CSVs/Excel de uma pasta de uma vez">📁 Pasta de arquivos<input type="file" id="folderCsvImport" webkitdirectory accept=".csv,.txt,.tsv,.xlsx,.xls" multiple style="display:none"></label>
+      <button class="chip" id="btnAnalisaFC" style="background:var(--ink);color:#fff;border-color:var(--ink)">🎯 Analisar Falso Coletivo</button>
       <button class="chip" id="btnDedup">🔄 Remover duplicados</button>
       <button class="chip" id="btnExportCli">⬇ Exportar CSV</button>
       <button class="chip" id="btnLimparCli">🗑 Limpar base</button>
@@ -588,6 +618,25 @@ details.tpl .hint{font-size:.72rem;color:#8494b2;margin-top:8px}
       <button class="btn plain" data-close="mConfig">Cancelar</button>
       <button class="btn gold" id="btnTestSb" style="display:none">☁ Testar conexão</button>
       <button class="btn primary" id="btnSalvarConfig">Salvar configuração</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL ANÁLISE FALSO COLETIVO ===== -->
+<div class="overlay" id="mFC">
+  <div class="modal lg" style="max-width:820px">
+    <h2>🎯 Análise de Prospects — Falso Coletivo</h2>
+    <div class="sub">Clientes rankeados por probabilidade de elegibilidade para ação de falso coletivo (PME com beneficiários familiares).</div>
+    <div id="fcSummaryBox"></div>
+    <div class="fc-filter-bar">
+      <select id="fcFiltroOp"><option value="">Todas as operadoras</option></select>
+      <select id="fcFiltroMin"><option value="">Qualquer mensalidade</option><option value="1500">Acima R$ 1.500</option><option value="3000">Acima R$ 3.000</option><option value="5000">Acima R$ 5.000</option><option value="8000">Acima R$ 8.000</option></select>
+      <select id="fcFiltroN"><option value="20">Top 20</option><option value="50">Top 50</option><option value="100">Top 100</option><option value="0">Todos</option></select>
+    </div>
+    <div id="fcList"></div>
+    <div class="modal-foot">
+      <button class="btn plain" data-close="mFC">Fechar</button>
+      <button class="btn gold" id="btnFCAprofundar">🤖 Aprofundar top 10 com IA</button>
     </div>
   </div>
 </div>
@@ -1636,6 +1685,212 @@ $("btnTestSb").onclick=async()=>{
     else if(error){st.style.cssText="display:block;background:#fdecec;border:1px solid #f5c2c2;color:#b34040;padding:8px 12px;border-radius:8px;font-size:.75rem";st.textContent="❌ Erro: "+error.message;}
     else{st.style.cssText="display:block;background:#e9fbf3;border:1px solid #b7e4ce;color:#0b7d58;padding:8px 12px;border-radius:8px;font-size:.75rem";st.textContent="✅ Supabase conectado e tabela pronta!";}
   }catch(e){$("sbStatus").style.cssText="display:block;background:#fdecec;color:#b34040;padding:8px 12px;border-radius:8px;font-size:.75rem";$("sbStatus").textContent="❌ "+e.message;}
+};
+
+/* =====================================================================
+   MOTOR DE ANÁLISE — FALSO COLETIVO
+===================================================================== */
+
+const FC_OPERADORAS = {
+  amil:5, 'amil assistência':5, 'amil saúde':5,
+  bradesco:4, 'bradesco saúde':4, 'bradesco seguros':4,
+  porto:4, 'porto seguro':4, 'porto saúde':4,
+  sulamerica:4, 'sulamérica':4, 'sul america':4, 'sul américa':4,
+  'notre dame':4, intermedica:4, 'intermédica':4, notredame:4,
+  unimed:3, 'golden cross':3, hapvida:3, 'prevent senior':3,
+  'são cristóvão':2, 'sao cristovao':2, omint:3, lincx:3,
+  care:2, ameplan:2, qualicorp:2
+};
+
+function fcScoreOperadora(op){
+  if(!op) return 0;
+  const n = norm(op);
+  for(const[k,v] of Object.entries(FC_OPERADORAS)){
+    if(n.includes(k)) return v;
+  }
+  return 1;
+}
+
+function fcScoreMensalidade(mens){
+  const v = parseFloat((mens||'0').toString().replace(/[^0-9,\.]/g,'').replace(',','.'));
+  if(v >= 12000) return 6;
+  if(v >= 8000)  return 5;
+  if(v >= 5000)  return 4;
+  if(v >= 3000)  return 3;
+  if(v >= 1500)  return 2;
+  if(v >= 500)   return 1;
+  return 0;
+}
+
+function fcRazoes(c, scoreOp, scoreMens){
+  const razoes = [];
+  if(scoreOp >= 4) razoes.push({txt:`${c.operadora} — alta frequência de reajustes acima do VCMH/ANS`, tipo:'red'});
+  else if(scoreOp >= 2) razoes.push({txt:`${c.operadora} — reajustes moderados, vale verificar histórico`, tipo:'amber'});
+  const mens = parseFloat((c.mensalidade||'0').toString().replace(/[^0-9,\.]/g,'').replace(',','.'));
+  if(mens >= 5000) razoes.push({txt:`Mensalidade R$ ${mens.toLocaleString('pt-BR')} — potencial de recuperação alto (últimos 5 anos)`, tipo:'green'});
+  else if(mens >= 1500) razoes.push({txt:`Mensalidade R$ ${mens.toLocaleString('pt-BR')} — recuperação proporcional ao excesso cobrado`, tipo:'amber'});
+  if(!c.operadora) razoes.push({txt:'Operadora não informada — confirmar com cliente', tipo:'blue'});
+  if(!c.telefone && !c.email) razoes.push({txt:'Sem contato — enriquecer dados antes de abordar', tipo:'amber'});
+  if(c.oferta === 'interessado') razoes.push({txt:'Já demonstrou interesse — prioridade máxima', tipo:'green'});
+  return razoes;
+}
+
+function fcScore(c){
+  if(c.oferta === 'recusou') return -99;
+  if(c.oferta === 'caso') return -98;
+  const op  = fcScoreOperadora(c.operadora);
+  const men = fcScoreMensalidade(c.mensalidade);
+  let bonus = 0;
+  if(c.cnpj) bonus += 1;
+  if(c.telefone || c.email) bonus += 1;
+  if(c.oferta === 'interessado') bonus += 3;
+  if(c.oferta === 'enviada') bonus += 1;
+  return op * 2 + men * 2 + bonus;
+}
+
+let fcData = [];
+
+function renderFC(){
+  const opFil  = norm($('fcFiltroOp').value);
+  const minMen = parseFloat($('fcFiltroMin').value||'0');
+  const topN   = parseInt($('fcFiltroN').value||'20');
+
+  let lista = fcData.filter(c => {
+    if(opFil && !norm(c.operadora||'').includes(opFil)) return false;
+    const m = parseFloat((c.mensalidade||'0').toString().replace(/[^0-9,\.]/g,'').replace(',','.'));
+    if(minMen && m < minMen) return false;
+    return true;
+  });
+
+  const mostrar = topN > 0 ? lista.slice(0, topN) : lista;
+  const $list = $('fcList');
+  if(!mostrar.length){ $list.innerHTML='<div class="fc-empty">Nenhum cliente com esses filtros.</div>'; return; }
+
+  $list.innerHTML = mostrar.map((c, i) => {
+    const scoreOp  = fcScoreOperadora(c.operadora);
+    const scoreMen = fcScoreMensalidade(c.mensalidade);
+    const total    = Math.max(0, fcScore(c));
+    const pct      = Math.min(100, Math.round(total / 20 * 100));
+    const razoes   = fcRazoes(c, scoreOp, scoreMen);
+    const mens     = parseFloat((c.mensalidade||'0').toString().replace(/[^0-9,\.]/g,'').replace(',','.'));
+    const recup5   = mens > 0 ? `~R$ ${Math.round(mens * 12 * 5 * 0.3).toLocaleString('pt-BR')} potencial` : '';
+
+    return `<div class="fc-card" data-id="${esc(c.id)}">
+      <div class="fc-rank ${i < 3 ? 'top' : ''}">${i + 1}º</div>
+      <div>
+        <div class="fc-nome">${esc(c.nome)}${c.empresa && c.empresa !== c.nome ? ` <span style="font-weight:400;color:#8494b2">· ${esc(c.empresa)}</span>` : ''}</div>
+        <div class="fc-meta">${c.operadora ? esc(c.operadora) : '—'} ${mens > 0 ? `· R$ ${mens.toLocaleString('pt-BR')}/mês` : ''} ${recup5 ? `<b style="color:var(--emerald)">· ${recup5}</b>` : ''}</div>
+        <div class="fc-tags">${razoes.map(r => `<span class="fc-tag ${r.tipo}">${r.txt}</span>`).join('')}</div>
+        ${c._aiAnalise ? `<div class="fc-razao">🤖 <b>IA:</b> ${esc(c._aiAnalise)}</div>` : ''}
+        <div class="fc-actions">
+          ${c.oferta !== 'caso' ? `<button class="mini-btn" data-fc-caso="${c.id}">⚖️ Virar caso</button>` : '<span style="font-size:.72rem;color:var(--emerald)">✓ Já é caso</span>'}
+          ${c.telefone ? `<button class="mini-btn" data-fc-wa="${c.id}">📲 WhatsApp</button>` : ''}
+          <button class="mini-btn" data-fc-edit="${c.id}">✏️ Editar</button>
+        </div>
+      </div>
+      <div class="fc-score">
+        <div class="score-num">${total}</div>
+        <div class="score-bar-wrap"><div class="score-bar" style="width:${pct}%"></div></div>
+        <div style="font-size:.62rem;color:#8494b2;margin-top:3px">score</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  /* eventos */
+  $list.querySelectorAll('[data-fc-caso]').forEach(b => b.onclick = () => {
+    const c = clientes.find(x => x.id === b.dataset.fcCaso); if(!c) return;
+    if(c.casoId && casos.some(x => x.id === c.casoId)){ toast('Cliente já tem caso.'); return; }
+    const novo = {id:uid(),etapa:1,tese:'falso',nome:c.nome+(c.empresa&&c.empresa!==c.nome?' ('+c.empresa+')':''),reu:c.operadora||'',obs:['Origem: análise falso coletivo',c.cnpj?'CNPJ: '+c.cnpj:'',c.telefone?'Contato: '+c.telefone:'',c.mensalidade?'Mensalidade: R$ '+c.mensalidade:''].filter(Boolean).join('\n'),next:'Solicitar contrato, boletos e relação de vidas'};
+    casos.push(novo); c.casoId = novo.id; c.oferta = 'caso';
+    save(LS.casos, casos); save(LS.clientes, clientes); renderAll();
+    toast(`⚖️ Caso criado: ${c.nome}`); abrirFC();
+  });
+  $list.querySelectorAll('[data-fc-wa]').forEach(b => b.onclick = () => {
+    const c = clientes.find(x => x.id === b.dataset.fcWa); if(!c) return;
+    const fone = waPhone(c.telefone); if(!fone){ alert('Sem telefone.'); return; }
+    window.open(`https://wa.me/${fone}?text=${encodeURIComponent(mensagem(c))}`, '_blank');
+    if((c.oferta||'nao')==='nao'){ c.oferta='enviada'; save(LS.clientes,clientes); }
+  });
+  $list.querySelectorAll('[data-fc-edit]').forEach(b => b.onclick = () => openCliente(b.dataset.fcEdit));
+}
+
+function abrirFC(){
+  /* Calcula scores de todos os elegíveis */
+  fcData = clientes
+    .filter(c => c.status !== 'inativo' && c.oferta !== 'recusou')
+    .map(c => ({...c, _score: fcScore(c)}))
+    .filter(c => c._score >= 0)
+    .sort((a, b) => b._score - a._score);
+
+  /* Preenche filtro de operadoras */
+  const ops = [...new Set(fcData.map(c => c.operadora).filter(Boolean))].sort();
+  $('fcFiltroOp').innerHTML = '<option value="">Todas as operadoras</option>' +
+    ops.map(o => `<option value="${esc(norm(o))}">${esc(o)}</option>`).join('');
+
+  /* Resumo */
+  const comOp   = fcData.filter(c => c.operadora).length;
+  const comMens = fcData.filter(c => parseFloat((c.mensalidade||'0').toString().replace(/[^0-9,\.]/g,'').replace(',','.')) >= 1500).length;
+  const interesse = fcData.filter(c => c.oferta === 'interessado').length;
+  $('fcSummaryBox').innerHTML = `
+    <div class="fc-summary">
+      <h3>📊 Visão geral da base elegível</h3>
+      <p>Clientes ativos excluindo recusados e já convertidos em caso, ordenados por score de elegibilidade.</p>
+      <div class="fc-stats">
+        <div class="fc-stat"><div class="v">${fcData.length}</div><div class="l">elegíveis</div></div>
+        <div class="fc-stat"><div class="v">${comOp}</div><div class="l">com operadora</div></div>
+        <div class="fc-stat"><div class="v">${comMens}</div><div class="l">mensalidade ≥R$1,5k</div></div>
+        <div class="fc-stat"><div class="v">${interesse}</div><div class="l">já interessados</div></div>
+      </div>
+    </div>`;
+
+  renderFC();
+  $('mFC').classList.add('open');
+}
+
+$('btnAnalisaFC').onclick = () => {
+  if(!clientes.length){ toast('Base de clientes vazia.'); return; }
+  abrirFC();
+};
+
+['fcFiltroOp','fcFiltroMin','fcFiltroN'].forEach(id => $(id).onchange = renderFC);
+
+/* Aprofundar com IA — envia top 10 para Claude */
+$('btnFCAprofundar').onclick = async () => {
+  const activeKey = provider === 'anthropic' ? apiKey : orKey;
+  if(!activeKey){ toast('Configure a chave API (botão ⚙ API).'); return; }
+  const top10 = fcData.slice(0, 10);
+  if(!top10.length){ toast('Nenhum prospect para analisar.'); return; }
+  $('btnFCAprofundar').disabled = true;
+  $('btnFCAprofundar').textContent = '⏳ Analisando…';
+  const model = provider === 'anthropic' ? 'claude-sonnet-4-6' : 'google/gemma-4-31b-it:free';
+  const lista = top10.map((c,i) => `${i+1}. ${c.nome}${c.empresa&&c.empresa!==c.nome?' ('+c.empresa+')':''} | Operadora: ${c.operadora||'?'} | Mensalidade: R$ ${c.mensalidade||'?'} | CNPJ: ${c.cnpj||'?'} | Contato: ${c.telefone||c.email||'?'}`).join('\n');
+  const prompt = `Você é especialista em falso coletivo de planos de saúde PME no Brasil (DCG Seguros × Carvalho Advocacia).
+Analise estes ${top10.length} clientes e para cada um dê: (a) probabilidade de ser falso coletivo [Alta/Média/Baixa], (b) justificativa em 1 linha, (c) próximo passo recomendado.
+
+Critérios de falso coletivo:
+- Plano PME onde todos os beneficiários são familiares do sócio (sem empregados reais)
+- Operadora com reajustes acima do índice ANS/VCMH
+- Vigência longa = maior potencial de restituição (5 anos)
+- Mensalidade alta = maior valor a recuperar
+- Empresas de 1-2 sócios com CNPJ = forte indício
+
+Clientes:
+${lista}
+
+Responda em JSON puro, array com objetos: {"i":1,"prob":"Alta","motivo":"...","next":"..."}`;
+
+  try{
+    const resp = await callClaude(prompt, '', model);
+    const arr = JSON.parse(resp.match(/\[[\s\S]*\]/)?.[0] || '[]');
+    arr.forEach(item => {
+      const c = fcData[item.i - 1];
+      if(c){ c._aiAnalise = `[${item.prob}] ${item.motivo} → ${item.next}`; }
+    });
+    renderFC();
+    toast('✅ Análise IA concluída!');
+  }catch(e){ toast('Erro IA: ' + e.message); }
+  $('btnFCAprofundar').disabled = false;
+  $('btnFCAprofundar').textContent = '🤖 Aprofundar top 10 com IA';
 };
 
 /* ===== INIT ===== */
