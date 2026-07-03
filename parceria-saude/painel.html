@@ -398,6 +398,8 @@ details.tpl .hint{font-size:.72rem;color:#8494b2;margin-top:8px}
       <button class="chip" data-cf="ativo">Ativos</button>
       <button class="chip" data-cf="inativo">Inativos</button>
       <span class="sep"></span>
+      <button class="chip" id="btnFiltroCarteira" title="Mostra só os 246 clientes com contrato de saúde ativo real, importados das planilhas DCG">⭐ Carteira ativa DCG</button>
+      <span class="sep"></span>
       <select id="ofFilter">
         <option value="todos">Oferta: todas</option>
         <option value="nao">Não abordado</option>
@@ -1180,7 +1182,7 @@ let orKey    = load(LS.orKey, "");
 let provider = load(LS.provider, "anthropic");
 
 /* ===== estado UI ===== */
-let aba="casos", filtroTese="todos", filtroCli="todos", filtroOferta="todos", busca="", cliPage=0;
+let aba="casos", filtroTese="todos", filtroCli="todos", filtroOferta="todos", filtroCarteira=false, busca="", cliPage=0;
 const PAGE=100;
 const $=id=>document.getElementById(id);
 
@@ -1297,7 +1299,7 @@ $("btnExcluirCaso").onclick=()=>{if(!isAdmin())return;if(casoEditId&&confirm("Ex
 /* ===== CLIENTES ===== */
 function waPhone(t){let d=(t||"").replace(/\D/g,"");if(!d)return"";if(d.startsWith("0"))d=d.slice(1);if(d.length===10||d.length===11)d="55"+d;return d;}
 function mensagem(cli){return template.replaceAll("{nome}",(cli.nome||"").split(" ")[0]||cli.nome||"").replaceAll("{empresa}",cli.empresa||cli.nome||"").replaceAll("{operadora}",cli.operadora?"da "+cli.operadora:"").replace(/ {2,}/g," ");}
-function cliFiltrados(){return clientes.filter(c=>filtroCli==="todos"||c.status===filtroCli).filter(c=>filtroOferta==="todos"||(c.oferta||"nao")===filtroOferta).filter(c=>!busca||(c.nome+" "+(c.empresa||"")+" "+(c.cnpj||"")+" "+(c.operadora||"")+" "+(c.email||"")).toLowerCase().includes(busca));}
+function cliFiltrados(){return clientes.filter(c=>filtroCli==="todos"||c.status===filtroCli).filter(c=>filtroOferta==="todos"||(c.oferta||"nao")===filtroOferta).filter(c=>!filtroCarteira||(c.notas||"").includes("vitalício ativo")).filter(c=>!busca||(c.nome+" "+(c.empresa||"")+" "+(c.cnpj||"")+" "+(c.operadora||"")+" "+(c.email||"")).toLowerCase().includes(busca));}
 function renderClientes(){
   const list=cliFiltrados(); const body=$("cliBody"); body.innerHTML="";
   $("cliEmpty").style.display=clientes.length?"none":"block";
@@ -1591,6 +1593,7 @@ $("tabDocs").onclick=()=>{aba="docs";syncAba();};
 $("filters").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b||!b.dataset.f)return;document.querySelectorAll("#filters .chip").forEach(c=>c.classList.remove("on"));b.classList.add("on");filtroTese=b.dataset.f;renderBoard();});
 document.querySelectorAll("[data-cf]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-cf]").forEach(c=>c.classList.remove("on"));b.classList.add("on");filtroCli=b.dataset.cf;cliPage=0;renderClientes();});
 $("ofFilter").onchange=e=>{filtroOferta=e.target.value;cliPage=0;renderClientes();};
+$("btnFiltroCarteira").onclick=()=>{filtroCarteira=!filtroCarteira;$("btnFiltroCarteira").classList.toggle("on",filtroCarteira);cliPage=0;renderClientes();};
 $("q").addEventListener("input",e=>{busca=e.target.value.trim().toLowerCase();cliPage=0;if(aba==="casos")renderBoard();else renderClientes();});
 $("tplArea").value=template;
 $("tplArea").addEventListener("input",e=>{template=e.target.value;save(LS.tpl,template);});
